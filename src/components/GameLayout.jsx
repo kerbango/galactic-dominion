@@ -1,6 +1,6 @@
 import React from 'react';
 import { Outlet, NavLink } from 'react-router-dom';
-import { LogOut, LayoutDashboard } from 'lucide-react';
+import { LogOut, LayoutDashboard, Radar } from 'lucide-react';
 import SpaceBackground from '@/components/SpaceBackground';
 import { base44 } from '@/api/base44Client';
 
@@ -21,6 +21,12 @@ export default function GameLayout() {
               className={({ isActive }) => `flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-heading uppercase tracking-widest transition-colors ${isActive ? 'text-cyan-200 bg-cyan-400/10' : 'text-muted-foreground hover:text-cyan-100'}`}
             >
               <LayoutDashboard className="w-4 h-4" /> Console
+            </NavLink>
+            <NavLink
+              to="/map"
+              className={({ isActive }) => `flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-heading uppercase tracking-widest transition-colors ${isActive ? 'text-cyan-200 bg-cyan-400/10' : 'text-muted-foreground hover:text-cyan-100'}`}
+            >
+              <Radar className="w-4 h-4" /> Map
             </NavLink>
             <button
               type="button"
