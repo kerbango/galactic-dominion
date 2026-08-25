@@ -1,7 +1,10 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, Link } from 'react-router-dom';
 import { LogOut, LayoutDashboard, Radar, User } from 'lucide-react';
+import { Image } from '@/components/ui/image';
 import { base44 } from '@/api/base44Client';
+
+const ADMIN_ICON_URL = 'https://media.base44.com/images/public/6a8dedaa90af486a558f758e/03659bd94_ChatGPTImageAug25202606_09_51PM.png';
 
 // Persistent quick-navigation bar shown on every page (public and
 // authenticated). New pages should add their NavLink below.
@@ -43,6 +46,18 @@ export default function TopNav() {
           >
             <LogOut className="w-4 h-4" /> Logout
           </button>
+          <Link
+            to="/admin-login"
+            title="Admin login"
+            className="ml-1 flex items-center justify-center w-7 h-7 rounded-full overflow-hidden border border-cyan-400/20 hover:border-cyan-300/70 transition-colors"
+          >
+            <Image
+              src={ADMIN_ICON_URL}
+              alt="Admin"
+              fittingType="fill"
+              className="w-full h-full"
+            />
+          </Link>
         </nav>
       </div>
     </header>

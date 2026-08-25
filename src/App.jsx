@@ -18,6 +18,8 @@ import EmpireSetup from '@/pages/EmpireSetup';
 import Profile from '@/pages/Profile';
 import GalacticMap from '@/pages/GalacticMap';
 import Console from '@/pages/Console';
+import AdminLogin from '@/pages/AdminLogin';
+import Admin from '@/pages/Admin';
 // Add page imports here
 
 const AuthenticatedApp = () => {
@@ -43,6 +45,7 @@ const AuthenticatedApp = () => {
       <Route path="/register" element={<Register />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password" element={<ResetPassword />} />
+      <Route path="/admin-login" element={<AdminLogin />} />
 
       {/* Authenticated game area (shared background layout) */}
       <Route element={
@@ -61,6 +64,7 @@ const AuthenticatedApp = () => {
           <Route path="/profile" element={<Profile />} />
           <Route path="/map" element={<GalacticMap />} />
           <Route path="/console" element={<Console />} />
+          <Route path="/admin" element={<Admin />} />
         </Route>
       </Route>
 

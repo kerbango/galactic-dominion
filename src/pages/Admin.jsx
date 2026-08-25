@@ -1,0 +1,147 @@
+import React, { useState, useEffect } from "react";
+import { Navigate } from "react-router-dom";
+import { base44 } from "@/api/base44Client";
+import { useAuth } from "@/lib/AuthContext";
+import { Shield, Loader2, Crown, Flag, Gem, Layers, Zap, Coins, Users } from "lucide-react";
+
+const RESOURCES = [
+  { key: 'aetherium_crystal', label: 'Aetherium', icon: Gem, color: 'text-violet-300' },
+  { key: 'ferrite_titanium', label: 'Ferrite', icon: Layers, color: 'text-slate-300' },
+  { key: 'energy', label: 'Energy', icon: Zap, color: 'text-amber-300' },
+  { key: 'vrind', label: 'VRIND', icon: Coins, color: 'text-cyan-300' },
+];
+
+function fmt(n) {
+  if (n == null) return '0';
+  return Math.floor(n).toLocaleString();
+}
+
+// Admin-only command section. Access is gated by role === "admin"; any other
+// user (or unauthenticated visitor) is bounced to the admin login.
+export default function Admin() {
+  const { user, isLoadingAuth } = useAuth();
+  const [empires, setEmpires] = useState(null);
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    if (isLoadingAuth) return;
+    if (!user || user.role !== 'admin') return;
+    let active = true;
+    const load = async () => {
+      try {
+        const all = await base44.entities.Empire.list('-created_date', 500);
+        const u = await base44.entities.User.list();
+        if (active) {
+          setEmpires(all);
+          setUsers(u);
+        }
+      } catch (e) {
+        if (active) setError(e.message || 'Failed to load admin data.');
+      } finally {
+        if (active) setLoading(false);
+      }
+    };
+    load();
+    return () => { active = false; };
+  }, [isLoadingAuth, user]);
+
+  if (isLoadingAuth) {
+    return (
+      <div className="flex items-center justify-center py-32">
+        <Loader2 className="w-8 h-8 text-cyan-300 animate-spin" />
+      </div>
+    );
+  }
+
+  if (!user || user.role !== 'admin') {
+    return <Navigate to="/admin-login" replace />;
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-32">
+        <Loader2 className="w-8 h-8 text-cyan-300 animate-spin" />
+      </div>
+    );
+  }
+
+  const totalPlanets = (empires || []).reduce((s, e) => s + (e.controlled_planets || 0), 0);
+
+  return (
+    <div className="max-w-7xl mx-auto px-4 md:px-8 py-10">
+      <div className="flex items-center gap-3 mb-8">
+        <Shield className="w-7 h-7 text-rose-400" />
+        <div>
+          <h1 className="font-heading text-2xl md:text-3xl tracking-wide text-white neon-text uppercase">
+            Admin Command
+          </h1>
+          <p className="text-xs font-mono uppercase tracking-widest text-rose-300/70">
+            Signed in as {user.email}
+          </p>
+        </div>
+      </div>
+
+      {error && (
+        <div className="glass-panel rounded-lg p-4 mb-6 border border-rose-400/30 text-rose-200 text-sm">
+          {error}
+        </div>
+      )}
+
+      {/* Overview stats */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
+        <StatCard icon={Crown} label="Empires" value={(empires || []).length} color="text-cyan-300" />
+        <StatCard icon={Users} label="Users" value={users.length} color="text-violet-300" />
+        <StatCard icon={Flag} label="Planets Controlled" value={totalPlanets} color="text-amber-300" />
+        <StatCard icon={Shield} label="Admins" value={users.filter((u) => u.role === 'admin').length} color="text-rose-300" />
+      </div>
+
+      {/* Empire registry */}
+      <h2 className="font-heading text-sm tracking-[0.3em] text-cyan-200/80 uppercase mb-4">Empire Registry</h2>
+      <div className="glass-panel rounded-2xl overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="text-left text-xs uppercase tracking-widest text-muted-foreground border-b border-cyan-400/10">
+                <th className="px-4 py-3">Empire</th>
+                <th className="px-4 py-3">Ruler</th>
+                <th className="px-4 py-3">Sector</th>
+                <th className="px-4 py-3">Planets</th>
+                {RESOURCES.map((r) => (
+                  <th key={r.key} className="px-4 py-3 text-right">{r.label}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {(empires || []).length === 0 && (
+                <tr><td colSpan={8} className="px-4 py-6 text-muted-foreground text-center">No empires founded yet.</td></tr>
+              )}
+              {(empires || []).map((e) => (
+                <tr key={e.id} className="border-b border-cyan-400/5 hover:bg-cyan-400/5">
+                  <td className="px-4 py-3 font-heading uppercase tracking-wide text-cyan-100">{e.empire_name}</td>
+                  <td className="px-4 py-3 text-foreground">{e.ruler_name}</td>
+                  <td className="px-4 py-3 font-mono text-muted-foreground">{Math.round(e.map_x)}, {Math.round(e.map_y)}</td>
+                  <td className="px-4 py-3 font-mono">{e.controlled_planets || 0}</td>
+                  {RESOURCES.map((r) => (
+                    <td key={r.key} className="px-4 py-3 font-mono text-right tabular-nums">{fmt(e[r.key])}</td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function StatCard({ icon: Icon, label, value, color }) {
+  return (
+    <div className="glass-panel rounded-xl p-5">
+      <Icon className={`w-6 h-6 ${color} mb-3`} />
+      <p className="font-mono text-2xl font-bold text-foreground tabular-nums">{value}</p>
+      <p className="text-xs uppercase tracking-widest text-muted-foreground mt-1">{label}</p>
+    </div>
+  );
+}
