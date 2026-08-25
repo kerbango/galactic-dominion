@@ -34,7 +34,12 @@ export default function ResourceBar() {
       }
     };
     load();
-    return () => { active = false; };
+    // Live-update when any Empire record is created/updated/deleted so the
+    // HUD reflects a freshly founded empire without a full page reload.
+    const unsubscribe = base44.entities.Empire.subscribe((event) => {
+      if (active) load();
+    });
+    return () => { active = false; unsubscribe(); };
   }, []);
 
   if (loading) {
