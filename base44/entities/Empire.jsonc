@@ -7,6 +7,11 @@
       "title": "Empire Name",
       "description": "The player-chosen name of their empire."
     },
+    "ruler_name": {
+      "type": "string",
+      "title": "Ruler Name",
+      "description": "The player's in-game identity name (not their email)."
+    },
     "aetherium_crystal": {
       "type": "number",
       "title": "Aetherium Crystal",
@@ -49,7 +54,8 @@
     }
   },
   "required": [
-    "empire_name"
+    "empire_name",
+    "ruler_name"
   ],
   "rls": {
     "read": {

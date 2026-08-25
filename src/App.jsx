@@ -13,6 +13,8 @@ import Login from '@/pages/Login';
 import Register from '@/pages/Register';
 import ForgotPassword from '@/pages/ForgotPassword';
 import ResetPassword from '@/pages/ResetPassword';
+import EmpireSetup from '@/pages/EmpireSetup';
+import Profile from '@/pages/Profile';
 // Add page imports here
 
 const AuthenticatedApp = () => {
@@ -53,7 +55,8 @@ const AuthenticatedApp = () => {
       {/* Authenticated game area (shared background layout) */}
       <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
         <Route element={<GameLayout />}>
-          {/* Game pages will be added here */}
+          <Route path="/setup" element={<EmpireSetup />} />
+          <Route path="/profile" element={<Profile />} />
         </Route>
       </Route>
 
