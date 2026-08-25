@@ -1,6 +1,6 @@
 import React from 'react';
 
-const PLANET_IMAGE = "https://media.base44.com/images/public/6a8dedaa90af486a558f758e/7164f3278_generated_image.png";
+const PLANET_IMAGE = "https://media.base44.com/images/public/6a8dedaa90af486a558f758e/ae456721f_ChatGPTImageAug25202603_38_25PM.png";
 
 export default function SpaceBackground({ dim = 0.35 }) {
   return (
