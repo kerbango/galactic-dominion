@@ -66,17 +66,17 @@ export default function Console() {
       </div>
 
       {/* Accumulated resources */}
-      <h2 className="font-heading text-sm tracking-[0.3em] text-cyan-200/80 uppercase mb-4">Accumulated Resources</h2>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
+      <h2 className="font-heading text-[0.45rem] tracking-[0.3em] text-cyan-200/80 uppercase mb-1">Accumulated Resources</h2>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-[3px] mb-2">
         {RESOURCES.map((r) => {
           const Icon = r.icon;
           return (
-            <div key={r.key} className="glass-panel rounded-xl p-5">
-              <Icon className={`w-6 h-6 ${r.color} mb-3`} />
-              <p className="font-mono text-2xl font-bold text-foreground tabular-nums">
+            <div key={r.key} className="glass-panel rounded-md p-1">
+              <Icon className={`w-3 h-3 ${r.color} mb-[3px]`} />
+              <p className="font-mono text-[0.5rem] font-bold text-foreground tabular-nums leading-none">
                 {formatAmount(empire[r.key])}
               </p>
-              <p className="text-xs uppercase tracking-widest text-muted-foreground mt-1">{r.label}</p>
+              <p className="text-[0.4rem] uppercase tracking-widest text-muted-foreground mt-[1px]">{r.label}</p>
             </div>
           );
         })}
