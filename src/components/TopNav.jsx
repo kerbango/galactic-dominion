@@ -1,9 +1,10 @@
 import React from 'react';
 import { NavLink, Link } from 'react-router-dom';
-import { LogOut, LayoutDashboard, Radar, User } from 'lucide-react';
+import { LogOut } from 'lucide-react';
 import { Image } from '@/components/ui/image';
 import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
+import { NAV_ITEMS } from '@/lib/navItems';
 import ResourceBar from '@/components/ResourceBar';
 import MobileMenu from '@/components/MobileMenu';
 
@@ -15,7 +16,7 @@ export default function TopNav() {
   const { user, isAuthenticated } = useAuth();
   const isAdmin = user?.role === 'admin';
   const linkClass = ({ isActive }) =>
-    `flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-heading uppercase tracking-widest transition-colors ${
+    `flex items-center gap-1 px-2 py-1 rounded-md text-[0.65rem] font-heading uppercase tracking-wider whitespace-nowrap transition-colors ${
       isActive ? 'text-cyan-200 bg-cyan-400/10' : 'text-muted-foreground hover:text-cyan-100'
     }`;
 
@@ -34,25 +35,21 @@ export default function TopNav() {
         </span>
 
         {/* Desktop inline nav */}
-        <nav className="hidden sm:flex items-center gap-1">
-          <NavLink to="/console" className={linkClass}>
-            <LayoutDashboard className="w-4 h-4" /> Console
-          </NavLink>
-          <NavLink to="/map" className={linkClass}>
-            <Radar className="w-4 h-4" /> Map
-          </NavLink>
-          <NavLink to="/profile" className={linkClass}>
-            <User className="w-4 h-4" /> Profile
-          </NavLink>
+        <nav className="hidden sm:flex items-center gap-0.5 flex-1 justify-center min-w-0">
+          {NAV_ITEMS.map(({ to, label, Icon }) => (
+            <NavLink key={to} to={to} className={linkClass}>
+              <Icon className="w-3.5 h-3.5 shrink-0" /> {label}
+            </NavLink>
+          ))}
           <button
             type="button"
             onClick={async () => {
               await base44.auth.logout();
               window.location.href = '/login';
             }}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-heading uppercase tracking-widest text-muted-foreground hover:text-rose-300 transition-colors"
+            className="flex items-center gap-1 px-2 py-1 rounded-md text-[0.65rem] font-heading uppercase tracking-wider text-muted-foreground hover:text-rose-300 transition-colors shrink-0"
           >
-            <LogOut className="w-4 h-4" /> Logout
+            <LogOut className="w-3.5 h-3.5" /> Logout
           </button>
           {isAdmin && (
             <Link

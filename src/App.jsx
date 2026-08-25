@@ -20,6 +20,8 @@ import GalacticMap from '@/pages/GalacticMap';
 import Console from '@/pages/Console';
 import AdminLogin from '@/pages/AdminLogin';
 import Admin from '@/pages/Admin';
+import SectionPlaceholder from '@/pages/SectionPlaceholder';
+import { Sword, FlaskConical, Wrench, Store, Handshake, Radio } from 'lucide-react';
 // Add page imports here
 
 const AuthenticatedApp = () => {
@@ -64,6 +66,12 @@ const AuthenticatedApp = () => {
           <Route path="/profile" element={<Profile />} />
           <Route path="/map" element={<GalacticMap />} />
           <Route path="/console" element={<Console />} />
+          <Route path="/military" element={<SectionPlaceholder title="Military" Icon={Sword} />} />
+          <Route path="/research" element={<SectionPlaceholder title="Research" Icon={FlaskConical} />} />
+          <Route path="/upgrades" element={<SectionPlaceholder title="Upgrades" Icon={Wrench} />} />
+          <Route path="/market" element={<SectionPlaceholder title="Market" Icon={Store} />} />
+          <Route path="/alliance" element={<SectionPlaceholder title="Alliance" Icon={Handshake} />} />
+          <Route path="/comms" element={<SectionPlaceholder title="Comms" Icon={Radio} />} />
         </Route>
         {/* Admin section — own background, outside the game layout */}
         <Route path="/admin" element={<Admin />} />

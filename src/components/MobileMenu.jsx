@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import { Menu, X, LayoutDashboard, Radar, User, LogOut } from 'lucide-react';
+import { Menu, X, LogOut } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
+import { NAV_ITEMS } from '@/lib/navItems';
 
 // Phone-only hamburger dropdown for the quick-nav links. Closes on
 // link click, outside click, and route change.
@@ -45,16 +46,12 @@ export default function MobileMenu() {
       </button>
 
       {open && (
-        <div className="glass-panel-strong absolute right-0 top-full mt-2 w-52 rounded-xl p-2 flex flex-col gap-1 z-50">
-          <NavLink to="/console" className={linkClass}>
-            <LayoutDashboard className="w-4 h-4" /> Console
-          </NavLink>
-          <NavLink to="/map" className={linkClass}>
-            <Radar className="w-4 h-4" /> Map
-          </NavLink>
-          <NavLink to="/profile" className={linkClass}>
-            <User className="w-4 h-4" /> Profile
-          </NavLink>
+        <div className="glass-panel-strong absolute right-0 top-full mt-2 w-56 rounded-xl p-2 flex flex-col gap-1 z-50">
+          {NAV_ITEMS.map(({ to, label, Icon }) => (
+            <NavLink key={to} to={to} className={linkClass}>
+              <Icon className="w-4 h-4" /> {label}
+            </NavLink>
+          ))}
           <div className="hud-divider my-1" />
           <button
             type="button"
