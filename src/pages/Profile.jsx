@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Navigate, Link } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { Crown, Flag, Gem, Layers, Zap, Coins, Loader2, MapPin, Radar } from 'lucide-react';
+import ProductionTimer from '@/components/profile/ProductionTimer';
 
 const RESOURCES = [
   { key: 'aetherium_crystal', label: 'Aetherium Crystal', icon: Gem, color: 'text-violet-300' },
@@ -34,6 +35,17 @@ export default function Profile() {
     };
     load();
     return () => { active = false; };
+  }, []);
+
+  // Refresh the empire when the hourly tick (or any update) lands, so the
+  // production timers reset their cycle from the new updated_date.
+  useEffect(() => {
+    const unsubscribe = base44.entities.Empire.subscribe((event) => {
+      if (event.type === 'update' && event.data) {
+        setEmpire((prev) => (prev && prev.id === event.data.id ? { ...prev, ...event.data } : prev));
+      }
+    });
+    return unsubscribe;
   }, []);
 
   if (loading) {
@@ -93,21 +105,11 @@ export default function Profile() {
       </div>
 
       {/* Production — resources gained per hour from controlled planets */}
-      <h2 className="font-heading text-sm tracking-[0.3em] text-cyan-200/80 uppercase mt-10 mb-4">Production / Hour</h2>
+      <h2 className="font-heading text-sm tracking-[0.3em] text-cyan-200/80 uppercase mt-10 mb-4">Production Cycles</h2>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {RESOURCES.map((r) => {
-          const Icon = r.icon;
-          const perHour = 1;
-          return (
-            <div key={r.key} className="glass-panel rounded-xl p-5">
-              <Icon className={`w-6 h-6 ${r.color} mb-3`} />
-              <p className="font-mono text-2xl font-bold text-foreground tabular-nums">
-                +{formatAmount(perHour)}
-              </p>
-              <p className="text-xs uppercase tracking-widest text-muted-foreground mt-1">{r.label}/hr</p>
-            </div>
-          );
-        })}
+        {RESOURCES.map((r) => (
+          <ProductionTimer key={r.key} resource={r} lastTick={empire.updated_date} />
+        ))}
       </div>
 
       <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
