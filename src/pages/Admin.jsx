@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Navigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { useAuth } from "@/lib/AuthContext";
-import { Shield, Loader2, Crown, Flag, Gem, Layers, Zap, Coins, Users } from "lucide-react";
+import { Shield, Loader2, Crown, Gem, Layers, Zap, Coins, Users } from "lucide-react";
 import AdminBackground from "@/components/AdminBackground";
 
 const RESOURCES = [
@@ -68,7 +68,7 @@ export default function Admin() {
     );
   }
 
-  const totalPlanets = (empires || []).reduce((s, e) => s + (e.controlled_planets || 0), 0);
+
 
   return (
     <div className="relative min-h-screen w-full">
@@ -96,7 +96,6 @@ export default function Admin() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
         <StatCard icon={Crown} label="Empires" value={(empires || []).length} color="text-cyan-300" />
         <StatCard icon={Users} label="Users" value={users.length} color="text-violet-300" />
-        <StatCard icon={Flag} label="Planets Controlled" value={totalPlanets} color="text-amber-300" />
         <StatCard icon={Shield} label="Admins" value={users.filter((u) => u.role === 'admin').length} color="text-rose-300" />
       </div>
 
@@ -110,7 +109,6 @@ export default function Admin() {
                 <th className="px-4 py-3">Empire</th>
                 <th className="px-4 py-3">Ruler</th>
                 <th className="px-4 py-3">Sector</th>
-                <th className="px-4 py-3">Planets</th>
                 {RESOURCES.map((r) => (
                   <th key={r.key} className="px-4 py-3 text-right">{r.label}</th>
                 ))}
@@ -118,14 +116,13 @@ export default function Admin() {
             </thead>
             <tbody>
               {(empires || []).length === 0 && (
-                <tr><td colSpan={8} className="px-4 py-6 text-muted-foreground text-center">No empires founded yet.</td></tr>
+                <tr><td colSpan={7} className="px-4 py-6 text-muted-foreground text-center">No empires founded yet.</td></tr>
               )}
               {(empires || []).map((e) => (
                 <tr key={e.id} className="border-b border-cyan-400/5 hover:bg-cyan-400/5">
                   <td className="px-4 py-3 font-heading uppercase tracking-wide text-cyan-100">{e.empire_name}</td>
                   <td className="px-4 py-3 text-foreground">{e.ruler_name}</td>
                   <td className="px-4 py-3 font-mono text-muted-foreground">{Math.round(e.map_x)}, {Math.round(e.map_y)}</td>
-                  <td className="px-4 py-3 font-mono">{e.controlled_planets || 0}</td>
                   {RESOURCES.map((r) => (
                     <td key={r.key} className="px-4 py-3 font-mono text-right tabular-nums">{fmt(e[r.key])}</td>
                   ))}

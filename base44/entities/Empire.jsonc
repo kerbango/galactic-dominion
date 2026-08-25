@@ -40,13 +40,6 @@
       "default": 500,
       "minimum": 0
     },
-    "controlled_planets": {
-      "type": "number",
-      "title": "Controlled Planets",
-      "description": "Number of planets under the empire's control. Drives hourly resource income \u2014 each planet produces 1 of every resource per tick.",
-      "default": 1,
-      "minimum": 1
-    },
     "map_x": {
       "type": "number",
       "title": "Map X",

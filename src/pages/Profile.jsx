@@ -97,7 +97,7 @@ export default function Profile() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {RESOURCES.map((r) => {
           const Icon = r.icon;
-          const perHour = empire.controlled_planets || 1;
+          const perHour = 1;
           return (
             <div key={r.key} className="glass-panel rounded-xl p-5">
               <Icon className={`w-6 h-6 ${r.color} mb-3`} />

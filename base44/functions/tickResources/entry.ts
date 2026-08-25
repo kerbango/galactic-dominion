@@ -1,8 +1,9 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
 
 // Hourly resource tick. Each empire earns 1 of every resource (Aetherium
-// Crystal, Ferrite-Titanium, Energy, VRIND) per controlled planet per run.
-// Runs on a schedule (see function.jsonc) but is also invokable by admins.
+// Crystal, Ferrite-Titanium, Energy, VRIND) per run — every player controls
+// a single planet. Runs on a schedule (see function.jsonc) but is also
+// invokable by admins.
 export default async function(req) {
   try {
     const base44 = createClientFromRequest(req);
@@ -15,14 +16,13 @@ export default async function(req) {
 
     let ticked = 0;
     for (const empire of empires) {
-      const planets = Number(empire.controlled_planets) >= 1 ? Number(empire.controlled_planets) : 1;
       await base44.asServiceRole.entities.Empire.updateMany(
         { id: empire.id },
         { $inc: {
-          aetherium_crystal: planets,
-          ferrite_titanium: planets,
-          energy: planets,
-          vrind: planets,
+          aetherium_crystal: 1,
+          ferrite_titanium: 1,
+          energy: 1,
+          vrind: 1,
         } }
       );
       ticked += 1;
