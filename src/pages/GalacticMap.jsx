@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { Loader2, Radar, Crosshair, Flag, Crown, Navigation, AlertTriangle } from 'lucide-react';
-import { GRID_SIZE, distance, travelSeconds, formatDuration } from '@/lib/galaxy';
+import { GRID_SIZE, distance, travelSeconds, formatDuration, lightYears } from '@/lib/galaxy';
 
 export default function GalacticMap() {
   const [data, setData] = useState(null);
@@ -169,7 +169,7 @@ export default function GalacticMap() {
                     </div>
                     <p className="text-xs text-muted-foreground mt-1 font-mono">
                       {Math.round(e.map_x)}, {Math.round(e.map_y)}
-                      {d != null && !mine && <span className="text-cyan-300/70"> · {Math.round(d)}u · {formatDuration(travelSeconds(d))}</span>}
+                      {d != null && !mine && <span className="text-cyan-300/70"> · {Math.round(lightYears(d))} Ly · {formatDuration(travelSeconds(d))}</span>}
                     </p>
                   </button>
                 );
@@ -205,7 +205,7 @@ function EmpireDetail({ empire, myEmpire, onClear }) {
         <Row label="Sector" value={`${Math.round(empire.map_x)}, ${Math.round(empire.map_y)}`} mono />
         {!mine && d != null && (
           <>
-            <Row label="Distance" value={`${Math.round(d)} units`} mono />
+            <Row label="Distance" value={`${Math.round(lightYears(d))} Ly`} mono />
             <div className="flex items-center gap-2 pt-2 border-t border-cyan-400/10 text-cyan-200">
               <Navigation className="w-4 h-4" />
               <span className="font-mono text-sm">Est. travel {formatDuration(eta)}</span>

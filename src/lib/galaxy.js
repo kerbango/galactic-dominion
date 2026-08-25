@@ -11,6 +11,13 @@ export function distance(a, b) {
   return Math.hypot(a.map_x - b.map_x, a.map_y - b.map_y);
 }
 
+// Display conversion: 5 grid units == 1 light-year. Used only for the
+// human-readable distance shown on the map; travel time still uses raw units.
+export function lightYears(units) {
+  if (units == null) return null;
+  return units / 5;
+}
+
 export function travelSeconds(units) {
   if (units == null) return null;
   return Math.round(units * TRAVEL_SECONDS_PER_UNIT);
