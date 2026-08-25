@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Navigate, Link } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
-import { Gem, Layers, Zap, Coins, Loader2, Radar, User, LayoutDashboard } from 'lucide-react';
+import { Gem, Layers, Zap, Coins, Loader2, LayoutDashboard } from 'lucide-react';
 
 const RESOURCES = [
   { key: 'aetherium_crystal', label: 'Aetherium Crystal', icon: Gem, color: 'text-violet-300' },
@@ -82,17 +82,6 @@ export default function Console() {
         })}
       </div>
 
-      {/* Navigation buttons */}
-      <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-        <Link to="/map" className="inline-flex items-center gap-2 px-6 py-3 rounded-md glass-panel-strong hover:border-cyan-300/60 transition-all">
-          <Radar className="w-5 h-5 text-cyan-300" />
-          <span className="font-heading text-sm tracking-widest text-white uppercase">Map</span>
-        </Link>
-        <Link to="/profile" className="inline-flex items-center gap-2 px-6 py-3 rounded-md glass-panel-strong hover:border-cyan-300/60 transition-all">
-          <User className="w-5 h-5 text-cyan-300" />
-          <span className="font-heading text-sm tracking-widest text-white uppercase">Profile</span>
-        </Link>
-      </div>
     </div>
   );
 }
