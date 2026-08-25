@@ -53,20 +53,18 @@ export default function Console() {
 
   return (
     <div className="max-w-5xl mx-auto px-4 md:px-8 py-10">
-      <div className="flex items-center gap-3 mb-8">
+      <div className="flex flex-col items-center text-center gap-1 mb-8">
         <LayoutDashboard className="w-7 h-7 text-cyan-300" />
-        <div>
-          <h1 className="font-heading text-2xl md:text-3xl tracking-wide text-white neon-text uppercase">
-            Command Console
-          </h1>
-          <p className="text-xs font-mono uppercase tracking-widest text-cyan-200/60">
-            {empire.empire_name} · Ruler {empire.ruler_name}
-          </p>
-        </div>
+        <h1 className="font-heading text-2xl md:text-3xl tracking-wide text-white neon-text uppercase">
+          Command Console
+        </h1>
+        <p className="text-xs font-mono uppercase tracking-widest text-cyan-200/60">
+          {empire.empire_name} · Ruler {empire.ruler_name}
+        </p>
       </div>
 
       {/* Accumulated resources */}
-      <h2 className="font-heading text-[0.65rem] tracking-[0.3em] text-cyan-200/80 uppercase mb-1">Accumulated Resources</h2>
+      <h2 className="font-heading text-[0.65rem] tracking-[0.3em] text-cyan-200/80 uppercase mb-1 text-center">Accumulated Resources</h2>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-[5px] mb-2 md:w-3/5 md:mx-auto">
         {RESOURCES.map((r) => {
           const Icon = r.icon;
