@@ -22,19 +22,14 @@ export default function EmpireSetup() {
     }
     setLoading(true);
     try {
-      // Ask the server for a spawn coordinate that is far enough from every
-      // existing empire to make travel meaningful.
-      let spawn = { map_x: null, map_y: null };
-      try {
-        const res = await base44.functions.invoke('getGalacticMap', {});
-        if (res?.data?.nextSpawn) spawn = res.data.nextSpawn;
-      } catch { /* placement is best-effort; empire still creates without coords */ }
-      await base44.entities.Empire.create({
+      // The server computes a spawn coordinate far enough from every existing
+      // empire and creates the record atomically, so placement can't be raced
+      // or tampered with from the client.
+      const res = await base44.functions.invoke('placeEmpire', {
         empire_name: empireName.trim(),
         ruler_name: rulerName.trim(),
-        map_x: spawn.map_x,
-        map_y: spawn.map_y,
       });
+      if (!res?.data?.empire) throw new Error('Failed to place your empire.');
       navigate('/profile');
     } catch (err) {
       setError(err.message || 'Failed to found your empire.');
