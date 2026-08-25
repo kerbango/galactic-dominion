@@ -59,13 +59,13 @@ export default function ResourceBar() {
   }
 
   return (
-    <div className="glass-panel rounded-lg px-3 py-2 flex flex-wrap items-center gap-x-5 gap-y-1">
+    <div className="glass-panel rounded-lg px-2 sm:px-3 py-1.5 sm:py-2 flex flex-wrap items-center justify-center gap-x-3 sm:gap-x-5 gap-y-1 max-w-full">
       {RESOURCES.map((r) => {
         const Icon = r.icon;
         return (
-          <div key={r.key} className="flex items-center gap-2">
-            <Icon className={`w-4 h-4 ${r.color}`} style={{ filter: `drop-shadow(0 0 4px ${r.glow})` }} />
-            <span className="font-mono text-sm font-semibold text-foreground tabular-nums">
+          <div key={r.key} className="flex items-center gap-1.5 sm:gap-2">
+            <Icon className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${r.color}`} style={{ filter: `drop-shadow(0 0 4px ${r.glow})` }} />
+            <span className="font-mono text-xs sm:text-sm font-semibold text-foreground tabular-nums">
               {formatAmount(empire[r.key])}
             </span>
             <span className="hidden lg:inline text-[10px] uppercase tracking-widest text-muted-foreground">

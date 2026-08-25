@@ -5,6 +5,7 @@ import { Image } from '@/components/ui/image';
 import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
 import ResourceBar from '@/components/ResourceBar';
+import MobileMenu from '@/components/MobileMenu';
 
 const ADMIN_ICON_URL = 'https://media.base44.com/images/public/6a8dedaa90af486a558f758e/03659bd94_ChatGPTImageAug25202606_09_51PM.png';
 
@@ -20,16 +21,19 @@ export default function TopNav() {
   return (
     <header className="sticky top-0 z-30 w-full">
       <div
-        className="relative flex items-center justify-center gap-4 px-4 md:px-8 py-3 border-b border-cyan-400/15"
+        className="flex items-center justify-between gap-4 px-4 md:px-8 py-3 border-b border-cyan-400/15"
         style={{
           background: 'linear-gradient(180deg, rgba(5,8,16,0.85), rgba(5,8,16,0.55))',
           backdropFilter: 'blur(10px)',
         }}
       >
-        <span className="absolute left-4 md:left-8 font-heading text-sm md:text-base tracking-[0.25em] text-cyan-100 neon-text uppercase hidden sm:inline">
+        {/* Brand — smaller on phone, full on desktop */}
+        <span className="font-heading text-xs sm:text-sm md:text-base tracking-[0.2em] sm:tracking-[0.25em] text-cyan-100 neon-text uppercase">
           The Krin Wars
         </span>
-        <nav className="absolute right-4 md:right-8 flex items-center gap-1">
+
+        {/* Desktop inline nav */}
+        <nav className="hidden sm:flex items-center gap-1">
           <NavLink to="/console" className={linkClass}>
             <LayoutDashboard className="w-4 h-4" /> Console
           </NavLink>
@@ -62,6 +66,23 @@ export default function TopNav() {
             />
           </Link>
         </nav>
+
+        {/* Phone controls: hamburger + admin icon */}
+        <div className="flex sm:hidden items-center gap-1">
+          <Link
+            to="/admin-login"
+            title="Admin login"
+            className="flex items-center justify-center w-7 h-7 rounded-full overflow-hidden border border-cyan-400/20 hover:border-cyan-300/70 transition-colors"
+          >
+            <Image
+              src={ADMIN_ICON_URL}
+              alt="Admin"
+              fittingType="fill"
+              className="w-full h-full"
+            />
+          </Link>
+          <MobileMenu />
+        </div>
       </div>
       {isAuthenticated && (
         <div className="flex justify-center px-4 md:px-8 py-1.5 border-b border-cyan-400/10 bg-background/60 backdrop-blur-sm">
