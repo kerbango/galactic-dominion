@@ -2,7 +2,6 @@ import React from 'react';
 import { Outlet, NavLink } from 'react-router-dom';
 import { LogOut, LayoutDashboard } from 'lucide-react';
 import SpaceBackground from '@/components/SpaceBackground';
-import ResourceBar from '@/components/ResourceBar';
 import { base44 } from '@/api/base44Client';
 
 export default function GameLayout() {
@@ -16,7 +15,6 @@ export default function GameLayout() {
           <span className="absolute left-4 md:left-8 font-heading text-sm md:text-base tracking-[0.25em] text-cyan-100 neon-text uppercase hidden sm:inline">
             The Krin Wars
           </span>
-          <ResourceBar />
           <nav className="absolute right-4 md:right-8 flex items-center gap-1">
             <NavLink
               to="/console"
