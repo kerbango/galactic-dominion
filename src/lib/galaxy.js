@@ -2,9 +2,9 @@
 export const GRID_SIZE = 1000;
 export const MIN_DISTANCE = 200;
 // Travel speed: 1 grid unit takes this many seconds. Crossing the full galaxy
-// (1000 units) therefore takes ~67 minutes; the minimum spawn gap of 200 units
-// is ~13 minutes — meaningful enough to matter strategically.
-export const TRAVEL_SECONDS_PER_UNIT = 4;
+// (1000 units) therefore takes ~50 minutes; the minimum spawn gap of 200 units
+// is ~10 minutes — meaningful enough to matter strategically.
+export const TRAVEL_SECONDS_PER_UNIT = 3;
 
 export function distance(a, b) {
   if (a.map_x == null || a.map_y == null || b.map_x == null || b.map_y == null) return null;

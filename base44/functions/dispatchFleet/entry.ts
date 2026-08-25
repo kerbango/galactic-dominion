@@ -3,7 +3,7 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
 // Must match src/lib/galaxy.js TRAVEL_SECONDS_PER_UNIT — travel time is
 // computed server-side from the grid distance so the arrival timestamp the
 // client stores is authoritative and can't be tampered with from the UI.
-const TRAVEL_SECONDS_PER_UNIT = 4;
+const TRAVEL_SECONDS_PER_UNIT = 3;
 const dist = (ax, ay, bx, by) => Math.hypot(ax - bx, ay - by);
 
 export default async function(req) {
