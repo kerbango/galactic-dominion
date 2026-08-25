@@ -92,6 +92,24 @@ export default function Profile() {
         })}
       </div>
 
+      {/* Production — resources gained per hour from controlled planets */}
+      <h2 className="font-heading text-sm tracking-[0.3em] text-cyan-200/80 uppercase mt-10 mb-4">Production / Hour</h2>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {RESOURCES.map((r) => {
+          const Icon = r.icon;
+          const perHour = empire.controlled_planets || 1;
+          return (
+            <div key={r.key} className="glass-panel rounded-xl p-5">
+              <Icon className={`w-6 h-6 ${r.color} mb-3`} />
+              <p className="font-mono text-2xl font-bold text-foreground tabular-nums">
+                +{formatAmount(perHour)}
+              </p>
+              <p className="text-xs uppercase tracking-widest text-muted-foreground mt-1">{r.label}/hr</p>
+            </div>
+          );
+        })}
+      </div>
+
       <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
         <Link to="/map" className="inline-flex items-center gap-2 px-6 py-3 rounded-md glass-panel-strong hover:border-cyan-300/60 transition-all">
           <Radar className="w-5 h-5 text-cyan-300" />
