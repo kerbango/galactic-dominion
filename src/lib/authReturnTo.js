@@ -10,10 +10,10 @@
 // resolved path to be exactly one leading slash (no "//" prefix, no backslash).
 export function safeReturnTo() {
   const raw = new URLSearchParams(window.location.search).get("returnTo");
-  if (!raw) return "/profile";
+  if (!raw) return "/console";
   try {
     const url = new URL(raw, window.location.origin);
-    if (url.origin !== window.location.origin) return "/profile";
+    if (url.origin !== window.location.origin) return "/console";
     // Strip app-bootstrap params: app-params.js persists these from the URL into
     // localStorage before the SDK initializes, so a crafted returnTo could
     // otherwise poison the freshly issued session — repointing the app at an
@@ -25,9 +25,9 @@ export function safeReturnTo() {
       url.searchParams.delete(p);
     }
     const path = url.pathname + url.search;
-    if (!path.startsWith("/") || path.startsWith("//") || path.includes("\\")) return "/profile";
+    if (!path.startsWith("/") || path.startsWith("//") || path.includes("\\")) return "/console";
     return path;
   } catch {
-    return "/profile";
+    return "/console";
   }
 }
