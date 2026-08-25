@@ -6,6 +6,7 @@ import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import ScrollToTop from './components/ScrollToTop';
+import TopNav from '@/components/TopNav';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import GameLayout from '@/components/GameLayout';
 import Splash from '@/pages/Splash';
@@ -76,6 +77,7 @@ function App() {
       <QueryClientProvider client={queryClientInstance}>
         <Router>
           <ScrollToTop />
+          <TopNav />
           <AuthenticatedApp />
         </Router>
         <Toaster />
