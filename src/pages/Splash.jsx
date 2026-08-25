@@ -24,7 +24,7 @@ export default function Splash() {
             <Star className="w-7 h-7 text-cyan-300 animate-pulse-glow" />
           </div>
           <span className="font-heading text-xl md:text-2xl tracking-[0.3em] text-cyan-100 neon-text">
-            STELLAR&nbsp;DOMINION
+            THE&nbsp;KRIN&nbsp;WARS
           </span>
         </div>
         <div className="hidden md:flex items-center gap-6 text-xs font-mono uppercase tracking-widest text-cyan-200/70">
@@ -41,10 +41,10 @@ export default function Splash() {
             Galactic Conquest · Real-Time Warfare
           </p>
           <h1 className="font-heading text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight text-white neon-text leading-none">
-            BUILD YOUR EMPIRE
+            THE KRIN WARS
           </h1>
           <p className="font-heading text-2xl md:text-4xl tracking-[0.15em] text-cyan-200/90 mt-4">
-            AMONG&nbsp;THE&nbsp;STARS
+            GALAXY&nbsp;AT&nbsp;WAR!
           </p>
         </div>
 
@@ -93,7 +93,7 @@ export default function Splash() {
       {/* Bottom HUD */}
       <footer className="relative z-20 flex items-center justify-between px-6 md:px-12 py-5 border-t border-cyan-400/10">
         <span className="font-mono text-[10px] tracking-widest text-cyan-200/50 uppercase">
-          // Stellar Dominion v0.1 — Pre-Alpha
+          // The Krin Wars v0.1 — Pre-Alpha
         </span>
         <span className="font-mono text-[10px] tracking-widest text-cyan-200/50 uppercase">
           Fullscreen · {screenSize.w}×{screenSize.h}

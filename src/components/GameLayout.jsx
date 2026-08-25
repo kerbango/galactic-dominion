@@ -13,7 +13,7 @@ export default function GameLayout() {
         <div className="relative flex items-center justify-center gap-4 px-4 md:px-8 py-3 border-b border-cyan-400/15"
              style={{ background: 'linear-gradient(180deg, rgba(5,8,16,0.85), rgba(5,8,16,0.55))', backdropFilter: 'blur(10px)' }}>
           <span className="absolute left-4 md:left-8 font-heading text-sm md:text-base tracking-[0.25em] text-cyan-100 neon-text uppercase hidden sm:inline">
-            Stellar Dominion
+            The Krin Wars
           </span>
           <ResourceBar />
           <nav className="absolute right-4 md:right-8 flex items-center gap-1">
