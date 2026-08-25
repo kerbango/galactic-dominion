@@ -1,5 +1,5 @@
 // Galaxy coordinate-space constants shared by the map view and travel UI.
-export const GRID_SIZE = 1000;
+export const GRID_SIZE = 3000;
 export const MIN_DISTANCE = 200;
 // Travel speed: 1 grid unit takes this many seconds. Crossing the full galaxy
 // (1000 units) takes ~133 minutes; the minimum spawn gap of 200 units is ~27
