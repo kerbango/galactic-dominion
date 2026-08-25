@@ -67,7 +67,7 @@ export default function Console() {
 
       {/* Accumulated resources */}
       <h2 className="font-heading text-[0.54rem] tracking-[0.3em] text-cyan-200/80 uppercase mb-1">Accumulated Resources</h2>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-[4px] mb-2">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-[4px] mb-2 md:w-1/2">
         {RESOURCES.map((r) => {
           const Icon = r.icon;
           return (
