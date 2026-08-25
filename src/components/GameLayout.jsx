@@ -1,5 +1,6 @@
 import React from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, NavLink } from 'react-router-dom';
+import { Radar, User } from 'lucide-react';
 import SpaceBackground from '@/components/SpaceBackground';
 import ResourceBar from '@/components/ResourceBar';
 
@@ -15,6 +16,14 @@ export default function GameLayout() {
             Stellar Dominion
           </span>
           <ResourceBar />
+          <nav className="absolute right-4 md:right-8 flex items-center gap-1">
+            <NavLink to="/map" className={({ isActive }) => `flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-heading uppercase tracking-widest transition-colors ${isActive ? 'text-cyan-200 bg-cyan-400/10' : 'text-muted-foreground hover:text-cyan-100'}`}>
+              <Radar className="w-4 h-4" /> Map
+            </NavLink>
+            <NavLink to="/profile" className={({ isActive }) => `flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-heading uppercase tracking-widest transition-colors ${isActive ? 'text-cyan-200 bg-cyan-400/10' : 'text-muted-foreground hover:text-cyan-100'}`}>
+              <User className="w-4 h-4" /> Profile
+            </NavLink>
+          </nav>
         </div>
       </header>
       <div className="relative z-10">

@@ -22,10 +22,18 @@ export default function EmpireSetup() {
     }
     setLoading(true);
     try {
-      const user = await base44.auth.me();
+      // Ask the server for a spawn coordinate that is far enough from every
+      // existing empire to make travel meaningful.
+      let spawn = { map_x: null, map_y: null };
+      try {
+        const res = await base44.functions.invoke('getGalacticMap', {});
+        if (res?.data?.nextSpawn) spawn = res.data.nextSpawn;
+      } catch { /* placement is best-effort; empire still creates without coords */ }
       await base44.entities.Empire.create({
         empire_name: empireName.trim(),
         ruler_name: rulerName.trim(),
+        map_x: spawn.map_x,
+        map_y: spawn.map_y,
       });
       navigate('/profile');
     } catch (err) {

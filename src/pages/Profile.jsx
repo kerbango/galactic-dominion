@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Navigate, Link } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
-import { Crown, Flag, Gem, Layers, Zap, Coins, Loader2, MapPin } from 'lucide-react';
+import { Crown, Flag, Gem, Layers, Zap, Coins, Loader2, MapPin, Radar } from 'lucide-react';
 
 const RESOURCES = [
   { key: 'aetherium_crystal', label: 'Aetherium Crystal', icon: Gem, color: 'text-violet-300' },
@@ -92,7 +92,11 @@ export default function Profile() {
         })}
       </div>
 
-      <div className="mt-10 text-center">
+      <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
+        <Link to="/map" className="inline-flex items-center gap-2 px-6 py-3 rounded-md glass-panel-strong hover:border-cyan-300/60 transition-all">
+          <Radar className="w-5 h-5 text-cyan-300" />
+          <span className="font-heading text-sm tracking-widest text-white uppercase">Open Galactic Map</span>
+        </Link>
         <Link to="/" className="text-sm text-cyan-300/70 hover:text-cyan-200 font-mono uppercase tracking-widest">
           ← Return to splash
         </Link>
