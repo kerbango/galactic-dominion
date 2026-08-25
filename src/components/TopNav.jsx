@@ -12,7 +12,8 @@ const ADMIN_ICON_URL = 'https://media.base44.com/images/public/6a8dedaa90af486a5
 // Persistent quick-navigation bar shown on every page (public and
 // authenticated). New pages should add their NavLink below.
 export default function TopNav() {
-  const { isAuthenticated } = useAuth();
+  const { user, isAuthenticated } = useAuth();
+  const isAdmin = user?.role === 'admin';
   const linkClass = ({ isActive }) =>
     `flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-heading uppercase tracking-widest transition-colors ${
       isActive ? 'text-cyan-200 bg-cyan-400/10' : 'text-muted-foreground hover:text-cyan-100'
@@ -53,34 +54,38 @@ export default function TopNav() {
           >
             <LogOut className="w-4 h-4" /> Logout
           </button>
-          <Link
-            to="/admin-login"
-            title="Admin login"
-            className="ml-1 flex items-center justify-center w-7 h-7 rounded-full overflow-hidden border border-cyan-400/20 hover:border-cyan-300/70 transition-colors"
-          >
-            <Image
-              src={ADMIN_ICON_URL}
-              alt="Admin"
-              fittingType="fill"
-              className="w-full h-full"
-            />
-          </Link>
+          {isAdmin && (
+            <Link
+              to="/admin"
+              title="Admin panel"
+              className="ml-1 flex items-center justify-center w-7 h-7 rounded-full overflow-hidden border border-cyan-400/20 hover:border-cyan-300/70 transition-colors"
+            >
+              <Image
+                src={ADMIN_ICON_URL}
+                alt="Admin"
+                fittingType="fill"
+                className="w-full h-full"
+              />
+            </Link>
+          )}
         </nav>
 
         {/* Phone controls: hamburger + admin icon */}
         <div className="flex sm:hidden items-center gap-1">
-          <Link
-            to="/admin-login"
-            title="Admin login"
-            className="flex items-center justify-center w-7 h-7 rounded-full overflow-hidden border border-cyan-400/20 hover:border-cyan-300/70 transition-colors"
-          >
-            <Image
-              src={ADMIN_ICON_URL}
-              alt="Admin"
-              fittingType="fill"
-              className="w-full h-full"
-            />
-          </Link>
+          {isAdmin && (
+            <Link
+              to="/admin"
+              title="Admin panel"
+              className="flex items-center justify-center w-7 h-7 rounded-full overflow-hidden border border-cyan-400/20 hover:border-cyan-300/70 transition-colors"
+            >
+              <Image
+                src={ADMIN_ICON_URL}
+                alt="Admin"
+                fittingType="fill"
+                className="w-full h-full"
+              />
+            </Link>
+          )}
           <MobileMenu />
         </div>
       </div>
