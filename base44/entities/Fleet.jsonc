@@ -1,0 +1,96 @@
+{
+  "name": "Fleet",
+  "type": "object",
+  "properties": {
+    "target_empire_id": {
+      "type": "string",
+      "title": "Target Empire ID",
+      "description": "The empire this fleet is travelling toward."
+    },
+    "target_empire_name": {
+      "type": "string",
+      "title": "Target Empire Name",
+      "description": "Denormalized target empire name for map display."
+    },
+    "origin_empire_name": {
+      "type": "string",
+      "title": "Origin Empire Name",
+      "description": "Denormalized origin empire name for map display."
+    },
+    "origin_x": {
+      "type": "number",
+      "title": "Origin X",
+      "description": "Grid X coordinate the fleet departed from.",
+      "minimum": 0
+    },
+    "origin_y": {
+      "type": "number",
+      "title": "Origin Y",
+      "description": "Grid Y coordinate the fleet departed from.",
+      "minimum": 0
+    },
+    "target_x": {
+      "type": "number",
+      "title": "Target X",
+      "description": "Grid X coordinate the fleet is heading to.",
+      "minimum": 0
+    },
+    "target_y": {
+      "type": "number",
+      "title": "Target Y",
+      "description": "Grid Y coordinate the fleet is heading to.",
+      "minimum": 0
+    },
+    "fleet_size": {
+      "type": "number",
+      "title": "Fleet Size",
+      "description": "Number of ships in the fleet.",
+      "default": 1,
+      "minimum": 1
+    },
+    "status": {
+      "type": "string",
+      "title": "Status",
+      "description": "Movement status of the fleet.",
+      "enum": [
+        "in_transit",
+        "arrived"
+      ],
+      "default": "in_transit"
+    },
+    "departure_date": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Departure Date",
+      "description": "When the fleet departed its origin."
+    },
+    "arrival_date": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Arrival Date",
+      "description": "When the fleet is scheduled to arrive at its target."
+    }
+  },
+  "required": [
+    "target_empire_id",
+    "target_empire_name",
+    "origin_x",
+    "origin_y",
+    "target_x",
+    "target_y",
+    "departure_date",
+    "arrival_date"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "created_by_id": "{{user.id}}"
+    },
+    "update": {
+      "created_by_id": "{{user.id}}"
+    },
+    "delete": {
+      "created_by_id": "{{user.id}}"
+    }
+  }
+}

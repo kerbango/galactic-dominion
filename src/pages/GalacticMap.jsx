@@ -3,10 +3,15 @@ import { Link } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { Loader2, Radar, Crosshair, Flag, Crown, Navigation, AlertTriangle } from 'lucide-react';
 import { GRID_SIZE, distance, travelSeconds, formatDuration, lightYears } from '@/lib/galaxy';
+import FleetMarkers from '@/components/fleet/FleetMarkers';
+import ActiveFleets from '@/components/fleet/ActiveFleets';
+import DispatchFleet from '@/components/fleet/DispatchFleet';
 
 export default function GalacticMap() {
   const [data, setData] = useState(null);
   const [user, setUser] = useState(null);
+  const [fleets, setFleets] = useState([]);
+  const [now, setNow] = useState(Date.now());
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [selectedId, setSelectedId] = useState(null);
@@ -19,6 +24,8 @@ export default function GalacticMap() {
         if (active) setUser(me);
         const res = await base44.functions.invoke('getGalacticMap', {});
         if (active) setData(res.data);
+        const fleetList = await base44.entities.Fleet.list('-created_date', 200);
+        if (active) setFleets(fleetList);
       } catch (e) {
         if (active) setError(e.message || 'Failed to load galactic map.');
       } finally {
@@ -26,8 +33,29 @@ export default function GalacticMap() {
       }
     };
     load();
-    return () => { active = false; };
+    // Live-update fleets when any Fleet record is created/updated/deleted so
+    // newly dispatched fleets and arrivals appear without a manual refresh.
+    const unsubscribe = base44.entities.Fleet.subscribe(() => {
+      base44.entities.Fleet.list('-created_date', 200).then((f) => setFleets(f)).catch(() => {});
+    });
+    return () => { active = false; unsubscribe(); };
   }, []);
+
+  // Per-second tick drives the live countdowns and fleet position animation.
+  useEffect(() => {
+    const t = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(t);
+  }, []);
+
+  // Mark the player's own fleets as arrived once their arrival time passes,
+  // so finished journeys drop out of the active list. (Only the owner can
+  // update; rival fleets are cleaned up by their owners.)
+  useEffect(() => {
+    if (!user) return;
+    fleets
+      .filter((f) => f.status === 'in_transit' && new Date(f.arrival_date).getTime() <= now && f.created_by_id === user.id)
+      .forEach((f) => base44.entities.Fleet.update(f.id, { status: 'arrived' }));
+  }, [now, fleets, user]);
 
   if (loading) {
     return (
@@ -49,6 +77,7 @@ export default function GalacticMap() {
   const empires = (data?.empires || []).filter((e) => e.map_x != null && e.map_y != null);
   const myEmpire = user ? empires.find((e) => e.created_by_id === user.id) : null;
   const selected = empires.find((e) => e.id === selectedId) || null;
+  const inTransit = fleets.filter((f) => f.status === 'in_transit');
 
   return (
     <div className="max-w-7xl mx-auto px-4 md:px-8 py-8">
@@ -88,6 +117,9 @@ export default function GalacticMap() {
               ))}
               {/* Frame */}
               <rect x={0} y={0} width={GRID_SIZE} height={GRID_SIZE} fill="none" stroke="rgba(120,200,230,0.25)" strokeWidth={2} rx={8} />
+
+              {/* In-transit fleets (rendered under empire markers) */}
+              <FleetMarkers fleets={inTransit} now={now} myUserId={user?.id} />
 
               {/* Empire markers */}
               {empires.map((e) => {
@@ -177,9 +209,21 @@ export default function GalacticMap() {
             </div>
           )}
 
-          <div className="mt-4 pt-4 border-t border-cyan-400/10 text-xs font-mono uppercase tracking-widest text-muted-foreground flex items-center gap-4">
+          {/* Active fleet movements */}
+          {inTransit.length > 0 && (
+            <div className="mt-4 pt-4 border-t border-cyan-400/10">
+              <div className="flex items-center gap-2 mb-3">
+                <Navigation className="w-4 h-4 text-cyan-300" />
+                <h2 className="font-heading text-sm tracking-[0.25em] text-cyan-100 uppercase">Fleet Movements</h2>
+              </div>
+              <ActiveFleets fleets={fleets} now={now} myUserId={user?.id} />
+            </div>
+          )}
+
+          <div className="mt-4 pt-4 border-t border-cyan-400/10 text-xs font-mono uppercase tracking-widest text-muted-foreground flex items-center gap-4 flex-wrap">
             <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-cyan-400 inline-block" /> You</span>
             <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-violet-400 inline-block" /> Rival</span>
+            <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-rose-400 inline-block" /> Enemy fleet</span>
           </div>
         </div>
       </div>
@@ -214,6 +258,9 @@ function EmpireDetail({ empire, myEmpire, onClear }) {
         )}
         {mine && <p className="text-xs text-cyan-300/70 pt-2 border-t border-cyan-400/10">This is your home sector.</p>}
       </div>
+      {!mine && myEmpire && d != null && (
+        <DispatchFleet target={empire} myEmpire={myEmpire} onDispatched={onClear} />
+      )}
     </div>
   );
 }

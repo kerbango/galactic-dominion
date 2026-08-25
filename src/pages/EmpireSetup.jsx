@@ -27,7 +27,7 @@ export default function EmpireSetup() {
       let spawn = { map_x: null, map_y: null };
       try {
         const res = await base44.functions.invoke('getGalacticMap', {});
-        if (res?.nextSpawn) spawn = res.nextSpawn;
+        if (res?.data?.nextSpawn) spawn = res.data.nextSpawn;
       } catch { /* placement is best-effort; empire still creates without coords */ }
       await base44.entities.Empire.create({
         empire_name: empireName.trim(),

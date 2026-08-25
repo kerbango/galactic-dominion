@@ -33,3 +33,29 @@ export function formatDuration(totalSeconds) {
   if (m > 0) return `${m}m ${sec}s`;
   return `${sec}s`;
 }
+
+// --- Fleet movement helpers ----------------------------------------------
+// Fleets store origin/target grid coords plus departure/arrival timestamps.
+// These derive live position and remaining time from the current clock `now`
+// (epoch ms), so the map can animate in-transit fleets without polling.
+
+export function fleetProgress(fleet, now) {
+  const dep = new Date(fleet.departure_date).getTime();
+  const arr = new Date(fleet.arrival_date).getTime();
+  if (!dep || !arr || arr <= dep) return 1;
+  return Math.max(0, Math.min(1, (now - dep) / (arr - dep)));
+}
+
+export function fleetPosition(fleet, now) {
+  const p = fleetProgress(fleet, now);
+  return {
+    x: fleet.origin_x + (fleet.target_x - fleet.origin_x) * p,
+    y: fleet.origin_y + (fleet.target_y - fleet.origin_y) * p,
+  };
+}
+
+export function remainingSeconds(fleet, now) {
+  const arr = new Date(fleet.arrival_date).getTime();
+  if (!arr) return 0;
+  return Math.max(0, Math.round((arr - now) / 1000));
+}
