@@ -81,16 +81,14 @@ export default function GalacticMap() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 md:px-8 py-8">
-      <div className="flex items-center gap-3 mb-6">
+      <div className="flex flex-col items-center text-center gap-1 mb-6">
         <Radar className="w-7 h-7 text-cyan-300" />
-        <div>
-          <h1 className="font-heading text-2xl md:text-3xl tracking-wide text-white neon-text uppercase">
-            Galactic Map
-          </h1>
-          <p className="text-xs font-mono uppercase tracking-widest text-cyan-200/60">
-            {empireCountLabel(empires.length)} · Sector grid {GRID_SIZE}×{GRID_SIZE}
-          </p>
-        </div>
+        <h1 className="font-heading text-2xl md:text-3xl tracking-wide text-white neon-text uppercase">
+          Galactic Map
+        </h1>
+        <p className="text-xs font-mono uppercase tracking-widest text-cyan-200/60">
+          {empireCountLabel(empires.length)} · Sector grid {GRID_SIZE}×{GRID_SIZE}
+        </p>
       </div>
 
       {!myEmpire &&

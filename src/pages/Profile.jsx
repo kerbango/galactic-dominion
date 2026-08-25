@@ -52,7 +52,7 @@ export default function Profile() {
     <div className="max-w-5xl mx-auto px-4 md:px-8 py-10">
       {/* Empire header card */}
       <div className="glass-panel-strong rounded-2xl p-6 md:p-8 mb-8">
-        <div className="flex flex-col md:flex-row md:items-center gap-6">
+        <div className="flex flex-col items-center text-center gap-4">
           <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-primary/15 border border-cyan-400/30 shrink-0">
             <Crown className="w-10 h-10 text-cyan-300" />
           </div>
@@ -61,7 +61,7 @@ export default function Profile() {
             <h1 className="font-heading text-3xl md:text-4xl tracking-wide text-white neon-text uppercase">
               {empire.empire_name}
             </h1>
-            <div className="flex items-center gap-2 mt-2 text-muted-foreground">
+            <div className="flex items-center justify-center gap-2 mt-2 text-muted-foreground">
               <Flag className="w-4 h-4 text-cyan-300/70" />
               <span className="font-body">Ruler <span className="text-cyan-100 font-semibold">{empire.ruler_name}</span></span>
             </div>

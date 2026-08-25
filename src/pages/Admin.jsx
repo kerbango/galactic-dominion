@@ -74,16 +74,14 @@ export default function Admin() {
     <div className="relative min-h-screen w-full">
       <AdminBackground dim={0.5} />
       <div className="relative z-10 max-w-7xl mx-auto px-4 md:px-8 py-10">
-      <div className="flex items-center gap-3 mb-8">
+      <div className="flex flex-col items-center text-center gap-1 mb-8">
         <Shield className="w-7 h-7 text-rose-400" />
-        <div>
-          <h1 className="font-heading text-2xl md:text-3xl tracking-wide text-white neon-text uppercase">
-            Admin Command
-          </h1>
-          <p className="text-xs font-mono uppercase tracking-widest text-rose-300/70">
-            Signed in as {user.email}
-          </p>
-        </div>
+        <h1 className="font-heading text-2xl md:text-3xl tracking-wide text-white neon-text uppercase">
+          Admin Command
+        </h1>
+        <p className="text-xs font-mono uppercase tracking-widest text-rose-300/70">
+          Signed in as {user.email}
+        </p>
       </div>
 
       {error && (
