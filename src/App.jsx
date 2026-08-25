@@ -16,6 +16,7 @@ import ResetPassword from '@/pages/ResetPassword';
 import EmpireSetup from '@/pages/EmpireSetup';
 import Profile from '@/pages/Profile';
 import GalacticMap from '@/pages/GalacticMap';
+import Console from '@/pages/Console';
 // Add page imports here
 
 const AuthenticatedApp = () => {
@@ -58,6 +59,7 @@ const AuthenticatedApp = () => {
           <Route path="/setup" element={<EmpireSetup />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/map" element={<GalacticMap />} />
+          <Route path="/console" element={<Console />} />
         </Route>
       </Route>
 
