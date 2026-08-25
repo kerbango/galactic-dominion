@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Navigate, Link } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
-import { Crown, Flag, Gem, Layers, Zap, Coins, Loader2, MapPin, Radar } from 'lucide-react';
+import { Crown, Flag, Gem, Layers, Zap, Coins, Loader2, MapPin } from 'lucide-react';
 import ProductionTimer from '@/components/profile/ProductionTimer';
 
 const RESOURCES = [
@@ -112,12 +112,6 @@ export default function Profile() {
         ))}
       </div>
 
-      <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
-        <Link to="/map" className="inline-flex items-center gap-2 px-6 py-3 rounded-md glass-panel-strong hover:border-cyan-300/60 transition-all">
-          <Radar className="w-5 h-5 text-cyan-300" />
-          <span className="font-heading text-sm tracking-widest text-white uppercase">Open Galactic Map</span>
-        </Link>
-      </div>
     </div>
   );
 }
