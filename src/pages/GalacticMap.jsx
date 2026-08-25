@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { Loader2, Radar, Crosshair, Flag, Crown, Navigation, AlertTriangle } from 'lucide-react';
 import { GRID_SIZE, distance, travelSeconds, formatDuration, lightYears } from '@/lib/galaxy';
-import FleetMarkers from '@/components/fleet/FleetMarkers';
+import ZoomableGalaxyMap from '@/components/galaxy/ZoomableGalaxyMap';
 import ActiveFleets from '@/components/fleet/ActiveFleets';
 import DispatchFleet from '@/components/fleet/DispatchFleet';
 
@@ -105,63 +105,15 @@ export default function GalacticMap() {
 
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6">
         {/* Map */}
-        <div className="glass-panel-strong rounded-2xl p-3 md:p-4">
-          <div className="relative w-full" style={{ aspectRatio: '1 / 1' }}>
-            <svg viewBox={`0 0 ${GRID_SIZE} ${GRID_SIZE}`} className="w-full h-full" preserveAspectRatio="xMidYMid meet">
-              {/* Grid lines */}
-              {Array.from({ length: GRID_SIZE / 100 + 1 }, (_, i) => i * 100).map((c) =>
-              <g key={`g-${c}`}>
-                  <line x1={c} y1={0} x2={c} y2={GRID_SIZE} stroke="rgba(120,200,230,0.08)" strokeWidth={1} />
-                  <line x1={0} y1={c} x2={GRID_SIZE} y2={c} stroke="rgba(120,200,230,0.08)" strokeWidth={1} />
-                </g>
-              )}
-              {/* Frame */}
-              <rect x={0} y={0} width={GRID_SIZE} height={GRID_SIZE} fill="none" stroke="rgba(120,200,230,0.25)" strokeWidth={2} rx={8} />
-
-              {/* In-transit fleets (rendered under empire markers) */}
-              <FleetMarkers fleets={inTransit} now={now} myUserId={user?.id} />
-
-              {/* Empire markers */}
-              {empires.map((e) => {
-                const mine = myEmpire && e.id === myEmpire.id;
-                const sel = selected && e.id === selected.id;
-                return (
-                  <g key={e.id} onClick={() => setSelectedId(e.id)} className="cursor-pointer">
-                    {mine &&
-                    <circle cx={e.map_x} cy={e.map_y} r={26} fill="none" stroke="rgba(56,189,248,0.5)" strokeWidth={2} className="animate-pulse-glow" />
-                    }
-                    <circle
-                      cx={e.map_x}
-                      cy={e.map_y}
-                      r={mine ? 9 : 6}
-                      fill={mine ? 'rgba(56,189,248,0.95)' : 'rgba(167,139,250,0.85)'}
-                      stroke={sel ? '#ffffff' : 'rgba(255,255,255,0.4)'}
-                      strokeWidth={sel ? 3 : 1.5} />
-                    
-                    <text
-                      x={e.map_x}
-                      y={e.map_y - 14}
-                      textAnchor="middle"
-                      fontSize={mine ? 20 : 15}
-                      fontFamily="Orbitron, sans-serif"
-                      fill={mine ? 'rgba(186,240,255,0.95)' : 'rgba(203,213,225,0.75)'}
-                      style={{ pointerEvents: 'none' }}>
-                      
-                      {e.empire_name.length > 16 ? e.empire_name.slice(0, 15) + '…' : e.empire_name}
-                    </text>
-                  </g>);
-
-              })}
-
-              {/* Own coordinates readout */}
-              {myEmpire &&
-              <text x={12} y={GRID_SIZE - 12} fontSize={16} fontFamily="ui-monospace, monospace" fill="rgba(120,200,230,0.7)">
-                  YOU @ {Math.round(myEmpire.map_x)}, {Math.round(myEmpire.map_y)}
-                </text>
-              }
-            </svg>
-          </div>
-        </div>
+        <ZoomableGalaxyMap
+          empires={empires}
+          myEmpire={myEmpire}
+          fleets={inTransit}
+          now={now}
+          myUserId={user?.id}
+          selectedId={selectedId}
+          onSelectId={setSelectedId}
+        />
 
         {/* Side panel */}
         <div className="glass-panel rounded-2xl p-4 flex flex-col">

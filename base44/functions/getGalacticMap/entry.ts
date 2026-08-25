@@ -1,8 +1,8 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
 
-const GRID_SIZE = 1000;
-const MIN_DISTANCE = 200;
-const MARGIN = 60;
+const GRID_SIZE = 3000;
+const MIN_DISTANCE = 600;
+const MARGIN = 180;
 const MAX_ATTEMPTS = 400;
 
 const rand = (min, max) => Math.random() * (max - min) + min;
