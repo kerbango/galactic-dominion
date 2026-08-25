@@ -1,8 +1,9 @@
 import React from 'react';
 import { Outlet, NavLink } from 'react-router-dom';
-import { Radar, User } from 'lucide-react';
+import { Radar, User, LogOut } from 'lucide-react';
 import SpaceBackground from '@/components/SpaceBackground';
 import ResourceBar from '@/components/ResourceBar';
+import { base44 } from '@/api/base44Client';
 
 export default function GameLayout() {
   return (
@@ -23,6 +24,13 @@ export default function GameLayout() {
             <NavLink to="/profile" className={({ isActive }) => `flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-heading uppercase tracking-widest transition-colors ${isActive ? 'text-cyan-200 bg-cyan-400/10' : 'text-muted-foreground hover:text-cyan-100'}`}>
               <User className="w-4 h-4" /> Profile
             </NavLink>
+            <button
+              type="button"
+              onClick={async () => { await base44.auth.logout(); window.location.href = '/login'; }}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-heading uppercase tracking-widest text-muted-foreground hover:text-rose-300 transition-colors"
+            >
+              <LogOut className="w-4 h-4" /> Logout
+            </button>
           </nav>
         </div>
       </header>
