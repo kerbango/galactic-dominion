@@ -65,34 +65,33 @@ export default function Console() {
         </div>
       </div>
 
-      {/* Accumulated resources + navigation */}
+      {/* Accumulated resources */}
       <h2 className="font-heading text-sm tracking-[0.3em] text-cyan-200/80 uppercase mb-4">Accumulated Resources</h2>
-      <div className="glass-panel-strong rounded-2xl p-5 md:p-6">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {RESOURCES.map((r) => {
-            const Icon = r.icon;
-            return (
-              <div key={r.key} className="glass-panel rounded-xl p-5">
-                <Icon className={`w-6 h-6 ${r.color} mb-3`} />
-                <p className="font-mono text-2xl font-bold text-foreground tabular-nums">
-                  {formatAmount(empire[r.key])}
-                </p>
-                <p className="text-xs uppercase tracking-widest text-muted-foreground mt-1">{r.label}</p>
-              </div>
-            );
-          })}
-        </div>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
+        {RESOURCES.map((r) => {
+          const Icon = r.icon;
+          return (
+            <div key={r.key} className="glass-panel rounded-xl p-5">
+              <Icon className={`w-6 h-6 ${r.color} mb-3`} />
+              <p className="font-mono text-2xl font-bold text-foreground tabular-nums">
+                {formatAmount(empire[r.key])}
+              </p>
+              <p className="text-xs uppercase tracking-widest text-muted-foreground mt-1">{r.label}</p>
+            </div>
+          );
+        })}
+      </div>
 
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-6 pt-5 border-t border-cyan-400/15">
-          <Link to="/map" className="inline-flex items-center gap-2 px-6 py-3 rounded-md glass-panel hover:border-cyan-300/60 transition-all">
-            <Radar className="w-5 h-5 text-cyan-300" />
-            <span className="font-heading text-sm tracking-widest text-white uppercase">Map</span>
-          </Link>
-          <Link to="/profile" className="inline-flex items-center gap-2 px-6 py-3 rounded-md glass-panel hover:border-cyan-300/60 transition-all">
-            <User className="w-5 h-5 text-cyan-300" />
-            <span className="font-heading text-sm tracking-widest text-white uppercase">Profile</span>
-          </Link>
-        </div>
+      {/* Navigation buttons */}
+      <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+        <Link to="/map" className="inline-flex items-center gap-2 px-6 py-3 rounded-md glass-panel-strong hover:border-cyan-300/60 transition-all">
+          <Radar className="w-5 h-5 text-cyan-300" />
+          <span className="font-heading text-sm tracking-widest text-white uppercase">Map</span>
+        </Link>
+        <Link to="/profile" className="inline-flex items-center gap-2 px-6 py-3 rounded-md glass-panel-strong hover:border-cyan-300/60 transition-all">
+          <User className="w-5 h-5 text-cyan-300" />
+          <span className="font-heading text-sm tracking-widest text-white uppercase">Profile</span>
+        </Link>
       </div>
     </div>
   );
