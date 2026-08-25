@@ -19,29 +19,18 @@ import GalacticMap from '@/pages/GalacticMap';
 // Add page imports here
 
 const AuthenticatedApp = () => {
-  const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
+  const { isLoadingAuth, isLoadingPublicSettings, authError } = useAuth();
 
-  // Show loading spinner while checking app public settings or auth
-  if (isLoadingPublicSettings || isLoadingAuth) {
-    return (
-      <div className="fixed inset-0 flex items-center justify-center">
-        <div className="w-8 h-8 border-4 border-slate-200 border-t-slate-800 rounded-full animate-spin"></div>
-      </div>
-    );
-  }
-
-  // Handle authentication errors
+  // Handle authentication errors for protected areas
   if (authError) {
     if (authError.type === 'user_not_registered') {
       return <UserNotRegisteredError />;
-    } else if (authError.type === 'auth_required') {
-      // Redirect to login automatically
-      navigateToLogin();
-      return null;
     }
   }
 
-  // Render the main app
+  // Render the main app — public routes render immediately, without
+  // waiting for the auth/public-settings checks to finish (those only gate
+  // the protected game area below).
   return (
     <Routes>
       {/* Public splash landing */}
@@ -54,7 +43,17 @@ const AuthenticatedApp = () => {
       <Route path="/reset-password" element={<ResetPassword />} />
 
       {/* Authenticated game area (shared background layout) */}
-      <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
+      <Route element={
+        isLoadingPublicSettings || isLoadingAuth ? (
+          <div className="fixed inset-0 flex items-center justify-center">
+            <div className="w-8 h-8 border-4 border-slate-200 border-t-slate-800 rounded-full animate-spin"></div>
+          </div>
+        ) : authError?.type === 'auth_required' ? (
+          <Navigate to="/login" replace />
+        ) : (
+          <ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />
+        )
+      }>
         <Route element={<GameLayout />}>
           <Route path="/setup" element={<EmpireSetup />} />
           <Route path="/profile" element={<Profile />} />
