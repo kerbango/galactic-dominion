@@ -93,12 +93,12 @@ export default function Profile() {
         {RESOURCES.map((r) => {
           const Icon = r.icon;
           return (
-            <div key={r.key} className="glass-panel rounded-xl p-5">
-              <Icon className={`w-6 h-6 ${r.color} mb-3`} />
-              <p className="font-mono text-2xl font-bold text-foreground tabular-nums">
+            <div key={r.key} className="glass-panel rounded-lg p-2.5">
+              <Icon className={`w-3 h-3 ${r.color} mb-1.5`} />
+              <p className="font-mono text-sm font-bold text-foreground tabular-nums">
                 {formatAmount(empire[r.key])}
               </p>
-              <p className="text-xs uppercase tracking-widest text-muted-foreground mt-1">{r.label}</p>
+              <p className="text-[10px] uppercase tracking-widest text-muted-foreground mt-0.5">{r.label}</p>
             </div>
           );
         })}
