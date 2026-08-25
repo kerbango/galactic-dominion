@@ -19,7 +19,11 @@ const clampView = ({ x, y, w, h }) => {
 export default function ZoomableGalaxyMap({ empires, myEmpire, fleets, now, myUserId, selectedId, onSelectId }) {
   const svgRef = useRef(null);
   const [view, setView] = useState({ x: 0, y: 0, w: GRID_SIZE, h: GRID_SIZE });
+  const viewRef = useRef(view);
+  viewRef.current = view;
   const drag = useRef(null);
+  const pointers = useRef(new Map());
+  const pinch = useRef(null);
 
   const zoomAt = (clientX, clientY, factor) => {
     const svg = svgRef.current;
@@ -51,24 +55,66 @@ export default function ZoomableGalaxyMap({ empires, myEmpire, fleets, now, myUs
   };
 
   const onPointerDown = (e) => {
-    drag.current = { startX: e.clientX, startY: e.clientY, view: { ...view } };
     e.currentTarget.setPointerCapture?.(e.pointerId);
+    pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (pointers.current.size === 2) {
+      // Begin pinch-to-zoom from the current view.
+      const [p1, p2] = [...pointers.current.values()];
+      pinch.current = {
+        dist: Math.hypot(p1.x - p2.x, p1.y - p2.y),
+        view: { ...viewRef.current },
+      };
+      drag.current = null;
+    } else if (pointers.current.size === 1) {
+      drag.current = { startX: e.clientX, startY: e.clientY, view: { ...viewRef.current } };
+    }
   };
 
   const onPointerMove = (e) => {
-    if (!drag.current) return;
+    if (!pointers.current.has(e.pointerId)) return;
+    pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
     const svg = svgRef.current;
     if (!svg) return;
     const rect = svg.getBoundingClientRect();
     if (!rect.width) return;
-    const dx = (e.clientX - drag.current.startX) * drag.current.view.w / rect.width;
-    const dy = (e.clientY - drag.current.startY) * drag.current.view.h / rect.height;
-    setView(clampView({ x: drag.current.view.x - dx, y: drag.current.view.y - dy, w: drag.current.view.w, h: drag.current.view.h }));
+
+    // Two-finger pinch zooms toward the midpoint, relative to gesture start.
+    if (pointers.current.size >= 2 && pinch.current) {
+      const [p1, p2] = [...pointers.current.values()];
+      const dist = Math.hypot(p1.x - p2.x, p1.y - p2.y);
+      if (!pinch.current.dist) return;
+      const factor = dist / pinch.current.dist;
+      const midX = (p1.x + p2.x) / 2;
+      const midY = (p1.y + p2.y) / 2;
+      const px = (midX - rect.left) / rect.width;
+      const py = (midY - rect.top) / rect.height;
+      const cursorX = pinch.current.view.x + px * pinch.current.view.w;
+      const cursorY = pinch.current.view.y + py * pinch.current.view.h;
+      const w = pinch.current.view.w / factor;
+      const h = pinch.current.view.h / factor;
+      setView(clampView({ x: cursorX - px * w, y: cursorY - py * h, w, h }));
+      return;
+    }
+
+    // Single-pointer drag pans the view.
+    if (drag.current) {
+      const dx = (e.clientX - drag.current.startX) * drag.current.view.w / rect.width;
+      const dy = (e.clientY - drag.current.startY) * drag.current.view.h / rect.height;
+      setView(clampView({ x: drag.current.view.x - dx, y: drag.current.view.y - dy, w: drag.current.view.w, h: drag.current.view.h }));
+    }
   };
 
   const endDrag = (e) => {
-    drag.current = null;
+    pointers.current.delete(e.pointerId);
     e.currentTarget.releasePointerCapture?.(e.pointerId);
+    if (pointers.current.size < 2) pinch.current = null;
+    if (pointers.current.size === 0) {
+      drag.current = null;
+    } else if (pointers.current.size === 1) {
+      // One finger remains after a pinch — resume panning from here.
+      const [p] = [...pointers.current.values()];
+      drag.current = { startX: p.x, startY: p.y, view: { ...viewRef.current } };
+    }
   };
 
   const reset = () => setView({ x: 0, y: 0, w: GRID_SIZE, h: GRID_SIZE });
