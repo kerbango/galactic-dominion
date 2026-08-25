@@ -115,9 +115,6 @@ export default function Profile() {
           <Radar className="w-5 h-5 text-cyan-300" />
           <span className="font-heading text-sm tracking-widest text-white uppercase">Open Galactic Map</span>
         </Link>
-        <Link to="/" className="text-sm text-cyan-300/70 hover:text-cyan-200 font-mono uppercase tracking-widest">
-          ← Return to splash
-        </Link>
       </div>
     </div>
   );
