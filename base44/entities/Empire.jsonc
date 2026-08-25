@@ -1,0 +1,54 @@
+{
+  "name": "Empire",
+  "type": "object",
+  "properties": {
+    "empire_name": {
+      "type": "string",
+      "title": "Empire Name",
+      "description": "The player-chosen name of their empire."
+    },
+    "aetherium_crystal": {
+      "type": "number",
+      "title": "Aetherium Crystal",
+      "description": "Rare crystal resource used for advanced construction and research.",
+      "default": 1000,
+      "minimum": 0
+    },
+    "ferrite_titanium": {
+      "type": "number",
+      "title": "Ferrite-Titanium",
+      "description": "Alloy used for building ships and structures.",
+      "default": 1000,
+      "minimum": 0
+    },
+    "energy": {
+      "type": "number",
+      "title": "Energy",
+      "description": "Power used to run operations, fleets, and facilities.",
+      "default": 500,
+      "minimum": 0
+    },
+    "vrind": {
+      "type": "number",
+      "title": "VRIND",
+      "description": "Galactic currency for trade and transactions.",
+      "default": 500,
+      "minimum": 0
+    },
+    "map_x": {
+      "type": "number",
+      "title": "Map X",
+      "description": "X coordinate of the empire on the galactic map.",
+      "minimum": 0
+    },
+    "map_y": {
+      "type": "number",
+      "title": "Map Y",
+      "description": "Y coordinate of the empire on the galactic map.",
+      "minimum": 0
+    }
+  },
+  "required": [
+    "empire_name"
+  ]
+}
