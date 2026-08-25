@@ -1,0 +1,31 @@
+{
+  "name": "ChatMessage",
+  "type": "object",
+  "properties": {
+    "author_name": {
+      "type": "string",
+      "title": "Author Name",
+      "description": "Display name of the sender (empire name)."
+    },
+    "message": {
+      "type": "string",
+      "title": "Message",
+      "description": "The chat message body."
+    }
+  },
+  "required": [
+    "message"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "created_by_id": "{{user.id}}"
+    },
+    "update": {
+      "created_by_id": "{{user.id}}"
+    },
+    "delete": {
+      "created_by_id": "{{user.id}}"
+    }
+  }
+}
