@@ -64,8 +64,9 @@ const AuthenticatedApp = () => {
           <Route path="/profile" element={<Profile />} />
           <Route path="/map" element={<GalacticMap />} />
           <Route path="/console" element={<Console />} />
-          <Route path="/admin" element={<Admin />} />
         </Route>
+        {/* Admin section — own background, outside the game layout */}
+        <Route path="/admin" element={<Admin />} />
       </Route>
 
       <Route path="*" element={<PageNotFound />} />

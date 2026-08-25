@@ -3,6 +3,7 @@ import { Navigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { useAuth } from "@/lib/AuthContext";
 import { Shield, Loader2, Crown, Flag, Gem, Layers, Zap, Coins, Users } from "lucide-react";
+import AdminBackground from "@/components/AdminBackground";
 
 const RESOURCES = [
   { key: 'aetherium_crystal', label: 'Aetherium', icon: Gem, color: 'text-violet-300' },
@@ -70,7 +71,9 @@ export default function Admin() {
   const totalPlanets = (empires || []).reduce((s, e) => s + (e.controlled_planets || 0), 0);
 
   return (
-    <div className="max-w-7xl mx-auto px-4 md:px-8 py-10">
+    <div className="relative min-h-screen w-full">
+      <AdminBackground dim={0.5} />
+      <div className="relative z-10 max-w-7xl mx-auto px-4 md:px-8 py-10">
       <div className="flex items-center gap-3 mb-8">
         <Shield className="w-7 h-7 text-rose-400" />
         <div>
@@ -131,6 +134,7 @@ export default function Admin() {
             </tbody>
           </table>
         </div>
+      </div>
       </div>
     </div>
   );

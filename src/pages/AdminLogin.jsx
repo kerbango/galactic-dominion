@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Shield, Mail, Lock, Loader2 } from "lucide-react";
 import AuthLayout from "@/components/AuthLayout";
+import AdminBackground from "@/components/AdminBackground";
 
 // Dedicated login for admin accounts. After credentials are accepted the
 // user's role is verified — only role === "admin" is allowed through to
@@ -42,6 +43,7 @@ export default function AdminLogin() {
       icon={Shield}
       title="Admin Access"
       subtitle="Authorized personnel only"
+      Background={AdminBackground}
       footer={
         <Link to="/" className="text-primary font-medium hover:underline">
           Return to the front lines

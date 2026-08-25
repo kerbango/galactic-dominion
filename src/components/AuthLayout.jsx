@@ -1,10 +1,10 @@
 import React from "react";
 import SpaceBackground from "@/components/SpaceBackground";
 
-export default function AuthLayout({ icon: Icon, title, subtitle, footer, children }) {
+export default function AuthLayout({ icon: Icon, title, subtitle, footer, children, Background = SpaceBackground }) {
   return (
     <div className="relative min-h-screen flex items-center justify-center px-4 py-12">
-      <SpaceBackground dim={0.4} />
+      <Background dim={0.4} />
       <div className="relative z-10 w-full max-w-md">
         <div className="text-center mb-10">
           <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-primary mb-4">
