@@ -19,6 +19,12 @@
       "format": "date-time",
       "title": "Chat Muted Until",
       "description": "ISO timestamp; the user cannot post until this time passes. Null when not muted."
+    },
+    "deletion_requested": {
+      "type": "boolean",
+      "title": "Deletion Requested",
+      "description": "Set to true when the user has requested account deletion. All game data has been wiped; an admin should finalize removal of the User record from the Admin panel.",
+      "default": false
     }
   },
   "required": [

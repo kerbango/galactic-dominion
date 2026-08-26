@@ -22,7 +22,8 @@ import AdminLogin from '@/pages/AdminLogin';
 import Admin from '@/pages/Admin';
 import SectionPlaceholder from '@/pages/SectionPlaceholder';
 import Comms from '@/pages/Comms';
-import { Sword, FlaskConical, Wrench, Store, Handshake, Radio, LifeBuoy } from 'lucide-react';
+import Support from '@/pages/Support';
+import { Sword, FlaskConical, Wrench, Store, Handshake, Radio } from 'lucide-react';
 // Add page imports here
 
 const AuthenticatedApp = () => {
@@ -73,7 +74,7 @@ const AuthenticatedApp = () => {
           <Route path="/market" element={<SectionPlaceholder title="Market" Icon={Store} />} />
           <Route path="/alliance" element={<SectionPlaceholder title="Alliance" Icon={Handshake} />} />
           <Route path="/comms" element={<Comms />} />
-          <Route path="/support" element={<SectionPlaceholder title="Support" Icon={LifeBuoy} />} />
+          <Route path="/support" element={<Support />} />
         </Route>
         {/* Admin section — own background, outside the game layout */}
         <Route path="/admin" element={<Admin />} />
