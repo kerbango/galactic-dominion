@@ -89,7 +89,7 @@ export default function PlayerMarketPanel() {
     setBusy(true); setMsg('');
     try {
       const res = await base44.functions.invoke('buyMarketListing', { listingId: listing.id, buyAmount: amt });
-      setMsg(`Bought ${fmt(res.bought)} for ${fmt(res.totalCost)} VRIND.`);
+      setMsg(`Bought ${fmt(res.bought)} for ${fmt(res.totalCost)} VRIND — 7% Council tax (${fmt(res.tax)} VRIND) deducted from seller.`);
       await Promise.all([loadListings(), refresh()]);
     } catch (e) {
       setMsg(e.response?.data?.error || e.message || 'Purchase failed.');
@@ -108,6 +108,13 @@ export default function PlayerMarketPanel() {
 
   return (
     <div className="space-y-6">
+      {/* Galactic Council tax warning */}
+      <div className="rounded-xl border border-orange-500/50 bg-orange-500/10 px-4 py-3 mb-4">
+        <p className="text-orange-500 font-bold text-sm tracking-wide text-center">
+          ⚠ GALACTIC COUNCIL TAX — A 7% TAX IS LEVIED ON EVERY SALE AND DEDUCTED FROM THE SELLER'S PROCEEDS.
+        </p>
+      </div>
+
       {/* Create listing */}
       <div className="glass-panel rounded-2xl p-5">
         <div className="flex items-center gap-2 mb-4">
@@ -132,7 +139,7 @@ export default function PlayerMarketPanel() {
               <Input type="number" min="1" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="0" className="bg-background/40" />
             </div>
             <div>
-              <p className="text-[10px] uppercase tracking-widest text-red-500 mb-1">Price / unit (VRIND)</p>
+              <p className="text-[10px] uppercase tracking-widest text-orange-500 font-bold mb-1">Price / unit (VRIND)</p>
               <Input type="number" min="0" step="0.01" value={price} onChange={(e) => setPrice(e.target.value)} placeholder="0" className="bg-background/40" />
             </div>
             <Button onClick={handleCreate} disabled={busy} className="font-heading tracking-widest uppercase">

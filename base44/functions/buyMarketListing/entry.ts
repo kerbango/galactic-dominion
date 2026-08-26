@@ -51,10 +51,16 @@ export default async function(req) {
       return Response.json({ error: 'Seller no longer holds enough of this resource.' }, { status: 400 });
     }
 
+    // Galactic Council levies a 7% tax on every sale, deducted from the
+    // seller's proceeds (the buyer still pays the full listing price).
+    const TAX_RATE = 0.07;
+    const tax = totalCost * TAX_RATE;
+    const sellerProceeds = totalCost - tax;
+
     // Transfer resources and currency.
     await svc.entities.Empire.update(sellerEmpire.id, {
       [listing.resource_key]: (sellerEmpire[listing.resource_key] || 0) - buyAmount,
-      vrind: (sellerEmpire.vrind || 0) + totalCost,
+      vrind: (sellerEmpire.vrind || 0) + sellerProceeds,
     });
     await svc.entities.Empire.update(buyerEmpire.id, {
       [listing.resource_key]: (buyerEmpire[listing.resource_key] || 0) + buyAmount,
@@ -72,6 +78,8 @@ export default async function(req) {
       ok: true,
       bought: buyAmount,
       totalCost,
+      tax,
+      sellerProceeds,
       remaining,
     });
   } catch (error) {
