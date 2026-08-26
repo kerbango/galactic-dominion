@@ -1,0 +1,73 @@
+{
+  "name": "MarketConfig",
+  "type": "object",
+  "properties": {
+    "berentium_price": {
+      "type": "number",
+      "title": "Berentium Price",
+      "description": "VRIND price per unit of Berentium in the Resource Market. Null = unavailable.",
+      "minimum": 0
+    },
+    "berentium_bundle": {
+      "type": "number",
+      "title": "Berentium Bundle",
+      "description": "Units per purchase bundle of Berentium. Null = unavailable.",
+      "minimum": 0
+    },
+    "ferrite_titanium_price": {
+      "type": "number",
+      "title": "Ferrite-Titanium Price",
+      "description": "VRIND price per unit of Ferrite-Titanium. Null = unavailable.",
+      "minimum": 0
+    },
+    "ferrite_titanium_bundle": {
+      "type": "number",
+      "title": "Ferrite-Titanium Bundle",
+      "description": "Units per purchase bundle of Ferrite-Titanium. Null = unavailable.",
+      "minimum": 0
+    },
+    "aetherium_crystal_price": {
+      "type": "number",
+      "title": "Aetherium Crystal Price",
+      "description": "VRIND price per unit of Aetherium Crystal. Null = unavailable.",
+      "minimum": 0
+    },
+    "aetherium_crystal_bundle": {
+      "type": "number",
+      "title": "Aetherium Crystal Bundle",
+      "description": "Units per purchase bundle of Aetherium Crystal. Null = unavailable.",
+      "minimum": 0
+    },
+    "energy_price": {
+      "type": "number",
+      "title": "Energy Price",
+      "description": "VRIND price per unit of Energy. Null = unavailable.",
+      "minimum": 0
+    },
+    "energy_bundle": {
+      "type": "number",
+      "title": "Energy Bundle",
+      "description": "Units per purchase bundle of Energy. Null = unavailable.",
+      "minimum": 0
+    }
+  },
+  "required": [],
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}
