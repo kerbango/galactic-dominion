@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { LifeBuoy, Trash2, Loader2, AlertTriangle, ShieldAlert } from 'lucide-react';
+import { LifeBuoy, Trash2, Loader2, AlertTriangle, ShieldAlert, Gamepad2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -14,6 +14,7 @@ import {
   DialogTrigger } from
 '@/components/ui/dialog';
 import MyTickets from '@/components/support/MyTickets';
+import PowerGridPuzzle from '@/components/minigame/PowerGridPuzzle';
 
 export default function Support() {
   const [empireName, setEmpireName] = useState('');
@@ -22,6 +23,7 @@ export default function Support() {
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState('');
+  const [showMini, setShowMini] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -83,6 +85,35 @@ export default function Support() {
 
 
         </p>
+      </div>
+
+      {/* Minigame toggle */}
+      <div className="glass-panel rounded-2xl p-6 mb-6">
+        <div className="flex items-center justify-between gap-4 flex-wrap">
+          <div className="flex items-center gap-3">
+            <Gamepad2 className="w-5 h-5 text-amber-300" />
+            <div>
+              <h2 className="font-heading text-sm tracking-[0.25em] text-amber-100 uppercase mb-0.5">
+                Re-route Power Circuits
+              </h2>
+              <p className="text-xs text-muted-foreground font-body">
+                A calibration puzzle to pass the time while you wait.
+              </p>
+            </div>
+          </div>
+          <Button
+            onClick={() => setShowMini((v) => !v)}
+            variant={showMini ? 'ghost' : 'default'}
+            className="font-heading tracking-widest uppercase text-xs"
+          >
+            {showMini ? 'Hide Minigame' : 'Play Minigame'}
+          </Button>
+        </div>
+        {showMini && (
+          <div className="mt-4">
+            <PowerGridPuzzle onClose={() => setShowMini(false)} />
+          </div>
+        )}
       </div>
 
       {/* In-game ticket system */}
