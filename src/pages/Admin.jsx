@@ -31,6 +31,7 @@ export default function Admin() {
   const [demoteId, setDemoteId] = useState('');
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState('');
+  const [empireId, setEmpireId] = useState('');
 
   useEffect(() => {
     if (isLoadingAuth) return;
@@ -179,36 +180,51 @@ export default function Admin() {
 
       {/* Empire registry */}
       <h2 className="font-heading text-sm tracking-[0.3em] text-cyan-200/80 uppercase mb-4">Empire Registry</h2>
-      <div className="glass-panel rounded-2xl overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="text-left text-xs uppercase tracking-widest text-muted-foreground border-b border-cyan-400/10">
-                <th className="px-4 py-3">Empire</th>
-                <th className="px-4 py-3">Ruler</th>
-                <th className="px-4 py-3">Sector</th>
-                {RESOURCES.map((r) => (
-                  <th key={r.key} className="px-4 py-3 text-right">{r.label}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {(empires || []).length === 0 && (
-                <tr><td colSpan={7} className="px-4 py-6 text-muted-foreground text-center">No empires founded yet.</td></tr>
-              )}
-              {(empires || []).map((e) => (
-                <tr key={e.id} className="border-b border-cyan-400/5 hover:bg-cyan-400/5">
-                  <td className="px-4 py-3 font-heading uppercase tracking-wide text-cyan-100">{e.empire_name}</td>
-                  <td className="px-4 py-3 text-foreground">{e.ruler_name}</td>
-                  <td className="px-4 py-3 font-mono text-muted-foreground">{Math.round(e.map_x)}, {Math.round(e.map_y)}</td>
-                  {RESOURCES.map((r) => (
-                    <td key={r.key} className="px-4 py-3 font-mono text-right tabular-nums">{fmt(e[r.key])}</td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+      <div className="glass-panel rounded-2xl p-5">
+        <Select value={empireId} onValueChange={setEmpireId}>
+          <SelectTrigger className="w-full bg-background/40"><SelectValue placeholder="Select an empire…" /></SelectTrigger>
+          <SelectContent>
+            {(empires || []).length === 0 && <SelectItem value="__none" disabled>No empires founded yet</SelectItem>}
+            {(empires || []).map((e) => (
+              <SelectItem key={e.id} value={e.id}>{e.empire_name}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        {(() => {
+          const sel = (empires || []).find((e) => e.id === empireId);
+          if (!sel) return null;
+          return (
+            <div className="mt-5 grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <div>
+                  <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Empire</p>
+                  <p className="font-heading uppercase tracking-wide text-cyan-100">{sel.empire_name}</p>
+                </div>
+                <div>
+                  <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Ruler</p>
+                  <p className="text-foreground">{sel.ruler_name}</p>
+                </div>
+                <div>
+                  <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Sector</p>
+                  <p className="font-mono text-muted-foreground">{Math.round(sel.map_x)}, {Math.round(sel.map_y)}</p>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                {RESOURCES.map((r) => {
+                  const Icon = r.icon;
+                  return (
+                    <div key={r.key} className="glass-panel rounded-lg p-2 text-center">
+                      <Icon className={`w-3 h-3 ${r.color} mx-auto mb-1`} />
+                      <p className="font-mono text-sm font-bold text-foreground tabular-nums">{fmt(sel[r.key])}</p>
+                      <p className="text-[9px] uppercase tracking-widest text-muted-foreground mt-0.5">{r.label}</p>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })()}
       </div>
       </div>
     </div>
