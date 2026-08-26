@@ -1,14 +1,7 @@
 import React from 'react';
-import { Layers, Gem, Zap, Coins, Pickaxe, Construction } from 'lucide-react';
+import { Layers, Construction } from 'lucide-react';
 import MarketTabs from '@/components/market/MarketTabs';
-
-const RESOURCES = [
-  { key: 'berentium', label: 'Berentium', icon: Pickaxe, color: 'text-emerald-300' },
-  { key: 'ferrite_titanium', label: 'Ferrite-Titanium', icon: Layers, color: 'text-slate-300' },
-  { key: 'aetherium_crystal', label: 'Aetherium Crystal', icon: Gem, color: 'text-violet-300' },
-  { key: 'energy', label: 'Energy', icon: Zap, color: 'text-amber-300' },
-  { key: 'vrind', label: 'VRIND', icon: Coins, color: 'text-cyan-300' },
-];
+import AvailableResources from '@/components/market/AvailableResources';
 
 // Galactic Resource Market — exchange raw resources between empires. Sits at
 // /market/resources alongside the general Galactic Market at /market.
@@ -25,20 +18,8 @@ export default function GalacticResourceMarket() {
         </p>
       </div>
 
+      <AvailableResources />
       <MarketTabs />
-
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
-        {RESOURCES.map((r) => {
-          const Ic = r.icon;
-          return (
-            <div key={r.key} className="glass-panel rounded-lg p-3 text-center">
-              <Ic className={`w-4 h-4 ${r.color} mx-auto mb-1.5`} />
-              <p className="font-mono text-sm font-bold text-foreground tabular-nums">—</p>
-              <p className="text-[9px] uppercase tracking-widest text-muted-foreground mt-0.5">{r.label}</p>
-            </div>
-          );
-        })}
-      </div>
 
       <div className="glass-panel-strong rounded-2xl p-10 text-center">
         <Construction className="w-10 h-10 text-cyan-300/70 mx-auto mb-4" />

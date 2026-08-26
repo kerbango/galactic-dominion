@@ -1,6 +1,7 @@
 import React from 'react';
 import { Store, Construction } from 'lucide-react';
 import MarketTabs from '@/components/market/MarketTabs';
+import AvailableResources from '@/components/market/AvailableResources';
 
 // Galactic Market — hub for ships, equipment, and trade goods. Backed by the
 // /market route; the resource exchange lives at /market/resources.
@@ -17,6 +18,7 @@ export default function GalacticMarket() {
         </p>
       </div>
 
+      <AvailableResources />
       <MarketTabs />
 
       <div className="glass-panel-strong rounded-2xl p-10 text-center">
