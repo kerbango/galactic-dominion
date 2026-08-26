@@ -4,6 +4,7 @@ import { base44 } from '@/api/base44Client';
 import { Loader2, Radar, Crosshair, Flag, Crown, Navigation, AlertTriangle } from 'lucide-react';
 import { GRID_SIZE, distance, travelSeconds, formatDuration, lightYears } from '@/lib/galaxy';
 import ZoomableGalaxyMap from '@/components/galaxy/ZoomableGalaxyMap';
+import EmpireSearchSelect from '@/components/galaxy/EmpireSearchSelect';
 import ActiveFleets from '@/components/fleet/ActiveFleets';
 import DispatchFleet from '@/components/fleet/DispatchFleet';
 
@@ -131,36 +132,11 @@ export default function GalacticMap() {
             onClear={() => setSelectedId(null)} /> :
 
 
-          <div className="space-y-2 overflow-y-auto pr-1" style={{ maxHeight: '60vh' }}>
-              {empires.length === 0 &&
+empires.length === 0 ? (
             <p className="text-sm text-muted-foreground">No empires have claimed a sector yet.</p>
-            }
-              {empires.map((e) => {
-              const mine = myEmpire && e.id === myEmpire.id;
-              const d = myEmpire ? distance(myEmpire, e) : null;
-              return (
-                <button
-                  key={e.id}
-                  onClick={() => setSelectedId(e.id)}
-                  className="w-full text-left glass-panel rounded-lg p-3 hover:border-cyan-300/50 transition-colors">
-                  
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="flex items-center gap-2 min-w-0">
-                        {mine ? <Crown className="w-4 h-4 text-cyan-300 shrink-0" /> : <Flag className="w-4 h-4 text-violet-300 shrink-0" />}
-                        <span className={`truncate font-heading text-sm uppercase tracking-wide ${mine ? 'text-cyan-100' : 'text-foreground'}`}>
-                          {e.empire_name}
-                        </span>
-                      </span>
-                      {mine && <span className="text-[10px] font-mono uppercase text-cyan-300/80">You</span>}
-                    </div>
-                    <p className="text-xs text-muted-foreground mt-1 font-mono">
-                      {Math.round(e.map_x)}, {Math.round(e.map_y)}
-                      {d != null && !mine && <span className="text-cyan-300/70"> · {Math.round(lightYears(d))} Ly · {formatDuration(travelSeconds(d))}</span>}
-                    </p>
-                  </button>);
-
-            })}
-            </div>
+          ) : (
+            <EmpireSearchSelect empires={empires} myEmpire={myEmpire} onSelectId={setSelectedId} />
+          )
           }
 
           {/* Active fleet movements */}
