@@ -11,6 +11,18 @@
       "type": "string",
       "title": "Message",
       "description": "The chat message body."
+    },
+    "pinned": {
+      "type": "boolean",
+      "title": "Pinned",
+      "description": "Admin-pinned message shown at the top of the channel and preserved from pruning.",
+      "default": false
+    },
+    "is_announcement": {
+      "type": "boolean",
+      "title": "Announcement",
+      "description": "Admin announcement rendered with special emphasis.",
+      "default": false
     }
   },
   "required": [
@@ -22,10 +34,28 @@
       "created_by_id": "{{user.id}}"
     },
     "update": {
-      "created_by_id": "{{user.id}}"
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
     },
     "delete": {
-      "created_by_id": "{{user.id}}"
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
     }
   }
 }
