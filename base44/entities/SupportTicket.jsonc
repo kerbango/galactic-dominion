@@ -1,0 +1,126 @@
+{
+  "name": "SupportTicket",
+  "type": "object",
+  "properties": {
+    "subject": {
+      "type": "string",
+      "title": "Subject",
+      "description": "Short title of the support request."
+    },
+    "category": {
+      "type": "string",
+      "title": "Category",
+      "description": "Type of request: bugs, name_change, report_player, reset_account, other.",
+      "enum": [
+        "bugs",
+        "name_change",
+        "report_player",
+        "reset_account",
+        "other"
+      ],
+      "default": "other"
+    },
+    "status": {
+      "type": "string",
+      "title": "Status",
+      "description": "Lifecycle state of the ticket.",
+      "enum": [
+        "open",
+        "in_progress",
+        "resolved",
+        "closed"
+      ],
+      "default": "open"
+    },
+    "requested_name": {
+      "type": "string",
+      "title": "Requested Name",
+      "description": "For name_change tickets: the new empire name the player is requesting."
+    },
+    "messages": {
+      "type": "array",
+      "title": "Messages",
+      "description": "Threaded conversation between player and admin.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "author_role": {
+            "type": "string",
+            "enum": [
+              "player",
+              "admin"
+            ]
+          },
+          "author_name": {
+            "type": "string"
+          },
+          "body": {
+            "type": "string"
+          },
+          "date": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "author_role",
+          "author_name",
+          "body",
+          "date"
+        ]
+      },
+      "default": []
+    },
+    "last_player_activity_date": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Last Player Activity Date",
+      "description": "Timestamp of the most recent player reply; drives the admin unread alert."
+    },
+    "last_admin_view_date": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Last Admin View Date",
+      "description": "When an admin last opened the Tickets tab; used to detect unseen player activity."
+    }
+  },
+  "required": [
+    "subject",
+    "category",
+    "status"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "created_by_id": "{{user.id}}"
+    },
+    "update": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

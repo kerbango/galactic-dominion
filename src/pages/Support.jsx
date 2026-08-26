@@ -13,6 +13,7 @@ import {
   DialogTitle,
   DialogTrigger } from
 '@/components/ui/dialog';
+import MyTickets from '@/components/support/MyTickets';
 
 export default function Support() {
   const [empireName, setEmpireName] = useState('');
@@ -83,6 +84,9 @@ export default function Support() {
 
         </p>
       </div>
+
+      {/* In-game ticket system */}
+      <MyTickets />
 
       {/* Danger zone */}
       <div className="glass-panel rounded-2xl p-6 border border-rose-400/25">

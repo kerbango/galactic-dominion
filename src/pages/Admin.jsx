@@ -2,10 +2,11 @@ import React, { useState, useEffect } from "react";
 import { Navigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { useAuth } from "@/lib/AuthContext";
-import { Shield, Loader2, Crown, Gem, Layers, Zap, Coins, Pickaxe, Users, Rocket } from "lucide-react";
+import { Shield, Loader2, Crown, Gem, Layers, Zap, Coins, Pickaxe, Users, Rocket, Ticket, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import AdminBackground from "@/components/AdminBackground";
+import AdminTickets from "@/components/admin/AdminTickets";
 
 const RESOURCES = [
   { key: 'berentium', label: 'Berentium', icon: Pickaxe, color: 'text-emerald-300' },
@@ -38,6 +39,8 @@ export default function Admin() {
   const [tickMsg, setTickMsg] = useState('');
   const [fleetBusy, setFleetBusy] = useState(false);
   const [fleetMsg, setFleetMsg] = useState('');
+  const [tab, setTab] = useState('command');
+  const [ticketAlert, setTicketAlert] = useState(0);
 
   useEffect(() => {
     if (isLoadingAuth) return;
@@ -60,6 +63,24 @@ export default function Admin() {
     load();
     return () => { active = false; };
   }, [isLoadingAuth, user]);
+
+  // Poll for unseen player ticket activity to drive the blinking alert on the
+  // Tickets tab badge. Service-role writes don't reach realtime, so we poll.
+  useEffect(() => {
+    if (!user || user.role !== 'admin') return;
+    let active = true;
+    const pollTickets = async () => {
+      try {
+        const list = await base44.entities.SupportTicket.list('-created_date', 500);
+        if (!active) return;
+        const unread = list.filter((t) => t.last_player_activity_date && (!t.last_admin_view_date || new Date(t.last_player_activity_date) > new Date(t.last_admin_view_date))).length;
+        setTicketAlert(unread);
+      } catch { /* ignore */ }
+    };
+    pollTickets();
+    const poll = setInterval(pollTickets, 30000);
+    return () => { active = false; clearInterval(poll); };
+  }, [user, tab]);
 
   const refreshUsers = async () => {
     const u = await base44.entities.User.list();
@@ -159,6 +180,31 @@ export default function Admin() {
         </div>
       )}
 
+      {/* Tab bar */}
+      <div className="flex items-center gap-2 mb-8 max-w-md mx-auto">
+        <button
+          onClick={() => setTab('command')}
+          className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-heading text-xs tracking-[0.2em] uppercase transition-colors ${tab === 'command' ? 'bg-cyan-400/15 border border-cyan-400/40 text-cyan-100' : 'glass-panel text-muted-foreground hover:text-foreground'}`}
+        >
+          <Shield className="w-4 h-4" /> Command
+        </button>
+        <button
+          onClick={() => setTab('tickets')}
+          className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-heading text-xs tracking-[0.2em] uppercase transition-colors ${tab === 'tickets' ? 'bg-cyan-400/15 border border-cyan-400/40 text-cyan-100' : 'glass-panel text-muted-foreground hover:text-foreground'}`}
+        >
+          <Ticket className="w-4 h-4" /> Tickets
+          {ticketAlert > 0 && (
+            <span className="flex items-center gap-1 text-[9px] font-mono text-rose-300 border border-rose-400/40 rounded px-1.5 py-0.5 animate-pulse-glow">
+              <AlertCircle className="w-2.5 h-2.5" /> {ticketAlert}
+            </span>
+          )}
+        </button>
+      </div>
+
+      {tab === 'tickets' && <AdminTickets />}
+
+      {tab === 'command' && (
+      <>
       {/* Overview stats */}
       <div className="max-w-3xl mx-auto grid grid-cols-3 gap-3 mb-10">
         <StatCard icon={Crown} label="Empires" value={(empires || []).length} color="text-cyan-300" />
@@ -269,6 +315,8 @@ export default function Admin() {
           );
         })()}
       </div>
+      </>
+      )}
       </div>
     </div>
   );
