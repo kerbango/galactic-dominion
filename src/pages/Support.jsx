@@ -34,9 +34,9 @@ export default function Support() {
 
 
 
+
         // no empire or not logged in — still allow deletion flow
-      } finally {if (active) setLoading(false);}};load();
-  }, []);
+      } finally {if (active) setLoading(false);}};load();}, []);
 
   const canConfirm = empireName !== '' && confirmText.trim() === empireName.trim();
 
@@ -78,7 +78,7 @@ export default function Support() {
         <h2 className="font-heading text-sm tracking-[0.25em] text-cyan-100 uppercase mb-3">
           Need help?
         </h2>
-        <p className="text-sm text-muted-foreground font-body leading-relaxed">For Game Play Questions and Bug reporting. Please email kerbango@proton.me or join out
+        <p className="text-sm text-muted-foreground font-body leading-relaxed">For Game Play Questions and Bug reporting. Please email kerbango@proton.me or join our 
 
 
         </p>
