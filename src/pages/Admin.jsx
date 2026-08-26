@@ -2,22 +2,10 @@ import React, { useState, useEffect } from "react";
 import { Navigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { useAuth } from "@/lib/AuthContext";
-import { Shield, Loader2, Crown, Gem, Layers, Zap, Coins, Users } from "lucide-react";
+import { Shield, Loader2, Crown, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import AdminBackground from "@/components/AdminBackground";
-
-const RESOURCES = [
-  { key: 'aetherium_crystal', label: 'Aetherium', icon: Gem, color: 'text-violet-300' },
-  { key: 'ferrite_titanium', label: 'Ferrite', icon: Layers, color: 'text-slate-300' },
-  { key: 'energy', label: 'Energy', icon: Zap, color: 'text-amber-300' },
-  { key: 'vrind', label: 'VRIND', icon: Coins, color: 'text-cyan-300' },
-];
-
-function fmt(n) {
-  if (n == null) return '0';
-  return Math.floor(n).toLocaleString();
-}
 
 // Admin-only command section. Access is gated by role === "admin"; any other
 // user (or unauthenticated visitor) is bounced to the admin login.
@@ -195,32 +183,18 @@ export default function Admin() {
           const sel = (empires || []).find((e) => e.id === empireId);
           if (!sel) return null;
           return (
-            <div className="mt-5 grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <div>
-                  <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Empire</p>
-                  <p className="font-heading uppercase tracking-wide text-cyan-100">{sel.empire_name}</p>
-                </div>
-                <div>
-                  <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Ruler</p>
-                  <p className="text-foreground">{sel.ruler_name}</p>
-                </div>
-                <div>
-                  <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Sector</p>
-                  <p className="font-mono text-muted-foreground">{Math.round(sel.map_x)}, {Math.round(sel.map_y)}</p>
-                </div>
+            <div className="mt-5 grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div>
+                <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Empire</p>
+                <p className="font-heading uppercase tracking-wide text-cyan-100">{sel.empire_name}</p>
               </div>
-              <div className="grid grid-cols-2 gap-2">
-                {RESOURCES.map((r) => {
-                  const Icon = r.icon;
-                  return (
-                    <div key={r.key} className="glass-panel rounded-lg p-2 text-center">
-                      <Icon className={`w-3 h-3 ${r.color} mx-auto mb-1`} />
-                      <p className="font-mono text-sm font-bold text-foreground tabular-nums">{fmt(sel[r.key])}</p>
-                      <p className="text-[9px] uppercase tracking-widest text-muted-foreground mt-0.5">{r.label}</p>
-                    </div>
-                  );
-                })}
+              <div>
+                <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Ruler</p>
+                <p className="text-foreground">{sel.ruler_name}</p>
+              </div>
+              <div>
+                <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Sector</p>
+                <p className="font-mono text-muted-foreground">{Math.round(sel.map_x)}, {Math.round(sel.map_y)}</p>
               </div>
             </div>
           );
