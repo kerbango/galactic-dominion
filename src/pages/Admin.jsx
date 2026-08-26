@@ -32,6 +32,8 @@ export default function Admin() {
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState('');
   const [empireId, setEmpireId] = useState('');
+  const [tickBusy, setTickBusy] = useState(false);
+  const [tickMsg, setTickMsg] = useState('');
 
   useEffect(() => {
     if (isLoadingAuth) return;
@@ -86,6 +88,16 @@ export default function Admin() {
     } finally { setBusy(false); }
   };
 
+  const handleTick = async () => {
+    setTickBusy(true); setTickMsg('');
+    try {
+      const res = await base44.functions.invoke('tickResources', {});
+      setTickMsg(`Ticked ${res.ticked} empires · research advanced ${res.advanced}, completed ${res.completed}.`);
+    } catch (e) {
+      setTickMsg(e.response?.data?.error || e.message || 'Tick failed.');
+    } finally { setTickBusy(false); }
+  };
+
   // Owner = earliest-created account; can never be demoted.
   const owner = [...users].sort((a, b) => new Date(a.created_date) - new Date(b.created_date))[0];
   const promoteList = users.filter((u) => u.role !== 'admin');
@@ -138,6 +150,15 @@ export default function Admin() {
         <StatCard icon={Crown} label="Empires" value={(empires || []).length} color="text-cyan-300" />
         <StatCard icon={Users} label="Users" value={users.length} color="text-violet-300" />
         <StatCard icon={Shield} label="Admins" value={users.filter((u) => u.role === 'admin').length} color="text-rose-300" />
+      </div>
+
+      {/* Resource engine — manual tick for testing */}
+      <h2 className="font-heading text-sm tracking-[0.3em] text-cyan-200/80 uppercase mb-4">Resource Engine</h2>
+      <div className="glass-panel rounded-2xl p-5 mb-10 flex items-center gap-4 flex-wrap">
+        <Button onClick={handleTick} disabled={tickBusy} className="font-heading tracking-widest uppercase">
+          {tickBusy ? <Loader2 className="w-4 h-4 animate-spin" /> : <Zap className="w-4 h-4" />} Run Resource Tick
+        </Button>
+        {tickMsg && <p className="text-sm text-cyan-200/80">{tickMsg}</p>}
       </div>
 
       {/* Admin Access Manager */}
