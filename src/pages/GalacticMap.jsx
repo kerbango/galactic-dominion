@@ -72,7 +72,16 @@ export default function GalacticMap() {
   const empires = (data?.empires || []).filter((e) => e.map_x != null && e.map_y != null);
   const myEmpire = user ? empires.find((e) => e.created_by_id === user.id) : null;
   const selected = empires.find((e) => e.id === selectedId) || null;
-  const inTransit = fleets.filter((f) => f.status === 'in_transit');
+  const inTransit = fleets.filter((f) => {
+    if (f.status !== 'in_transit') return false;
+    // Drop return-leg fleets the instant their return trip completes so they
+    // leave the operations box without waiting for the server tick (service-
+    // role writes don't reach the realtime subscription).
+    if (f.leg === 'return' && f.return_arrival_date) {
+      return new Date(f.return_arrival_date).getTime() > now;
+    }
+    return true;
+  });
 
   return (
     <div className="max-w-7xl mx-auto px-4 md:px-8 py-8">

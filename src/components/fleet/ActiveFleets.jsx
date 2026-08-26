@@ -7,7 +7,14 @@ import { fleetProgress, remainingSeconds, formatDuration } from '@/lib/galaxy';
 // row labels which leg (Outbound/Return) the fleet is on and shows the
 // combat outcome once the return leg has started.
 export default function ActiveFleets({ fleets, now, myUserId }) {
-  const active = (fleets || []).filter((f) => f.status === 'in_transit');
+  const active = (fleets || []).filter((f) => {
+    if (f.status !== 'in_transit') return false;
+    // Remove return-leg fleets once their return trip has elapsed.
+    if (f.leg === 'return' && f.return_arrival_date) {
+      return new Date(f.return_arrival_date).getTime() > now;
+    }
+    return true;
+  });
   if (!active.length) return null;
   return (
     <div className="space-y-2">
