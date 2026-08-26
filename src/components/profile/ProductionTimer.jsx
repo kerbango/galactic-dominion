@@ -15,9 +15,13 @@ export default function ProductionTimer({ resource, lastTick }) {
   }, []);
 
   const lastMs = lastTick ? new Date(lastTick).getTime() : 0;
-  const elapsed = lastMs ? Math.max(0, now - lastMs) : 0;
-  const progress = Math.min(1, elapsed / INTERVAL_MS);
-  const remaining = Math.max(0, INTERVAL_MS - elapsed);
+  // Wrap elapsed with a modulo so the cycle rolls over into a fresh hour the
+  // instant it hits zero, instead of stalling at 0m 0s until the server tick
+  // refreshes last_tick_date. When the tick lands, last_tick_date recenters
+  // the countdown to the true tick time.
+  const cycleElapsed = lastMs ? (now - lastMs) % INTERVAL_MS : 0;
+  const progress = cycleElapsed / INTERVAL_MS;
+  const remaining = INTERVAL_MS - cycleElapsed;
   const remM = Math.floor(remaining / 60000);
   const remS = Math.floor((remaining % 60000) / 1000);
 
