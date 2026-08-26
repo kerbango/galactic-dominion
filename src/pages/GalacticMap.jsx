@@ -73,7 +73,15 @@ export default function GalacticMap() {
   const empires = (data?.empires || []).filter((e) => e.map_x != null && e.map_y != null);
   const myEmpire = user ? empires.find((e) => e.created_by_id === user.id) : null;
   const selected = empires.find((e) => e.id === selectedId) || null;
-  const inTransit = fleets.filter((f) => {
+  // Only show fleets the player is involved in (their own + attacks targeting
+  // them) so the map isn't cluttered with hundreds of rival-vs-rival moves.
+  const visibleFleets = fleets.filter((f) => {
+    const isMine = f.created_by_id === user?.id;
+    const targetsMe = myEmpire && f.target_empire_id === myEmpire.id;
+    return isMine || targetsMe;
+  });
+
+  const inTransit = visibleFleets.filter((f) => {
     if (f.status !== 'in_transit') return false;
     // Drop return-leg fleets the instant their return trip completes so they
     // leave the operations box without waiting for the server tick (service-
@@ -146,7 +154,7 @@ empires.length === 0 ? (
                 <Navigation className="w-4 h-4 text-cyan-300" />
                 <h2 className="font-heading text-sm tracking-[0.25em] text-cyan-100 uppercase">oPERATIONS</h2>
               </div>
-              <ActiveFleets fleets={fleets} now={now} myUserId={user?.id} />
+              <ActiveFleets fleets={visibleFleets} now={now} myUserId={user?.id} />
             </div>
           }
 
