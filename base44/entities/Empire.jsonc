@@ -51,6 +51,12 @@
       "title": "Map Y",
       "description": "Y coordinate of the empire on the galactic map.",
       "minimum": 0
+    },
+    "last_tick_date": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Last Tick Date",
+      "description": "ISO timestamp of the most recent resource tick applied to this empire."
     }
   },
   "required": [

@@ -14,6 +14,7 @@ export default async function(req) {
     // Empire RLS is owner-only, so read/update as service role to reach every empire.
     const empires = await base44.asServiceRole.entities.Empire.list('-created_date', 1000);
 
+    const tickedAt = new Date().toISOString();
     let ticked = 0;
     for (const empire of empires) {
       await base44.asServiceRole.entities.Empire.updateMany(
@@ -23,6 +24,8 @@ export default async function(req) {
           ferrite_titanium: 1,
           energy: 1,
           vrind: 1,
+        }, $set: {
+          last_tick_date: tickedAt,
         } }
       );
       ticked += 1;

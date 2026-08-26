@@ -34,7 +34,11 @@ export default function Profile() {
       }
     };
     load();
-    return () => { active = false; };
+    // Poll every 60s so the production timers pick up a fresh last_tick_date
+    // after each hourly tick (service-role writes don't reach the realtime
+    // subscription).
+    const poll = setInterval(load, 60000);
+    return () => { active = false; clearInterval(poll); };
   }, []);
 
   // Refresh the empire when the hourly tick (or any update) lands, so the
@@ -108,7 +112,7 @@ export default function Profile() {
       <h2 className="font-heading text-sm tracking-[0.3em] text-cyan-200/80 uppercase mt-10 mb-4">Production Cycles</h2>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {RESOURCES.map((r) => (
-          <ProductionTimer key={r.key} resource={r} lastTick={empire.updated_date} />
+          <ProductionTimer key={r.key} resource={r} lastTick={empire.last_tick_date || empire.updated_date} />
         ))}
       </div>
 
