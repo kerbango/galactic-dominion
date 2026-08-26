@@ -145,7 +145,7 @@ export default function ZoomableGalaxyMap({ empires, myEmpire, fleets, now, myUs
           <rect x={0} y={0} width={GRID_SIZE} height={GRID_SIZE} fill="none" stroke="rgba(120,200,230,0.25)" strokeWidth={2} rx={8} />
 
           {/* In-transit fleets (rendered under empire markers) */}
-          <FleetMarkers fleets={fleets} now={now} myUserId={myUserId} />
+          <FleetMarkers fleets={fleets} now={now} myUserId={myUserId} myEmpireId={myEmpire?.id} />
 
           {/* Empire markers */}
           {empires.map((e) => {

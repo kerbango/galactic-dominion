@@ -177,7 +177,9 @@ export default function GalacticMap() {
           <div className="mt-4 pt-4 border-t border-cyan-400/10 text-xs font-mono uppercase tracking-widest text-muted-foreground flex items-center gap-4 flex-wrap">
             <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-cyan-400 inline-block" /> You</span>
             <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-violet-400 inline-block" /> Rival</span>
-            <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-rose-400 inline-block" /> Enemy fleet</span>
+            <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-purple-400 inline-block" /> Sent</span>
+            <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-blue-400 inline-block" /> Returning</span>
+            <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-rose-500 inline-block animate-flash-red" /> Attacking you</span>
           </div>
         </div>
       </div>
