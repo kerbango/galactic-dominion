@@ -151,20 +151,44 @@ export default function PlayerMarketPanel() {
         )}
       </div>
 
+      {/* My active listings — cancel buttons appear here automatically */}
+      {(() => {
+        const mine = listings.filter((l) => l.created_by_id === empire?.created_by_id);
+        if (mine.length === 0) return null;
+        return (
+          <div>
+            <h2 className="font-heading text-sm tracking-[0.2em] uppercase text-orange-400 mb-3">My Active Listings</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {mine.map((l) => (
+                <ListingCard
+                  key={l.id}
+                  listing={l}
+                  own
+                  label={labelFor(l.resource_key)}
+                  busy={busy}
+                  onBuy={handleBuy}
+                  onCancel={handleCancel}
+                />
+              ))}
+            </div>
+          </div>
+        );
+      })()}
+
       {/* Listings */}
       <div>
         <h2 className="font-heading text-sm tracking-[0.2em] uppercase text-cyan-100 mb-3">Open Listings</h2>
-        {listings.length === 0 ? (
+        {listings.filter((l) => l.created_by_id !== empire?.created_by_id).length === 0 ? (
           <div className="glass-panel rounded-2xl p-8 text-center text-sm text-muted-foreground">
-            No active listings. Be the first to post one.
+            No other listings available. Be the first to post one.
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {listings.map((l) => (
+            {listings.filter((l) => l.created_by_id !== empire?.created_by_id).map((l) => (
               <ListingCard
                 key={l.id}
                 listing={l}
-                own={l.created_by_id === empire?.created_by_id}
+                own={false}
                 label={labelFor(l.resource_key)}
                 busy={busy}
                 onBuy={handleBuy}
