@@ -28,7 +28,33 @@ export default async function(req) {
       ticked += 1;
     }
 
-    return Response.json({ ok: true, ticked, at: new Date().toISOString() });
+    // Advance every player's in-progress research by one turn. TechProgress
+    // RLS is owner-only, so read/update as service role to reach all players.
+    // research_turns is snapshotted on the record at start, so no dataset
+    // lookup is needed here.
+    const researching = await base44.asServiceRole.entities.TechProgress.filter(
+      { status: 'researching' },
+      '-created_date',
+      1000
+    );
+    let advanced = 0;
+    let completed = 0;
+    for (const tp of researching) {
+      const next = (tp.progress || 0) + 1;
+      const turns = tp.research_turns || 0;
+      if (turns > 0 && next >= turns) {
+        await base44.asServiceRole.entities.TechProgress.update(tp.id, {
+          status: 'completed',
+          progress: turns,
+        });
+        completed += 1;
+      } else {
+        await base44.asServiceRole.entities.TechProgress.update(tp.id, { progress: next });
+        advanced += 1;
+      }
+    }
+
+    return Response.json({ ok: true, ticked, advanced, completed, at: new Date().toISOString() });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
   }
