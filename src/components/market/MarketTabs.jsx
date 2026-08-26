@@ -7,7 +7,7 @@ import { Store, Layers } from 'lucide-react';
 export default function MarketTabs() {
   const { pathname } = useLocation();
   const tabs = [
-    { to: '/market', label: 'Galactic Market', Icon: Store, exact: true },
+    { to: '/market', label: 'Player Market', Icon: Store, exact: true },
     { to: '/market/resources', label: 'Resource Market', Icon: Layers, exact: false },
   ];
   return (
