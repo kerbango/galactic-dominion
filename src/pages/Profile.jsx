@@ -3,6 +3,7 @@ import { Navigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { Crown, Flag, Gem, Layers, Zap, Coins, Loader2, MapPin } from 'lucide-react';
 import ProductionTimer from '@/components/profile/ProductionTimer';
+import CombatLog from '@/components/profile/CombatLog';
 import { useCycleRefresh } from '@/hooks/useCycleRefresh';
 
 const RESOURCES = [
@@ -121,6 +122,8 @@ export default function Profile() {
           <ProductionTimer key={r.key} resource={r} lastTick={empire.last_tick_date || empire.updated_date} />
         ))}
       </div>
+
+      <CombatLog />
 
     </div>
   );
