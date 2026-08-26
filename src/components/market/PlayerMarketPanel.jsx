@@ -132,7 +132,7 @@ export default function PlayerMarketPanel() {
               <Input type="number" min="1" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="0" className="bg-background/40" />
             </div>
             <div>
-              <p className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1">Price / unit (VRIND)</p>
+              <p className="text-[10px] uppercase tracking-widest text-red-500 mb-1">Price / unit (VRIND)</p>
               <Input type="number" min="0" step="0.01" value={price} onChange={(e) => setPrice(e.target.value)} placeholder="0" className="bg-background/40" />
             </div>
             <Button onClick={handleCreate} disabled={busy} className="font-heading tracking-widest uppercase">
