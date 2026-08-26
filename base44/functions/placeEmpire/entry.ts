@@ -27,6 +27,7 @@ export default async function(req) {
       ruler_name: rulerName,
       map_x: spawn.map_x,
       map_y: spawn.map_y,
+      last_tick_date: new Date().toISOString(),
     });
     return Response.json({ empire });
   } catch (error) {
