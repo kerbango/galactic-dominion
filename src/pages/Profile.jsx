@@ -7,11 +7,11 @@ import CombatLog from '@/components/profile/CombatLog';
 import { useCycleRefresh } from '@/hooks/useCycleRefresh';
 
 const RESOURCES = [
-  { key: 'aetherium_crystal', label: 'Aetherium Crystal', icon: Gem, color: 'text-violet-300' },
+  { key: 'berentium', label: 'Berentium', icon: Pickaxe, color: 'text-emerald-300' },
   { key: 'ferrite_titanium', label: 'Ferrite-Titanium', icon: Layers, color: 'text-slate-300' },
+  { key: 'aetherium_crystal', label: 'Aetherium Crystal', icon: Gem, color: 'text-violet-300' },
   { key: 'energy', label: 'Energy', icon: Zap, color: 'text-amber-300' },
   { key: 'vrind', label: 'VRIND', icon: Coins, color: 'text-cyan-300' },
-  { key: 'berentium', label: 'Berentium', icon: Pickaxe, color: 'text-emerald-300' },
 ];
 
 function formatAmount(n) {

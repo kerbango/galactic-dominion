@@ -4,11 +4,11 @@ import { base44 } from '@/api/base44Client';
 import { useCycleRefresh } from '@/hooks/useCycleRefresh';
 
 const RESOURCES = [
-  { key: 'aetherium_crystal', label: 'Aetherium Crystal', icon: Gem, color: 'text-violet-300', glow: 'rgba(167,139,250,0.5)' },
+  { key: 'berentium', label: 'Berentium', icon: Pickaxe, color: 'text-emerald-300', glow: 'rgba(110,231,183,0.5)' },
   { key: 'ferrite_titanium', label: 'Ferrite-Titanium', icon: Layers, color: 'text-slate-300', glow: 'rgba(203,213,225,0.4)' },
+  { key: 'aetherium_crystal', label: 'Aetherium Crystal', icon: Gem, color: 'text-violet-300', glow: 'rgba(167,139,250,0.5)' },
   { key: 'energy', label: 'Energy', icon: Zap, color: 'text-amber-300', glow: 'rgba(252,211,77,0.5)' },
   { key: 'vrind', label: 'VRIND', icon: Coins, color: 'text-cyan-300', glow: 'rgba(103,232,249,0.5)' },
-  { key: 'berentium', label: 'Berentium', icon: Pickaxe, color: 'text-emerald-300', glow: 'rgba(110,231,183,0.5)' },
 ];
 
 function formatAmount(n) {
