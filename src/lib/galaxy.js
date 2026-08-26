@@ -39,23 +39,33 @@ export function formatDuration(totalSeconds) {
 // These derive live position and remaining time from the current clock `now`
 // (epoch ms), so the map can animate in-transit fleets without polling.
 
+// A fleet is a round trip: an outbound leg (home → target) then a return
+// leg (target → home). These helpers read the *active* leg's coordinate
+// pair and timestamps so the map animates the dot in the right direction
+// and the countdown matches the right timer.
+const isReturnLeg = (fleet) => fleet.leg === 'return';
+
 export function fleetProgress(fleet, now) {
-  const dep = new Date(fleet.departure_date).getTime();
-  const arr = new Date(fleet.arrival_date).getTime();
-  if (!dep || !arr || arr <= dep) return 1;
+  const returning = isReturnLeg(fleet);
+  const dep = new Date(returning ? fleet.return_departure_date : fleet.departure_date).getTime();
+  const arr = new Date(returning ? fleet.return_arrival_date : fleet.arrival_date).getTime();
+  if (!dep || !arr || arr <= dep) return returning ? 1 : 0;
   return Math.max(0, Math.min(1, (now - dep) / (arr - dep)));
 }
 
 export function fleetPosition(fleet, now) {
   const p = fleetProgress(fleet, now);
-  return {
-    x: fleet.origin_x + (fleet.target_x - fleet.origin_x) * p,
-    y: fleet.origin_y + (fleet.target_y - fleet.origin_y) * p,
-  };
+  const returning = isReturnLeg(fleet);
+  const fromX = returning ? fleet.target_x : fleet.origin_x;
+  const fromY = returning ? fleet.target_y : fleet.origin_y;
+  const toX = returning ? fleet.origin_x : fleet.target_x;
+  const toY = returning ? fleet.origin_y : fleet.target_y;
+  return { x: fromX + (toX - fromX) * p, y: fromY + (toY - fromY) * p };
 }
 
 export function remainingSeconds(fleet, now) {
-  const arr = new Date(fleet.arrival_date).getTime();
+  const returning = isReturnLeg(fleet);
+  const arr = new Date(returning ? fleet.return_arrival_date : fleet.arrival_date).getTime();
   if (!arr) return 0;
   return Math.max(0, Math.round((arr - now) / 1000));
 }

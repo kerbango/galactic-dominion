@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Navigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { useAuth } from "@/lib/AuthContext";
-import { Shield, Loader2, Crown, Gem, Layers, Zap, Coins, Users } from "lucide-react";
+import { Shield, Loader2, Crown, Gem, Layers, Zap, Coins, Users, Rocket } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import AdminBackground from "@/components/AdminBackground";
@@ -34,6 +34,8 @@ export default function Admin() {
   const [empireId, setEmpireId] = useState('');
   const [tickBusy, setTickBusy] = useState(false);
   const [tickMsg, setTickMsg] = useState('');
+  const [fleetBusy, setFleetBusy] = useState(false);
+  const [fleetMsg, setFleetMsg] = useState('');
 
   useEffect(() => {
     if (isLoadingAuth) return;
@@ -98,6 +100,16 @@ export default function Admin() {
     } finally { setTickBusy(false); }
   };
 
+  const handleProcessFleets = async () => {
+    setFleetBusy(true); setFleetMsg('');
+    try {
+      const res = await base44.functions.invoke('processFleets', {});
+      setFleetMsg(`Resolved ${res.resolved} arrivals · ${res.returned} fleets returned home.`);
+    } catch (e) {
+      setFleetMsg(e.response?.data?.error || e.message || 'Fleet tick failed.');
+    } finally { setFleetBusy(false); }
+  };
+
   // Owner = earliest-created account; can never be demoted.
   const owner = [...users].sort((a, b) => new Date(a.created_date) - new Date(b.created_date))[0];
   const promoteList = users.filter((u) => u.role !== 'admin');
@@ -154,11 +166,19 @@ export default function Admin() {
 
       {/* Resource engine — manual tick for testing */}
       <h2 className="font-heading text-sm tracking-[0.3em] text-cyan-200/80 uppercase mb-4">Resource Engine</h2>
-      <div className="glass-panel rounded-2xl p-5 mb-10 flex items-center gap-4 flex-wrap">
+      <div className="glass-panel rounded-2xl p-5 mb-6 flex items-center gap-4 flex-wrap">
         <Button onClick={handleTick} disabled={tickBusy} className="font-heading tracking-widest uppercase">
           {tickBusy ? <Loader2 className="w-4 h-4 animate-spin" /> : <Zap className="w-4 h-4" />} Run Resource Tick
         </Button>
         {tickMsg && <p className="text-sm text-cyan-200/80">{tickMsg}</p>}
+      </div>
+
+      <h2 className="font-heading text-sm tracking-[0.3em] text-cyan-200/80 uppercase mb-4">Fleet Operations</h2>
+      <div className="glass-panel rounded-2xl p-5 mb-10 flex items-center gap-4 flex-wrap">
+        <Button onClick={handleProcessFleets} disabled={fleetBusy} className="font-heading tracking-widest uppercase">
+          {fleetBusy ? <Loader2 className="w-4 h-4 animate-spin" /> : <Rocket className="w-4 h-4" />} Process Fleets
+        </Button>
+        {fleetMsg && <p className="text-sm text-cyan-200/80">{fleetMsg}</p>}
       </div>
 
       {/* Admin Access Manager */}

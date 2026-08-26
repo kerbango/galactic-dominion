@@ -45,6 +45,7 @@ export default async function(req) {
       target_y: target.map_y,
       fleet_size: Math.floor(fleetSize),
       status: 'in_transit',
+      leg: 'outbound',
       departure_date: now.toISOString(),
       arrival_date: arrival.toISOString(),
     });

@@ -47,15 +47,10 @@ export default function GalacticMap() {
     return () => clearInterval(t);
   }, []);
 
-  // Mark the player's own fleets as arrived once their arrival time passes,
-  // so finished journeys drop out of the active list. (Only the owner can
-  // update; rival fleets are cleaned up by their owners.)
-  useEffect(() => {
-    if (!user) return;
-    fleets.
-    filter((f) => f.status === 'in_transit' && new Date(f.arrival_date).getTime() <= now && f.created_by_id === user.id).
-    forEach((f) => base44.entities.Fleet.update(f.id, { status: 'arrived' }));
-  }, [now, fleets, user]);
+  // Arrivals are resolved by the server-side processFleets tick (combat +
+  // return leg + loot deposit), which runs even with no client open. The
+  // client no longer auto-marks fleets arrived, since that would skip combat
+  // and strand the fleet at the target.
 
   if (loading) {
     return (

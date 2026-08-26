@@ -58,6 +58,16 @@
       ],
       "default": "in_transit"
     },
+    "leg": {
+      "type": "string",
+      "title": "Leg",
+      "description": "Which leg of the round trip the fleet is on: outbound (home \u2192 target) or return (target \u2192 home).",
+      "enum": [
+        "outbound",
+        "return"
+      ],
+      "default": "outbound"
+    },
     "departure_date": {
       "type": "string",
       "format": "date-time",
@@ -69,6 +79,56 @@
       "format": "date-time",
       "title": "Arrival Date",
       "description": "When the fleet is scheduled to arrive at its target."
+    },
+    "return_departure_date": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Return Departure Date",
+      "description": "When the return leg departed the target (set after combat resolves)."
+    },
+    "return_arrival_date": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Return Arrival Date",
+      "description": "When the return leg is scheduled to arrive back home."
+    },
+    "outcome": {
+      "type": "string",
+      "title": "Outcome",
+      "description": "Combat result at the target: win or loss. Null until resolved.",
+      "enum": [
+        "win",
+        "loss"
+      ]
+    },
+    "survivors": {
+      "type": "number",
+      "title": "Survivors",
+      "description": "Ships that survived combat and are returning home.",
+      "minimum": 0
+    },
+    "loot": {
+      "type": "object",
+      "title": "Loot",
+      "description": "Resources stolen from the target on a winning attack, deposited home on return arrival. Null on a loss.",
+      "properties": {
+        "aetherium_crystal": {
+          "type": "number",
+          "minimum": 0
+        },
+        "ferrite_titanium": {
+          "type": "number",
+          "minimum": 0
+        },
+        "energy": {
+          "type": "number",
+          "minimum": 0
+        },
+        "vrind": {
+          "type": "number",
+          "minimum": 0
+        }
+      }
     }
   },
   "required": [
