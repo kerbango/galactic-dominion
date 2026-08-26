@@ -3,6 +3,7 @@ import { Navigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { Gem, Layers, Zap, Coins, Loader2, LayoutDashboard } from 'lucide-react';
 import ProductionBreakdown from '@/components/console/ProductionBreakdown';
+import LowResourceWarning from '@/components/console/LowResourceWarning';
 
 const RESOURCES = [
   { key: 'aetherium_crystal', label: 'Aetherium Crystal', icon: Gem, color: 'text-violet-300' },
@@ -80,6 +81,8 @@ export default function Console() {
           );
         })}
       </div>
+
+      <LowResourceWarning empire={empire} />
 
       <ProductionBreakdown />
 
