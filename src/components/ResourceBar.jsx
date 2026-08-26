@@ -34,12 +34,15 @@ export default function ResourceBar() {
       }
     };
     load();
+    // Poll every 60s so the HUD picks up the hourly service-role tick, which
+    // doesn't reach the realtime subscription.
+    const poll = setInterval(load, 60000);
     // Live-update when any Empire record is created/updated/deleted so the
     // HUD reflects a freshly founded empire without a full page reload.
     const unsubscribe = base44.entities.Empire.subscribe((event) => {
       if (active) load();
     });
-    return () => { active = false; unsubscribe(); };
+    return () => { active = false; clearInterval(poll); unsubscribe(); };
   }, []);
 
   if (loading) {
