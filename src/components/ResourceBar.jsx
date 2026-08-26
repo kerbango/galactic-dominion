@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Gem, Layers, Zap, Coins, Loader2 } from 'lucide-react';
+import { Gem, Layers, Zap, Coins, Pickaxe, Loader2 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useCycleRefresh } from '@/hooks/useCycleRefresh';
 
@@ -8,6 +8,7 @@ const RESOURCES = [
   { key: 'ferrite_titanium', label: 'Ferrite-Titanium', icon: Layers, color: 'text-slate-300', glow: 'rgba(203,213,225,0.4)' },
   { key: 'energy', label: 'Energy', icon: Zap, color: 'text-amber-300', glow: 'rgba(252,211,77,0.5)' },
   { key: 'vrind', label: 'VRIND', icon: Coins, color: 'text-cyan-300', glow: 'rgba(103,232,249,0.5)' },
+  { key: 'berentium', label: 'Berentium', icon: Pickaxe, color: 'text-emerald-300', glow: 'rgba(110,231,183,0.5)' },
 ];
 
 function formatAmount(n) {

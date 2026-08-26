@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { productionPerHour, BASE_PER_HOUR } from '@/lib/production';
-import { Gem, Layers, Zap, Coins, Loader2 } from 'lucide-react';
+import { Gem, Layers, Zap, Coins, Pickaxe, Loader2 } from 'lucide-react';
 
 const RESOURCES = [
   { key: 'aetherium_crystal', label: 'Aetherium Crystal', icon: Gem, color: 'text-violet-300' },
   { key: 'ferrite_titanium', label: 'Ferrite-Titanium', icon: Layers, color: 'text-slate-300' },
   { key: 'energy', label: 'Energy', icon: Zap, color: 'text-amber-300' },
   { key: 'vrind', label: 'VRIND', icon: Coins, color: 'text-cyan-300' },
+  { key: 'berentium', label: 'Berentium', icon: Pickaxe, color: 'text-emerald-300' },
 ];
 
 export default function ProductionBreakdown() {
@@ -43,7 +44,7 @@ export default function ProductionBreakdown() {
       <p className="text-center text-[0.6rem] font-mono uppercase tracking-widest text-cyan-200/60 mb-1">
         Estimated Production / Hour
       </p>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-[5px] md:w-3/5 md:mx-auto">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-[5px] md:w-3/5 md:mx-auto">
         {RESOURCES.map((r) => {
           const Icon = r.icon;
           const total = rates[r.key] || BASE_PER_HOUR;

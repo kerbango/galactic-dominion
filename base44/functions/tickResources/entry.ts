@@ -29,6 +29,7 @@ export default async function(req) {
           ferrite_titanium: due,
           energy: due,
           vrind: due,
+          berentium: due,
         }, $set: {
           last_tick_date: tickedAt,
         } }

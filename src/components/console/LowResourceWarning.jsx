@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { productionPerHour } from '@/lib/production';
-import { Gem, Layers, Zap, Coins, AlertTriangle } from 'lucide-react';
+import { Gem, Layers, Zap, Coins, Pickaxe, AlertTriangle } from 'lucide-react';
 
 const RESOURCES = [
   { key: 'aetherium_crystal', label: 'Aetherium Crystal', icon: Gem, color: 'text-violet-300' },
   { key: 'ferrite_titanium', label: 'Ferrite-Titanium', icon: Layers, color: 'text-slate-300' },
   { key: 'energy', label: 'Energy', icon: Zap, color: 'text-amber-300' },
   { key: 'vrind', label: 'VRIND', icon: Coins, color: 'text-cyan-300' },
+  { key: 'berentium', label: 'Berentium', icon: Pickaxe, color: 'text-emerald-300' },
 ];
 
 // A resource is "running low" when its balance falls below half an hour of

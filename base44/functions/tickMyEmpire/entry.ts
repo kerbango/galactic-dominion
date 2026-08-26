@@ -28,6 +28,7 @@ export default async function(req) {
       ferrite_titanium: (empire.ferrite_titanium || 0) + due,
       energy: (empire.energy || 0) + due,
       vrind: (empire.vrind || 0) + due,
+      berentium: (empire.berentium || 0) + due,
       last_tick_date: tickedAt,
     });
 

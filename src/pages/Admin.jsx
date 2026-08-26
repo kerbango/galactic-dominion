@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Navigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { useAuth } from "@/lib/AuthContext";
-import { Shield, Loader2, Crown, Gem, Layers, Zap, Coins, Users, Rocket } from "lucide-react";
+import { Shield, Loader2, Crown, Gem, Layers, Zap, Coins, Pickaxe, Users, Rocket } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import AdminBackground from "@/components/AdminBackground";
@@ -12,6 +12,7 @@ const RESOURCES = [
   { key: 'ferrite_titanium', label: 'Ferrite', icon: Layers, color: 'text-slate-300' },
   { key: 'energy', label: 'Energy', icon: Zap, color: 'text-amber-300' },
   { key: 'vrind', label: 'VRIND', icon: Coins, color: 'text-cyan-300' },
+  { key: 'berentium', label: 'Berentium', icon: Pickaxe, color: 'text-emerald-300' },
 ];
 
 function fmt(n) {

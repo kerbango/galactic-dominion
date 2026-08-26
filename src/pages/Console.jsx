@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
-import { Gem, Layers, Zap, Coins, Loader2, LayoutDashboard } from 'lucide-react';
+import { Gem, Layers, Zap, Coins, Pickaxe, Loader2, LayoutDashboard } from 'lucide-react';
 import ProductionBreakdown from '@/components/console/ProductionBreakdown';
 import LowResourceWarning from '@/components/console/LowResourceWarning';
 
@@ -10,6 +10,7 @@ const RESOURCES = [
   { key: 'ferrite_titanium', label: 'Ferrite-Titanium', icon: Layers, color: 'text-slate-300' },
   { key: 'energy', label: 'Energy', icon: Zap, color: 'text-amber-300' },
   { key: 'vrind', label: 'VRIND', icon: Coins, color: 'text-cyan-300' },
+  { key: 'berentium', label: 'Berentium', icon: Pickaxe, color: 'text-emerald-300' },
 ];
 
 function formatAmount(n) {
@@ -67,7 +68,7 @@ export default function Console() {
 
       {/* Accumulated resources */}
       <h2 className="font-heading text-[0.65rem] tracking-[0.3em] text-cyan-200/80 uppercase mb-1 text-center">Accumulated Resources</h2>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-[5px] mb-2 md:w-3/5 md:mx-auto">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-[5px] mb-2 md:w-3/5 md:mx-auto">
         {RESOURCES.map((r) => {
           const Icon = r.icon;
           return (

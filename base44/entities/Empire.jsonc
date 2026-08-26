@@ -40,6 +40,13 @@
       "default": 500,
       "minimum": 0
     },
+    "berentium": {
+      "type": "number",
+      "title": "Berentium",
+      "description": "Rare mined ore used for advanced alloys and exotic construction.",
+      "default": 500,
+      "minimum": 0
+    },
     "map_x": {
       "type": "number",
       "title": "Map X",
