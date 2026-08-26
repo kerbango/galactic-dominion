@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
-import { Ticket, Loader2, Send, CheckCircle2, RefreshCw, ChevronDown, ChevronUp, AlertCircle } from 'lucide-react';
+import { Ticket, Loader2, Send, CheckCircle2, RefreshCw, ChevronDown, ChevronUp, AlertCircle, Trash2 } from 'lucide-react';
 
 const CATEGORIES = [
   { key: 'all', label: 'All Categories' },
@@ -106,6 +106,19 @@ export default function AdminTickets() {
       await load();
     } catch (e) {
       setActionMsg(e.response?.data?.error || e.message || 'Status update failed.');
+    } finally { setBusy((b) => ({ ...b, [ticket.id]: null })); }
+  };
+
+  const handleDelete = async (ticket) => {
+    if (!window.confirm(`Delete closed ticket "${ticket.subject}"? This cannot be undone.`)) return;
+    setBusy((b) => ({ ...b, [ticket.id]: 'delete' }));
+    setActionMsg('');
+    try {
+      await base44.entities.SupportTicket.delete(ticket.id);
+      if (openId === ticket.id) setOpenId(null);
+      await load();
+    } catch (e) {
+      setActionMsg(e.response?.data?.error || e.message || 'Delete failed.');
     } finally { setBusy((b) => ({ ...b, [ticket.id]: null })); }
   };
 
@@ -212,6 +225,11 @@ export default function AdminTickets() {
                       {t.category === 'reset_account' && (
                         <Button size="sm" variant="destructive" onClick={() => handleAction(t, 'reset_account')} disabled={busy[t.id] === 'action' || t.status === 'resolved'} className="font-heading tracking-widest uppercase text-xs">
                           {busy[t.id] === 'action' ? <Loader2 className="w-3 h-3 animate-spin" /> : <RefreshCw className="w-3 h-3" />} Reset Account
+                        </Button>
+                      )}
+                      {t.status === 'closed' && (
+                        <Button size="sm" variant="ghost" onClick={() => handleDelete(t)} disabled={busy[t.id] === 'delete'} className="font-heading tracking-widest uppercase text-xs text-rose-300 hover:bg-rose-400/10 ml-auto">
+                          {busy[t.id] === 'delete' ? <Loader2 className="w-3 h-3 animate-spin" /> : <Trash2 className="w-3 h-3" />} Delete
                         </Button>
                       )}
                     </div>
