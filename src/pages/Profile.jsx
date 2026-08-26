@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Navigate } from 'react-router-dom';
-import { base44 } from '@/api/base44Client';
 import { Crown, Flag, Gem, Layers, Zap, Coins, Pickaxe, Users, Loader2, MapPin } from 'lucide-react';
+import { useEmpire } from '@/lib/EmpireContext';
 import ProductionTimer from '@/components/profile/ProductionTimer';
 import CombatLog from '@/components/profile/CombatLog';
 import { useCycleRefresh } from '@/hooks/useCycleRefresh';
@@ -21,45 +21,11 @@ function formatAmount(n) {
 }
 
 export default function Profile() {
-  const [empire, setEmpire] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    let active = true;
-    const load = async () => {
-      try {
-        const user = await base44.auth.me();
-        const empires = await base44.entities.Empire.filter({ created_by_id: user.id });
-        if (active) setEmpire(empires[0] || null);
-      } catch (e) {
-        if (active) setEmpire(null);
-      } finally {
-        if (active) setLoading(false);
-      }
-    };
-    load();
-    // Poll every 60s so the production timers pick up a fresh last_tick_date
-    // after each hourly tick (service-role writes don't reach the realtime
-    // subscription).
-    const poll = setInterval(load, 60000);
-    return () => { active = false; clearInterval(poll); };
-  }, []);
-
-  // Refresh the empire when the hourly tick (or any update) lands, so the
-  // production timers reset their cycle from the new updated_date.
-  useEffect(() => {
-    const unsubscribe = base44.entities.Empire.subscribe((event) => {
-      if (event.type === 'update' && event.data) {
-        setEmpire((prev) => (prev && prev.id === event.data.id ? { ...prev, ...event.data } : prev));
-      }
-    });
-    return unsubscribe;
-  }, []);
+  const { empire, loading, refresh } = useEmpire();
 
   // Refetch the instant the production-cycle countdown hits zero, so freshly
-  // ticked totals appear without waiting for the next poll. Retries until the
-  // server tick has actually landed.
-  useCycleRefresh(empire?.last_tick_date || empire?.updated_date, setEmpire);
+  // ticked totals appear without waiting for a manual refresh.
+  useCycleRefresh(empire?.last_tick_date || empire?.updated_date, refresh);
 
   if (loading) {
     return (

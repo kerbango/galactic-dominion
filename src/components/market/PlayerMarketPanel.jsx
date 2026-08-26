@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Loader2, Tag, ShoppingCart, Plus, Trash2, Coins } from 'lucide-react';
+import { useEmpire } from '@/lib/EmpireContext';
+import { Loader2, Tag, ShoppingCart, Plus, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
@@ -18,10 +19,13 @@ function fmt(n) {
 }
 
 // Player Market — players list any raw resource from their empire for sale at
-// a VRIND price of their choosing, and buy other players' listings. Purchase
-// is resolved atomically by the buyMarketListing backend function.
+// a VRIND price of their choosing, and buy other players' listings. Listing
+// escrows the resource server-side (createMarketListing); canceling returns
+// it (cancelMarketListing); buying transfers it (buyMarketListing). After
+// every trade action the shared empire store is refreshed so treasury values
+// update instantly across all screens.
 export default function PlayerMarketPanel() {
-  const [empire, setEmpire] = useState(null);
+  const { empire, refresh } = useEmpire();
   const [listings, setListings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
@@ -32,13 +36,9 @@ export default function PlayerMarketPanel() {
   const [amount, setAmount] = useState('');
   const [price, setPrice] = useState('');
 
-  const load = async () => {
+  const loadListings = async () => {
     try {
-      const [emp, list] = await Promise.all([
-        base44.entities.Empire.list('-created_date', 1),
-        base44.entities.MarketListing.filter({ status: 'listed' }, '-created_date', 200),
-      ]);
-      setEmpire(emp[0] || null);
+      const list = await base44.entities.MarketListing.filter({ status: 'listed' }, '-created_date', 200);
       setListings(list);
     } catch (e) {
       setMsg(e.message || 'Failed to load market.');
@@ -48,7 +48,7 @@ export default function PlayerMarketPanel() {
   };
 
   useEffect(() => {
-    load();
+    loadListings();
   }, []);
 
   const handleCreate = async () => {
@@ -57,19 +57,16 @@ export default function PlayerMarketPanel() {
     if (!amt || amt <= 0) return setMsg('Enter a valid amount.');
     if (!pr || pr <= 0) return setMsg('Enter a valid price per unit.');
     if (!empire) return setMsg('No empire found.');
-    if ((empire[resKey] || 0) < amt) return setMsg('You do not have that much of this resource.');
     setBusy(true); setMsg('');
     try {
-      await base44.entities.MarketListing.create({
-        seller_name: empire.empire_name,
+      await base44.functions.invoke('createMarketListing', {
         resource_key: resKey,
         amount: amt,
         price_per_unit: pr,
-        status: 'listed',
       });
       setAmount(''); setPrice('');
-      setMsg('Listing posted.');
-      await load();
+      setMsg('Listing posted — resources escrowed.');
+      await Promise.all([loadListings(), refresh()]);
     } catch (e) {
       setMsg(e.response?.data?.error || e.message || 'Failed to post listing.');
     } finally { setBusy(false); }
@@ -78,8 +75,9 @@ export default function PlayerMarketPanel() {
   const handleCancel = async (id) => {
     setBusy(true); setMsg('');
     try {
-      await base44.entities.MarketListing.delete(id);
-      await load();
+      await base44.functions.invoke('cancelMarketListing', { listingId: id });
+      setMsg('Listing canceled — stock returned.');
+      await Promise.all([loadListings(), refresh()]);
     } catch (e) {
       setMsg(e.response?.data?.error || e.message || 'Failed to cancel listing.');
     } finally { setBusy(false); }
@@ -92,7 +90,7 @@ export default function PlayerMarketPanel() {
     try {
       const res = await base44.functions.invoke('buyMarketListing', { listingId: listing.id, buyAmount: amt });
       setMsg(`Bought ${fmt(res.bought)} for ${fmt(res.totalCost)} VRIND.`);
-      await load();
+      await Promise.all([loadListings(), refresh()]);
     } catch (e) {
       setMsg(e.response?.data?.error || e.message || 'Purchase failed.');
     } finally { setBusy(false); }

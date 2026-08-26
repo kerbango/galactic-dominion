@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
-import { base44 } from '@/api/base44Client';
+import React from 'react';
 import { Layers, Gem, Zap, Coins, Pickaxe, Users, Loader2 } from 'lucide-react';
+import { useEmpire } from '@/lib/EmpireContext';
 
 const RESOURCES = [
   { key: 'berentium', label: 'Berentium', icon: Pickaxe, color: 'text-emerald-300' },
@@ -16,24 +16,10 @@ function fmt(n) {
   return Math.floor(n).toLocaleString();
 }
 
-// "Available Resources" box grid shown at the top of the market pages so
-// players can see their treasury before trading. Loads the player's empire.
+// "Available Resources" box grid shown at the top of the market page. Reads
+// from the shared empire store so it updates instantly after every trade.
 export default function AvailableResources() {
-  const [empire, setEmpire] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    let active = true;
-    const load = async () => {
-      try {
-        const list = await base44.entities.Empire.list('-created_date', 1);
-        if (active) setEmpire(list[0] || null);
-      } catch { /* ignore */ }
-      finally { if (active) setLoading(false); }
-    };
-    load();
-    return () => { active = false; };
-  }, []);
+  const { empire, loading } = useEmpire();
 
   if (loading) {
     return (

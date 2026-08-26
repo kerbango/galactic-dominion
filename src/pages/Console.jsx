@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Navigate } from 'react-router-dom';
-import { base44 } from '@/api/base44Client';
 import { Gem, Layers, Zap, Coins, Pickaxe, Users, Loader2, LayoutDashboard } from 'lucide-react';
+import { useEmpire } from '@/lib/EmpireContext';
 import ProductionBreakdown from '@/components/console/ProductionBreakdown';
 import LowResourceWarning from '@/components/console/LowResourceWarning';
 
@@ -19,29 +19,10 @@ function formatAmount(n) {
   return Math.floor(n).toLocaleString();
 }
 
-// Central command hub. Shows the empire's accumulated resources and quick
-// navigation to the galactic map and profile. Players without an empire are
-// sent to the empire-selection (setup) screen.
+// Central command hub. Reads the empire from the shared store so treasury
+// values stay in sync with trades performed on the Market.
 export default function Console() {
-  const [empire, setEmpire] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    let active = true;
-    const load = async () => {
-      try {
-        const user = await base44.auth.me();
-        const empires = await base44.entities.Empire.filter({ created_by_id: user.id });
-        if (active) setEmpire(empires[0] || null);
-      } catch {
-        if (active) setEmpire(null);
-      } finally {
-        if (active) setLoading(false);
-      }
-    };
-    load();
-    return () => { active = false; };
-  }, []);
+  const { empire, loading } = useEmpire();
 
   if (loading) {
     return (
