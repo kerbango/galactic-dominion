@@ -47,6 +47,13 @@
       "default": 500,
       "minimum": 0
     },
+    "population": {
+      "type": "number",
+      "title": "Population",
+      "description": "Total population of the empire. Grows via upgrades and research, not passive production.",
+      "default": 1000000,
+      "minimum": 0
+    },
     "map_x": {
       "type": "number",
       "title": "Map X",
