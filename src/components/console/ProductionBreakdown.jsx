@@ -9,7 +9,7 @@ const RESOURCES = [
   { key: 'aetherium_crystal', label: 'Aetherium Crystal', icon: Gem, color: 'text-violet-300' },
   { key: 'energy', label: 'Energy', icon: Zap, color: 'text-amber-300' },
   { key: 'vrind', label: 'VRIND', icon: Coins, color: 'text-cyan-300' },
-  { key: 'population', label: 'Population', icon: Users, color: 'text-rose-300' },
+  { key: 'population', label: 'Population', icon: Users, color: 'text-rose-300', static: true },
 ];
 
 export default function ProductionBreakdown() {
@@ -48,6 +48,22 @@ export default function ProductionBreakdown() {
       <div className="grid grid-cols-2 md:grid-cols-6 gap-[5px] md:w-3/5 md:mx-auto">
         {RESOURCES.map((r) => {
           const Icon = r.icon;
+          if (r.static) {
+            return (
+              <div key={r.key} className="glass-panel rounded-md p-1">
+                <Icon className={`w-[14px] h-[14px] ${r.color} mb-[3px]`} />
+                <p className="font-mono text-[0.72rem] font-bold text-muted-foreground tabular-nums leading-none">
+                  —
+                </p>
+                <p className="text-[0.55rem] uppercase tracking-widest text-muted-foreground mt-[1px]">
+                  {r.label}
+                </p>
+                <p className="text-[0.55rem] font-mono text-muted-foreground/60 mt-[1px]">
+                  Static
+                </p>
+              </div>
+            );
+          }
           const total = rates[r.key] || BASE_PER_HOUR;
           const tech = total - BASE_PER_HOUR;
           return (

@@ -9,7 +9,7 @@ const RESOURCES = [
   { key: 'aetherium_crystal', label: 'Aetherium Crystal', icon: Gem, color: 'text-violet-300' },
   { key: 'energy', label: 'Energy', icon: Zap, color: 'text-amber-300' },
   { key: 'vrind', label: 'VRIND', icon: Coins, color: 'text-cyan-300' },
-  { key: 'population', label: 'Population', icon: Users, color: 'text-rose-300' },
+  { key: 'population', label: 'Population', icon: Users, color: 'text-rose-300', static: true },
 ];
 
 // A resource is "running low" when its balance falls below half an hour of
@@ -41,6 +41,7 @@ export default function LowResourceWarning({ empire }) {
   if (!rates || !empire) return null;
 
   const lowResources = RESOURCES.filter((r) => {
+    if (r.static) return false;
     const balance = empire[r.key] || 0;
     const threshold = Math.max(LOW_FLOOR, (rates[r.key] || 0) * LOW_FRACTION);
     return balance < threshold;
