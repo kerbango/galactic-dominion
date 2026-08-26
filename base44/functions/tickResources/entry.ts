@@ -1,4 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
+import { authorizeTick } from '../../shared/authGuard.ts';
 
 // Hourly resource tick. Each empire earns 1 of every resource (Aetherium
 // Crystal, Ferrite-Titanium, Energy, VRIND) per run — every player controls
@@ -7,9 +8,8 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
 export default async function(req) {
   try {
     const base44 = createClientFromRequest(req);
-    const user = await base44.auth.me();
-    if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
-    if (user.role !== 'admin') return Response.json({ error: 'Forbidden' }, { status: 403 });
+    const guard = await authorizeTick(base44);
+    if (!guard.ok) return guard.response;
 
     // Empire RLS is owner-only, so read/update as service role to reach every empire.
     const empires = await base44.asServiceRole.entities.Empire.list('-created_date', 1000);

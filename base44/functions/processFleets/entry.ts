@@ -1,4 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
+import { authorizeTick } from '../../shared/authGuard.ts';
 
 // Processes every in-transit fleet whose current leg has elapsed:
 //   • outbound arrival  → resolve combat, steal loot (on a win), start the
@@ -24,9 +25,8 @@ const RES_KEYS = ['aetherium_crystal', 'ferrite_titanium', 'energy', 'vrind'];
 export default async function(req) {
   try {
     const base44 = createClientFromRequest(req);
-    const user = await base44.auth.me();
-    if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
-    if (user.role !== 'admin') return Response.json({ error: 'Forbidden' }, { status: 403 });
+    const guard = await authorizeTick(base44);
+    if (!guard.ok) return guard.response;
 
     const now = Date.now();
     const nowIso = new Date(now).toISOString();
