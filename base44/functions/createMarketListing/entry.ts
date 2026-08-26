@@ -41,7 +41,10 @@ export default async function(req) {
       [resourceKey]: (empire[resourceKey] || 0) - amount,
     });
 
-    const listing = await svc.entities.MarketListing.create({
+    // Create the listing as the calling user (not the service role) so the
+    // platform stamps created_by_id with the real user id. buy/cancel/own
+    // checks all compare against this id, so it must be the user's.
+    const listing = await base44.entities.MarketListing.create({
       seller_name: empire.empire_name,
       resource_key: resourceKey,
       amount,
