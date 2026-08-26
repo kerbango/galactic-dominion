@@ -22,8 +22,7 @@ import AdminLogin from '@/pages/AdminLogin';
 import Admin from '@/pages/Admin';
 import SectionPlaceholder from '@/pages/SectionPlaceholder';
 import Comms from '@/pages/Comms';
-import Research from '@/pages/Research';
-import { Sword, Wrench, Store, Handshake, Radio } from 'lucide-react';
+import { Sword, FlaskConical, Wrench, Store, Handshake, Radio } from 'lucide-react';
 // Add page imports here
 
 const AuthenticatedApp = () => {
@@ -69,7 +68,7 @@ const AuthenticatedApp = () => {
           <Route path="/map" element={<GalacticMap />} />
           <Route path="/console" element={<Console />} />
           <Route path="/military" element={<SectionPlaceholder title="Military" Icon={Sword} />} />
-          <Route path="/research" element={<Research />} />
+          <Route path="/research" element={<SectionPlaceholder title="Research" Icon={FlaskConical} />} />
           <Route path="/upgrades" element={<SectionPlaceholder title="Upgrades" Icon={Wrench} />} />
           <Route path="/market" element={<SectionPlaceholder title="Market" Icon={Store} />} />
           <Route path="/alliance" element={<SectionPlaceholder title="Alliance" Icon={Handshake} />} />
