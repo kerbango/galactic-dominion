@@ -3,6 +3,8 @@ import { Navigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { useAuth } from "@/lib/AuthContext";
 import { Shield, Loader2, Crown, Gem, Layers, Zap, Coins, Users } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import AdminBackground from "@/components/AdminBackground";
 
 const RESOURCES = [
@@ -25,6 +27,10 @@ export default function Admin() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [promoteId, setPromoteId] = useState('');
+  const [demoteId, setDemoteId] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState('');
 
   useEffect(() => {
     if (isLoadingAuth) return;
@@ -47,6 +53,42 @@ export default function Admin() {
     load();
     return () => { active = false; };
   }, [isLoadingAuth, user]);
+
+  const refreshUsers = async () => {
+    const u = await base44.entities.User.list();
+    setUsers(u);
+  };
+
+  const handlePromote = async () => {
+    if (!promoteId) return;
+    setBusy(true); setMsg('');
+    try {
+      await base44.functions.invoke('setUserRole', { userId: promoteId, role: 'admin' });
+      setPromoteId('');
+      setMsg('Admin access granted.');
+      await refreshUsers();
+    } catch (e) {
+      setMsg(e.response?.data?.error || e.message || 'Failed to grant admin.');
+    } finally { setBusy(false); }
+  };
+
+  const handleDemote = async () => {
+    if (!demoteId) return;
+    setBusy(true); setMsg('');
+    try {
+      await base44.functions.invoke('setUserRole', { userId: demoteId, role: 'user' });
+      setDemoteId('');
+      setMsg('Admin access removed.');
+      await refreshUsers();
+    } catch (e) {
+      setMsg(e.response?.data?.error || e.message || 'Failed to remove admin.');
+    } finally { setBusy(false); }
+  };
+
+  // Owner = earliest-created account; can never be demoted.
+  const owner = [...users].sort((a, b) => new Date(a.created_date) - new Date(b.created_date))[0];
+  const promoteList = users.filter((u) => u.role !== 'admin');
+  const demoteList = users.filter((u) => u.role === 'admin' && u.id !== owner?.id && u.id !== user?.id);
 
   if (isLoadingAuth) {
     return (
@@ -91,10 +133,48 @@ export default function Admin() {
       )}
 
       {/* Overview stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
+      <div className="max-w-3xl mx-auto grid grid-cols-3 gap-3 mb-10">
         <StatCard icon={Crown} label="Empires" value={(empires || []).length} color="text-cyan-300" />
         <StatCard icon={Users} label="Users" value={users.length} color="text-violet-300" />
         <StatCard icon={Shield} label="Admins" value={users.filter((u) => u.role === 'admin').length} color="text-rose-300" />
+      </div>
+
+      {/* Admin Access Manager */}
+      <h2 className="font-heading text-sm tracking-[0.3em] text-cyan-200/80 uppercase mb-4">Admin Access</h2>
+      <div className="glass-panel rounded-2xl p-5 mb-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">Grant Admin</p>
+            <Select value={promoteId} onValueChange={setPromoteId}>
+              <SelectTrigger className="w-full bg-background/40"><SelectValue placeholder="Select a player…" /></SelectTrigger>
+              <SelectContent>
+                {promoteList.length === 0 && <SelectItem value="__none" disabled>No players available</SelectItem>}
+                {promoteList.map((u) => (
+                  <SelectItem key={u.id} value={u.id}>{u.email}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Button onClick={handlePromote} disabled={busy || !promoteId} className="w-full mt-3 font-heading tracking-widest uppercase">
+              Grant Admin
+            </Button>
+          </div>
+          <div>
+            <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">Remove Admin</p>
+            <Select value={demoteId} onValueChange={setDemoteId}>
+              <SelectTrigger className="w-full bg-background/40"><SelectValue placeholder="Select an admin…" /></SelectTrigger>
+              <SelectContent>
+                {demoteList.length === 0 && <SelectItem value="__none" disabled>No admins to remove</SelectItem>}
+                {demoteList.map((u) => (
+                  <SelectItem key={u.id} value={u.id}>{u.email}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Button onClick={handleDemote} disabled={busy || !demoteId} variant="destructive" className="w-full mt-3 font-heading tracking-widest uppercase">
+              Remove Admin
+            </Button>
+          </div>
+        </div>
+        {msg && <p className="mt-4 text-sm text-cyan-200/80">{msg}</p>}
       </div>
 
       {/* Empire registry */}
@@ -137,10 +217,10 @@ export default function Admin() {
 
 function StatCard({ icon: Icon, label, value, color }) {
   return (
-    <div className="glass-panel rounded-xl p-5">
-      <Icon className={`w-6 h-6 ${color} mb-3`} />
-      <p className="font-mono text-2xl font-bold text-foreground tabular-nums">{value}</p>
-      <p className="text-xs uppercase tracking-widest text-muted-foreground mt-1">{label}</p>
+    <div className="glass-panel rounded-lg p-2 text-center">
+      <Icon className={`w-3 h-3 ${color} mx-auto mb-1`} />
+      <p className="font-mono text-sm font-bold text-foreground tabular-nums">{value}</p>
+      <p className="text-[9px] uppercase tracking-widest text-muted-foreground mt-0.5">{label}</p>
     </div>
   );
 }
