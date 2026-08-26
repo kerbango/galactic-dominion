@@ -45,8 +45,8 @@ export default function ProductionBreakdown() {
       <p className="text-center text-[0.6rem] font-mono uppercase tracking-widest text-cyan-200/60 mb-1">
         Estimated Production / Hour
       </p>
-      <div className="grid grid-cols-2 md:grid-cols-6 gap-[5px] md:w-3/5 md:mx-auto">
-        {RESOURCES.map((r) => {
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-[5px] md:w-3/5 md:mx-auto">
+        {RESOURCES.filter((r) => !r.static).map((r) => {
           const Icon = r.icon;
           if (r.static) {
             return (

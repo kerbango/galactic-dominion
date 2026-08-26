@@ -119,8 +119,8 @@ export default function Profile() {
 
       {/* Production — resources gained per hour from controlled planets */}
       <h2 className="font-heading text-sm tracking-[0.3em] text-cyan-200/80 uppercase mt-10 mb-4">Production Cycles</h2>
-      <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
-        {RESOURCES.map((r) => (
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+        {RESOURCES.filter((r) => r.key !== 'population').map((r) => (
           <ProductionTimer key={r.key} resource={r} lastTick={empire.last_tick_date || empire.updated_date} />
         ))}
       </div>
