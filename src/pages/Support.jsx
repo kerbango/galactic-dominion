@@ -11,8 +11,8 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
+  DialogTrigger } from
+'@/components/ui/dialog';
 
 export default function Support() {
   const [empireName, setEmpireName] = useState('');
@@ -30,9 +30,9 @@ export default function Support() {
         const empires = await base44.entities.Empire.filter({ created_by_id: user.id });
         if (active) setEmpireName(empires[0]?.empire_name || '');
       } catch {
+
         // no empire or not logged in — still allow deletion flow
-      } finally {
-        if (active) setLoading(false);
+      } finally {if (active) setLoading(false);
       }
     };
     load();
@@ -78,9 +78,9 @@ export default function Support() {
         <h2 className="font-heading text-sm tracking-[0.25em] text-cyan-100 uppercase mb-3">
           Need help?
         </h2>
-        <p className="text-sm text-muted-foreground font-body leading-relaxed">
-          For gameplay questions, bug reports, or account issues, contact Base44 support.
-          Your empire data and progress are persisted automatically across sessions.
+        <p className="text-sm text-muted-foreground font-body leading-relaxed">For Game Play Questions and Bug reporting. Please ema
+
+
         </p>
       </div>
 
@@ -124,8 +124,8 @@ export default function Support() {
                 onChange={(e) => setConfirmText(e.target.value)}
                 placeholder={empireName || 'Your empire name'}
                 className="font-body"
-                autoComplete="off"
-              />
+                autoComplete="off" />
+              
             </div>
             {error && <p className="text-sm text-destructive">{error}</p>}
             <DialogFooter className="gap-2">
@@ -140,6 +140,6 @@ export default function Support() {
           </DialogContent>
         </Dialog>
       </div>
-    </div>
-  );
+    </div>);
+
 }
