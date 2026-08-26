@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Gem, Layers, Zap, Coins, Loader2 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
+import { useCycleRefresh } from '@/hooks/useCycleRefresh';
 
 const RESOURCES = [
   { key: 'aetherium_crystal', label: 'Aetherium Crystal', icon: Gem, color: 'text-violet-300', glow: 'rgba(167,139,250,0.5)' },
@@ -44,6 +45,11 @@ export default function ResourceBar() {
     });
     return () => { active = false; clearInterval(poll); unsubscribe(); };
   }, []);
+
+  // Refetch the instant the production-cycle countdown hits zero, so the HUD
+  // shows freshly ticked totals without waiting for the next poll. Retries
+  // until the server tick has actually landed.
+  useCycleRefresh(empire?.last_tick_date || empire?.updated_date, setEmpire);
 
   if (loading) {
     return (

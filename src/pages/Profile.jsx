@@ -3,6 +3,7 @@ import { Navigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { Crown, Flag, Gem, Layers, Zap, Coins, Loader2, MapPin } from 'lucide-react';
 import ProductionTimer from '@/components/profile/ProductionTimer';
+import { useCycleRefresh } from '@/hooks/useCycleRefresh';
 
 const RESOURCES = [
   { key: 'aetherium_crystal', label: 'Aetherium Crystal', icon: Gem, color: 'text-violet-300' },
@@ -51,6 +52,11 @@ export default function Profile() {
     });
     return unsubscribe;
   }, []);
+
+  // Refetch the instant the production-cycle countdown hits zero, so freshly
+  // ticked totals appear without waiting for the next poll. Retries until the
+  // server tick has actually landed.
+  useCycleRefresh(empire?.last_tick_date || empire?.updated_date, setEmpire);
 
   if (loading) {
     return (
