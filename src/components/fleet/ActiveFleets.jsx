@@ -41,7 +41,7 @@ export default function ActiveFleets({ fleets, now, myUserId }) {
             </div>
             <div className="flex items-center justify-between mt-1.5 text-xs font-mono">
               <span className="flex items-center gap-2">
-                <span className="text-muted-foreground">{f.fleet_size} ships</span>
+                <span className="text-muted-foreground">{returning ? (f.survivors ?? f.fleet_size) : f.fleet_size} ships</span>
                 <span className={`uppercase tracking-widest ${returning ? 'text-violet-300/80' : 'text-cyan-300/70'}`}>
                   {returning ? 'Return' : 'Outbound'}
                 </span>
