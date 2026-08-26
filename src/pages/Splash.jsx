@@ -1,10 +1,35 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { Rocket, Shield, Radar, Cpu, ArrowRight, Star } from 'lucide-react';
+import { Link, Navigate } from 'react-router-dom';
+import { Rocket, Shield, Radar, Cpu, ArrowRight, Star, Loader2 } from 'lucide-react';
 import SpaceBackground from '@/components/SpaceBackground';
+import { useAuth } from '@/lib/AuthContext';
+import { base44 } from '@/api/base44Client';
 
 export default function Splash() {
+  const { isAuthenticated, authChecked } = useAuth();
+  const [redirecting, setRedirecting] = useState(false);
+  const [hasEmpire, setHasEmpire] = useState(null);
   const [screenSize, setScreenSize] = useState({ w: 0, h: 0 });
+
+  // Returning users with a persisted session skip the marketing screen and
+  // go straight into the game — Command Console if they have an empire,
+  // empire setup if they don't.
+  useEffect(() => {
+    let active = true;
+    const check = async () => {
+      if (!authChecked || !isAuthenticated) return;
+      setRedirecting(true);
+      try {
+        const user = await base44.auth.me();
+        const empires = await base44.entities.Empire.filter({ created_by_id: user.id });
+        if (active) setHasEmpire(empires.length > 0);
+      } catch {
+        if (active) setHasEmpire(false);
+      }
+    };
+    check();
+    return () => { active = false; };
+  }, [authChecked, isAuthenticated]);
 
   useEffect(() => {
     const update = () => setScreenSize({ w: window.innerWidth, h: window.innerHeight });
@@ -12,6 +37,18 @@ export default function Splash() {
     window.addEventListener('resize', update);
     return () => window.removeEventListener('resize', update);
   }, []);
+
+  if (isAuthenticated && authChecked && redirecting && hasEmpire !== null) {
+    return <Navigate to={hasEmpire ? '/console' : '/setup'} replace />;
+  }
+
+  if (isAuthenticated && authChecked && redirecting) {
+    return (
+      <div className="fixed inset-0 flex items-center justify-center">
+        <Loader2 className="w-8 h-8 text-cyan-300 animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="relative min-h-screen w-full overflow-hidden">
