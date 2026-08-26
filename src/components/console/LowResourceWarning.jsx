@@ -14,7 +14,7 @@ const RESOURCES = [
 // production output (floored at 50), so the warning threshold scales with the
 // player's economy and tech level rather than a flat number.
 const LOW_FRACTION = 0.5;
-const LOW_FLOOR = 50;
+const LOW_FLOOR = 100000; // TEMP: raised so the glow is visible for testing
 
 export default function LowResourceWarning({ empire }) {
   const [rates, setRates] = useState(null);
