@@ -1,5 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
 import { authorizeTick } from '../../shared/authGuard.ts';
+import { cyclesDue } from '../../shared/tickMath.ts';
 
 // Hourly resource tick. Each empire earns 1 of every resource (Aetherium
 // Crystal, Ferrite-Titanium, Energy, VRIND) per run — every player controls
@@ -14,21 +15,26 @@ export default async function(req) {
     // Empire RLS is owner-only, so read/update as service role to reach every empire.
     const empires = await base44.asServiceRole.entities.Empire.list('-created_date', 1000);
 
+    const now = Date.now();
     const tickedAt = new Date().toISOString();
     let ticked = 0;
+    let granted = 0;
     for (const empire of empires) {
+      const due = cyclesDue(empire.last_tick_date, now);
+      if (due <= 0) continue;
       await base44.asServiceRole.entities.Empire.updateMany(
         { id: empire.id },
         { $inc: {
-          aetherium_crystal: 1,
-          ferrite_titanium: 1,
-          energy: 1,
-          vrind: 1,
+          aetherium_crystal: due,
+          ferrite_titanium: due,
+          energy: due,
+          vrind: due,
         }, $set: {
           last_tick_date: tickedAt,
         } }
       );
       ticked += 1;
+      granted += due;
     }
 
     // Advance every player's in-progress research by one turn. TechProgress
@@ -57,7 +63,7 @@ export default async function(req) {
       }
     }
 
-    return Response.json({ ok: true, ticked, advanced, completed, at: new Date().toISOString() });
+    return Response.json({ ok: true, ticked, granted, advanced, completed, at: new Date().toISOString() });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
   }

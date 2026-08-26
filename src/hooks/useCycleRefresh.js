@@ -20,9 +20,12 @@ export function useCycleRefresh(lastTick, onRefreshed) {
   async function refresh() {
     if (retryRef.current) { clearTimeout(retryRef.current); retryRef.current = null; }
     try {
-      const user = await base44.auth.me();
-      const empires = await base44.entities.Empire.filter({ created_by_id: user.id });
-      const fresh = empires[0] || null;
+      // Call the owner-callable tick so the +1 is genuinely persisted and
+      // spendable the instant the timer rolls over — not an optimistic
+      // display. Idempotent per cycle, so no double-counting with the
+      // scheduled tickResources.
+      const res = await base44.functions.invoke('tickMyEmpire', {});
+      const fresh = res.data?.empire || null;
       if (fresh && lastTickRef.current && fresh.last_tick_date === lastTickRef.current) {
         retryRef.current = setTimeout(refresh, 3000);
         return;
