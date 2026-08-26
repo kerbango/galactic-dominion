@@ -37,7 +37,7 @@ export default function ResourceMarketPanel() {
       <div className="glass-panel rounded-2xl p-4 flex items-center gap-2 text-xs text-cyan-200/70">
         <Lock className="w-3.5 h-3.5" />
         <p>
-          The Resource Market is admin-controlled. Raw materials are sold in fixed amounts at fixed prices set by the galactic council.
+          The Resource Market Are OVERLORD CONTROLLED. Raw materials are sold in fixed amounts at fixed prices set by the galactic council.
           {!anyConfigured && ' Prices are pending configuration — check back soon.'}
         </p>
       </div>
