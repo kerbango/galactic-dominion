@@ -1,33 +1,32 @@
-import React from 'react';
-import { Store, Construction } from 'lucide-react';
+import React, { useState } from 'react';
+import { Store } from 'lucide-react';
 import MarketTabs from '@/components/market/MarketTabs';
 import AvailableResources from '@/components/market/AvailableResources';
+import PlayerMarketPanel from '@/components/market/PlayerMarketPanel';
+import ResourceMarketPanel from '@/components/market/ResourceMarketPanel';
 
-// Galactic Market — hub for ships, equipment, and trade goods. Backed by the
-// /market route; the resource exchange lives at /market/resources.
+// Galactic Markets — a single page with two inline panels switched by the
+// MarketTabs. The Player Market lets players list/buy empire resources; the
+// Resource Market is an admin-controlled fixed-price raw material shop.
 export default function GalacticMarket() {
+  const [tab, setTab] = useState('player');
+
   return (
     <div className="max-w-4xl mx-auto px-4 md:px-8 py-10">
       <div className="flex flex-col items-center text-center gap-1 mb-8">
         <Store className="w-7 h-7 text-cyan-300" />
         <h1 className="font-heading text-2xl md:text-3xl tracking-wide text-white neon-text uppercase">
-          Galactic Market
+          Galactic Markets
         </h1>
         <p className="text-xs font-mono uppercase tracking-widest text-cyan-200/60">
-          Trade goods · Ships · Equipment
+          Trade resources across the galaxy
         </p>
       </div>
 
       <AvailableResources />
-      <MarketTabs />
+      <MarketTabs active={tab} onSelect={setTab} />
 
-      <div className="glass-panel-strong rounded-2xl p-10 text-center">
-        <Construction className="w-10 h-10 text-cyan-300/70 mx-auto mb-4" />
-        <p className="font-heading text-sm tracking-[0.3em] text-cyan-200/80 uppercase mb-2">System Offline</p>
-        <p className="text-muted-foreground font-body">
-          The Galactic Market is under construction. Check back soon.
-        </p>
-      </div>
+      {tab === 'player' ? <PlayerMarketPanel /> : <ResourceMarketPanel />}
     </div>
   );
 }

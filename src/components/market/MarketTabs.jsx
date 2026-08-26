@@ -1,28 +1,27 @@
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
 import { Store, Layers } from 'lucide-react';
 
-// Sub-navigation shared by the two market pages so players can switch
-// between the general goods market and the resource exchange.
-export default function MarketTabs() {
-  const { pathname } = useLocation();
+// State-driven sub-navigation for the single market page. Switches the
+// active panel inline rather than navigating between routes.
+export default function MarketTabs({ active, onSelect }) {
   const tabs = [
-    { to: '/market', label: 'Player Market', Icon: Store, exact: true },
-    { to: '/market/resources', label: 'Resource Market', Icon: Layers, exact: false },
+    { key: 'player', label: 'Player Market', Icon: Store },
+    { key: 'resource', label: 'Resource Market', Icon: Layers },
   ];
   return (
     <div className="flex items-center justify-center gap-2 mb-8 flex-wrap">
       {tabs.map((t) => {
-        const active = t.exact ? pathname === t.to : pathname.startsWith(t.to);
+        const isActive = active === t.key;
         const Ic = t.Icon;
         return (
-          <Link
-            key={t.to}
-            to={t.to}
-            className={`flex items-center gap-2 px-5 py-2 rounded-lg font-heading text-xs tracking-[0.2em] uppercase transition-colors ${active ? 'bg-cyan-400/15 border border-cyan-400/40 text-cyan-100' : 'glass-panel text-muted-foreground hover:text-foreground'}`}
+          <button
+            key={t.key}
+            type="button"
+            onClick={() => onSelect(t.key)}
+            className={`flex items-center gap-2 px-5 py-2 rounded-lg font-heading text-xs tracking-[0.2em] uppercase transition-colors ${isActive ? 'bg-cyan-400/15 border border-cyan-400/40 text-cyan-100' : 'glass-panel text-muted-foreground hover:text-foreground'}`}
           >
             <Ic className="w-4 h-4" /> {t.label}
-          </Link>
+          </button>
         );
       })}
     </div>

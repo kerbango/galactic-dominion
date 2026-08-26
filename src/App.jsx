@@ -22,7 +22,6 @@ import AdminLogin from '@/pages/AdminLogin';
 import Admin from '@/pages/Admin';
 import SectionPlaceholder from '@/pages/SectionPlaceholder';
 import GalacticMarket from '@/pages/GalacticMarket';
-import GalacticResourceMarket from '@/pages/GalacticResourceMarket';
 import Comms from '@/pages/Comms';
 import Support from '@/pages/Support';
 import { Sword, FlaskConical, Wrench, Handshake, Radio } from 'lucide-react';
@@ -74,7 +73,6 @@ const AuthenticatedApp = () => {
           <Route path="/research" element={<SectionPlaceholder title="Research" Icon={FlaskConical} />} />
           <Route path="/upgrades" element={<SectionPlaceholder title="Upgrades" Icon={Wrench} />} />
           <Route path="/market" element={<GalacticMarket />} />
-          <Route path="/market/resources" element={<GalacticResourceMarket />} />
           <Route path="/alliance" element={<SectionPlaceholder title="Alliance" Icon={Handshake} />} />
           <Route path="/comms" element={<Comms />} />
           <Route path="/support" element={<Support />} />

@@ -1,0 +1,81 @@
+{
+  "name": "MarketListing",
+  "type": "object",
+  "properties": {
+    "seller_name": {
+      "type": "string",
+      "title": "Seller Name",
+      "description": "Display name of the selling empire (denormalized)."
+    },
+    "resource_key": {
+      "type": "string",
+      "title": "Resource Key",
+      "description": "Which empire resource is being sold.",
+      "enum": [
+        "aetherium_crystal",
+        "ferrite_titanium",
+        "energy",
+        "vrind",
+        "berentium"
+      ]
+    },
+    "amount": {
+      "type": "number",
+      "title": "Amount",
+      "description": "Quantity of the resource still available on this listing.",
+      "minimum": 0
+    },
+    "price_per_unit": {
+      "type": "number",
+      "title": "Price Per Unit",
+      "description": "VRIND price per unit the seller is asking.",
+      "minimum": 0
+    },
+    "status": {
+      "type": "string",
+      "title": "Status",
+      "description": "listed = available for purchase, sold = fully bought out.",
+      "enum": [
+        "listed",
+        "sold"
+      ],
+      "default": "listed"
+    }
+  },
+  "required": [
+    "resource_key",
+    "amount",
+    "price_per_unit",
+    "status"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "created_by_id": "{{user.id}}"
+    },
+    "update": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}
