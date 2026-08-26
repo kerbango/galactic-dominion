@@ -7,6 +7,18 @@
         "admin",
         "user"
       ]
+    },
+    "chat_banned": {
+      "type": "boolean",
+      "title": "Chat Banned",
+      "description": "When true, the user cannot post in the comms channel.",
+      "default": false
+    },
+    "chat_muted_until": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Chat Muted Until",
+      "description": "ISO timestamp; the user cannot post until this time passes. Null when not muted."
     }
   },
   "required": [
