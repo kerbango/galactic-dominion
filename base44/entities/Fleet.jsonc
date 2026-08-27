@@ -51,9 +51,10 @@
     "status": {
       "type": "string",
       "title": "Status",
-      "description": "Movement status of the fleet.",
+      "description": "Movement status of the fleet. in_transit = travelling a leg; in_battle = fighting at the target during the battle window; arrived = home and resolved.",
       "enum": [
         "in_transit",
+        "in_battle",
         "arrived"
       ],
       "default": "in_transit"
@@ -79,6 +80,12 @@
       "format": "date-time",
       "title": "Arrival Date",
       "description": "When the fleet is scheduled to arrive at its target."
+    },
+    "battle_end_date": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Battle End Date",
+      "description": "When the in-battle window ends and combat resolves. Set when the fleet enters status=in_battle."
     },
     "return_departure_date": {
       "type": "string",

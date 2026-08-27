@@ -82,6 +82,7 @@ export default function GalacticMap() {
   });
 
   const inTransit = visibleFleets.filter((f) => {
+    if (f.status === 'in_battle') return true;
     if (f.status !== 'in_transit') return false;
     // Drop return-leg fleets the instant their return trip completes so they
     // leave the operations box without waiting for the server tick (service-
@@ -164,6 +165,7 @@ empires.length === 0 ? (
             <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-purple-400 inline-block" /> Sent</span>
             <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-blue-400 inline-block" /> Returning</span>
             <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-rose-500 inline-block animate-flash-red" /> Attacking you</span>
+            <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-orange-400 inline-block animate-pulse-glow" /> In Battle</span>
           </div>
         </div>
       </div>

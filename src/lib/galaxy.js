@@ -69,3 +69,20 @@ export function remainingSeconds(fleet, now) {
   if (!arr) return 0;
   return Math.max(0, Math.round((arr - now) / 1000));
 }
+
+// --- Battle window helpers ----------------------------------------------
+// While a fleet is in_battle it sits at the target. These derive the battle
+// progress bar and remaining countdown from arrival_date → battle_end_date
+// so the operations screen can show "In Battle" with a live timer.
+export function battleProgress(fleet, now) {
+  const start = new Date(fleet.arrival_date).getTime();
+  const end = new Date(fleet.battle_end_date).getTime();
+  if (!start || !end || end <= start) return 0;
+  return Math.max(0, Math.min(1, (now - start) / (end - start)));
+}
+
+export function battleRemainingSeconds(fleet, now) {
+  const end = new Date(fleet.battle_end_date).getTime();
+  if (!end) return 0;
+  return Math.max(0, Math.round((end - now) / 1000));
+}

@@ -1,15 +1,16 @@
 import React from 'react';
 import { fleetPosition } from '@/lib/galaxy';
 
-// Renders in-transit fleets as moving dots on the SVG map. Color encodes
-// mission state:
+// Renders active fleets as markers on the SVG map. Color encodes mission state:
+//   - In Battle (any fleet fighting at its target) → pulsing orange dot + ring
 //   - Owned outbound (sent) fleets  → purple
 //   - Owned returning fleets       → blue
 //   - Rival fleets attacking me     → flashing red dot
 //   - Other rival fleets            → neutral slate
 // `myEmpireId` identifies the player's empire so we can detect rival fleets
-// whose target is the player. fleetPosition handles both legs of the round
-// trip. A small amber dot marks fleets carrying loot home.
+// whose target is the player. fleetPosition places an in_battle fleet at its
+// target (progress clamps to 1 once arrival has elapsed). A small amber dot
+// marks fleets carrying loot home.
 export default function FleetMarkers({ fleets, now, myUserId, myEmpireId }) {
   if (!fleets?.length) return null;
   return (
@@ -18,11 +19,16 @@ export default function FleetMarkers({ fleets, now, myUserId, myEmpireId }) {
         const pos = fleetPosition(f, now);
         const mine = f.created_by_id === myUserId;
         const attackingMe = !mine && f.target_empire_id === myEmpireId;
+        const inBattle = f.status === 'in_battle';
 
         let color;
         let lineColor;
         let flashClass = '';
-        if (attackingMe) {
+        if (inBattle) {
+          color = 'rgba(251,146,60,0.95)';
+          lineColor = 'rgba(251,146,60,0.25)';
+          flashClass = 'animate-pulse-glow';
+        } else if (attackingMe) {
           color = 'rgba(244,63,94,0.95)';
           lineColor = 'rgba(244,63,94,0.3)';
           flashClass = 'animate-flash-red';
@@ -53,10 +59,21 @@ export default function FleetMarkers({ fleets, now, myUserId, myEmpireId }) {
               strokeWidth={1.5}
               strokeDasharray="6 6"
             />
+            {inBattle && (
+              <circle
+                cx={pos.x}
+                cy={pos.y}
+                r={11}
+                fill="none"
+                stroke="rgba(251,146,60,0.6)"
+                strokeWidth={2}
+                className="animate-pulse-glow"
+              />
+            )}
             <circle
               cx={pos.x}
               cy={pos.y}
-              r={5}
+              r={inBattle ? 6 : 5}
               fill={color}
               stroke="rgba(255,255,255,0.5)"
               strokeWidth={1.5}
