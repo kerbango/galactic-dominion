@@ -2,11 +2,14 @@ import React, { useState, useEffect, useRef } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { Menu, X, LogOut } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
+import { useAuth } from '@/lib/AuthContext';
 import { NAV_ITEMS } from '@/lib/navItems';
 
 // Phone-only hamburger dropdown for the quick-nav links. Closes on
 // link click, outside click, and route change.
 export default function MobileMenu() {
+  const { user } = useAuth();
+  const isAdmin = user?.role === 'admin';
   const [open, setOpen] = useState(false);
   const containerRef = useRef(null);
   const location = useLocation();
@@ -47,7 +50,7 @@ export default function MobileMenu() {
 
       {open && (
         <div className="glass-panel-strong absolute right-0 top-full mt-2 w-56 rounded-xl p-2 flex flex-col gap-1 z-50">
-          {NAV_ITEMS.map(({ to, label, Icon }) => (
+          {NAV_ITEMS.filter((i) => !i.adminOnly || isAdmin).map(({ to, label, Icon }) => (
             <NavLink key={to} to={to} className={linkClass}>
               <Icon className="w-4 h-4" /> {label}
             </NavLink>

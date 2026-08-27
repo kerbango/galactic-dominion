@@ -36,7 +36,7 @@ export default function TopNav() {
 
         {/* Desktop inline nav */}
         <nav className="hidden sm:flex items-center gap-0.5 flex-1 justify-center min-w-0">
-          {NAV_ITEMS.map(({ to, label, Icon }) => (
+          {NAV_ITEMS.filter((i) => !i.adminOnly || isAdmin).map(({ to, label, Icon }) => (
             <NavLink key={to} to={to} className={linkClass}>
               <Icon className="w-3.5 h-3.5 shrink-0" /> {label}
             </NavLink>
