@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import AdminBackground from "@/components/AdminBackground";
 import AdminTickets from "@/components/admin/AdminTickets";
+import SiteFooter from "@/components/SiteFooter";
 
 const RESOURCES = [
   { key: 'berentium', label: 'Berentium', icon: Pickaxe, color: 'text-emerald-300' },
@@ -318,6 +319,7 @@ export default function Admin() {
       </>
       )}
       </div>
+      <SiteFooter />
     </div>
   );
 }

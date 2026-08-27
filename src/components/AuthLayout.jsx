@@ -1,5 +1,6 @@
 import React from "react";
 import SpaceBackground from "@/components/SpaceBackground";
+import SiteFooter from "@/components/SiteFooter";
 
 export default function AuthLayout({ icon: Icon, title, subtitle, footer, children, Background = SpaceBackground }) {
   return (
@@ -19,6 +20,9 @@ export default function AuthLayout({ icon: Icon, title, subtitle, footer, childr
         {footer && (
           <p className="text-center text-sm text-muted-foreground mt-6">{footer}</p>
         )}
+      </div>
+      <div className="absolute bottom-0 left-0 right-0">
+        <SiteFooter />
       </div>
     </div>
   );

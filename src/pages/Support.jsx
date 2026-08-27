@@ -13,8 +13,12 @@ import {
   DialogTitle,
   DialogTrigger } from
 '@/components/ui/dialog';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import MyTickets from '@/components/support/MyTickets';
 import PowerGridPuzzle from '@/components/minigame/PowerGridPuzzle';
+import LegalTab from '@/components/support/LegalTab';
+import PrivacyTab from '@/components/support/PrivacyTab';
+import CreditsTab from '@/components/support/CreditsTab';
 
 export default function Support() {
   const [empireName, setEmpireName] = useState('');
@@ -33,15 +37,10 @@ export default function Support() {
         const empires = await base44.entities.Empire.filter({ created_by_id: user.id });
         if (active) setEmpireName(empires[0]?.empire_name || '');
       } catch {
-
-
-
-
-
-
-
         // no empire or not logged in — still allow deletion flow
-      } finally {if (active) setLoading(false);}};load();}, []);const canConfirm = empireName !== '' && confirmText.trim() === empireName.trim();
+      } finally {if (active) setLoading(false);}};load();},[]);
+
+  const canConfirm = empireName !== '' && confirmText.trim() === empireName.trim();
 
   const handleDelete = async () => {
     setDeleting(true);
@@ -76,105 +75,130 @@ export default function Support() {
         </p>
       </div>
 
-      {/* General support card */}
-      <div className="glass-panel rounded-2xl p-6 mb-6">
-        <h2 className="font-heading text-sm tracking-[0.25em] text-cyan-100 uppercase mb-3">
-          Need help?
-        </h2>
-        <p className="text-sm text-muted-foreground font-body leading-relaxed">For Game Play Questions and Bug reporting. Please email kerbango@proton.me or join our at https://discord.gg/bCHhpKCw9C
+      <Tabs defaultValue="support" className="w-full">
+        <TabsList className="grid w-full grid-cols-4 h-auto py-1 bg-muted/60">
+          <TabsTrigger value="support" className="font-heading text-[10px] md:text-xs tracking-widest uppercase">Support</TabsTrigger>
+          <TabsTrigger value="legal" className="font-heading text-[10px] md:text-xs tracking-widest uppercase">Legal</TabsTrigger>
+          <TabsTrigger value="privacy" className="font-heading text-[10px] md:text-xs tracking-widest uppercase">Privacy</TabsTrigger>
+          <TabsTrigger value="credits" className="font-heading text-[10px] md:text-xs tracking-widest uppercase">Credits</TabsTrigger>
+        </TabsList>
 
+        {/* Support tab — existing help, minigame, tickets, danger zone */}
+        <TabsContent value="support" className="mt-6 space-y-6">
+          {/* General support card */}
+          <div className="glass-panel rounded-2xl p-6">
+            <h2 className="font-heading text-sm tracking-[0.25em] text-cyan-100 uppercase mb-3">
+              Need help?
+            </h2>
+            <p className="text-sm text-muted-foreground font-body leading-relaxed">
+              For Game Play Questions and Bug reporting. Please email kerbango@proton.me or join our Discord at{' '}
+              <a href="https://discord.gg/bCHhpKCw9C" target="_blank" rel="noreferrer" className="text-cyan-300 underline hover:text-cyan-200">
+                https://discord.gg/bCHhpKCw9C
+              </a>
+            </p>
+          </div>
 
-        </p>
-      </div>
+          {/* Minigame toggle */}
+          <div className="glass-panel rounded-2xl p-6">
+            <div className="flex items-center justify-between gap-4 flex-wrap">
+              <div className="flex items-center gap-3">
+                <Gamepad2 className="w-5 h-5 text-amber-300" />
+                <div>
+                  <h2 className="font-heading text-sm tracking-[0.25em] text-amber-100 uppercase mb-0.5">
+                    Re-route Power Circuits
+                  </h2>
+                  <p className="text-xs text-muted-foreground font-body">
+                    A calibration puzzle to pass the time while you wait.
+                  </p>
+                </div>
+              </div>
+              <Button
+                onClick={() => setShowMini((v) => !v)}
+                variant={showMini ? 'ghost' : 'default'}
+                className="font-heading tracking-widest uppercase text-xs"
+              >
+                {showMini ? 'Hide Minigame' : 'Play Minigame'}
+              </Button>
+            </div>
+            {showMini && (
+              <div className="mt-4">
+                <PowerGridPuzzle onClose={() => setShowMini(false)} />
+              </div>
+            )}
+          </div>
 
-      {/* Minigame toggle */}
-      <div className="glass-panel rounded-2xl p-6 mb-6">
-        <div className="flex items-center justify-between gap-4 flex-wrap">
-          <div className="flex items-center gap-3">
-            <Gamepad2 className="w-5 h-5 text-amber-300" />
-            <div>
-              <h2 className="font-heading text-sm tracking-[0.25em] text-amber-100 uppercase mb-0.5">
-                Re-route Power Circuits
+          {/* In-game ticket system */}
+          <MyTickets />
+
+          {/* Danger zone */}
+          <div className="glass-panel rounded-2xl p-6 border border-rose-400/25">
+            <div className="flex items-center gap-3 mb-4">
+              <ShieldAlert className="w-5 h-5 text-rose-300" />
+              <h2 className="font-heading text-sm tracking-[0.25em] text-rose-200 uppercase">
+                Danger Zone
               </h2>
-              <p className="text-xs text-muted-foreground font-body">
-                A calibration puzzle to pass the time while you wait.
-              </p>
             </div>
+            <p className="text-sm text-muted-foreground font-body leading-relaxed mb-4">
+              Deleting your account permanently wipes your empire, fleets, research progress,
+              and chat messages. This action cannot be undone.
+            </p>
+            <Dialog open={open} onOpenChange={handleOpenChange}>
+              <DialogTrigger asChild>
+                <Button variant="destructive" className="w-full sm:w-auto" disabled={loading}>
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  Delete Account
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="glass-panel-strong border-rose-400/30 max-w-md">
+                <DialogHeader>
+                  <DialogTitle className="font-heading tracking-wide text-white uppercase flex items-center gap-2">
+                    <AlertTriangle className="w-5 h-5 text-rose-300" />
+                    Confirm Account Deletion
+                  </DialogTitle>
+                  <DialogDescription className="text-muted-foreground font-body pt-2">
+                    This will permanently erase your empire, fleets, research, and chat history.
+                    Type your empire name <span className="text-rose-300 font-semibold">{empireName || '—'}</span> to confirm.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="space-y-2 py-2">
+                  <Label htmlFor="confirm-name" className="text-xs uppercase tracking-widest text-cyan-200/70">
+                    Empire Name
+                  </Label>
+                  <Input
+                    id="confirm-name"
+                    value={confirmText}
+                    onChange={(e) => setConfirmText(e.target.value)}
+                    placeholder={empireName || 'Your empire name'}
+                    className="font-body"
+                    autoComplete="off" />
+                </div>
+                {error && <p className="text-sm text-destructive">{error}</p>}
+                <DialogFooter className="gap-2">
+                  <Button variant="ghost" onClick={() => handleOpenChange(false)} disabled={deleting}>
+                    Cancel
+                  </Button>
+                  <Button variant="destructive" onClick={handleDelete} disabled={!canConfirm || deleting}>
+                    {deleting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Trash2 className="w-4 h-4 mr-2" />}
+                    Delete Forever
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
           </div>
-          <Button
-            onClick={() => setShowMini((v) => !v)}
-            variant={showMini ? 'ghost' : 'default'}
-            className="font-heading tracking-widest uppercase text-xs"
-          >
-            {showMini ? 'Hide Minigame' : 'Play Minigame'}
-          </Button>
-        </div>
-        {showMini && (
-          <div className="mt-4">
-            <PowerGridPuzzle onClose={() => setShowMini(false)} />
-          </div>
-        )}
-      </div>
+        </TabsContent>
 
-      {/* In-game ticket system */}
-      <MyTickets />
+        <TabsContent value="legal" className="mt-6">
+          <LegalTab />
+        </TabsContent>
 
-      {/* Danger zone */}
-      <div className="glass-panel rounded-2xl p-6 border border-rose-400/25">
-        <div className="flex items-center gap-3 mb-4">
-          <ShieldAlert className="w-5 h-5 text-rose-300" />
-          <h2 className="font-heading text-sm tracking-[0.25em] text-rose-200 uppercase">
-            Danger Zone
-          </h2>
-        </div>
-        <p className="text-sm text-muted-foreground font-body leading-relaxed mb-4">
-          Deleting your account permanently wipes your empire, fleets, research progress,
-          and chat messages. This action cannot be undone.
-        </p>
-        <Dialog open={open} onOpenChange={handleOpenChange}>
-          <DialogTrigger asChild>
-            <Button variant="destructive" className="w-full sm:w-auto" disabled={loading}>
-              <Trash2 className="w-4 h-4 mr-2" />
-              Delete Account
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="glass-panel-strong border-rose-400/30 max-w-md">
-            <DialogHeader>
-              <DialogTitle className="font-heading tracking-wide text-white uppercase flex items-center gap-2">
-                <AlertTriangle className="w-5 h-5 text-rose-300" />
-                Confirm Account Deletion
-              </DialogTitle>
-              <DialogDescription className="text-muted-foreground font-body pt-2">
-                This will permanently erase your empire, fleets, research, and chat history.
-                Type your empire name <span className="text-rose-300 font-semibold">{empireName || '—'}</span> to confirm.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-2 py-2">
-              <Label htmlFor="confirm-name" className="text-xs uppercase tracking-widest text-cyan-200/70">
-                Empire Name
-              </Label>
-              <Input
-                id="confirm-name"
-                value={confirmText}
-                onChange={(e) => setConfirmText(e.target.value)}
-                placeholder={empireName || 'Your empire name'}
-                className="font-body"
-                autoComplete="off" />
-              
-            </div>
-            {error && <p className="text-sm text-destructive">{error}</p>}
-            <DialogFooter className="gap-2">
-              <Button variant="ghost" onClick={() => handleOpenChange(false)} disabled={deleting}>
-                Cancel
-              </Button>
-              <Button variant="destructive" onClick={handleDelete} disabled={!canConfirm || deleting}>
-                {deleting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Trash2 className="w-4 h-4 mr-2" />}
-                Delete Forever
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      </div>
-    </div>);
+        <TabsContent value="privacy" className="mt-6">
+          <PrivacyTab />
+        </TabsContent>
 
+        <TabsContent value="credits" className="mt-6">
+          <CreditsTab />
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
 }

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import { Rocket, Shield, Radar, Cpu, ArrowRight, Star, Loader2 } from 'lucide-react';
 import SpaceBackground from '@/components/SpaceBackground';
+import SiteFooter from '@/components/SiteFooter';
 import { useAuth } from '@/lib/AuthContext';
 import { base44 } from '@/api/base44Client';
 
@@ -136,6 +137,7 @@ export default function Splash() {
           Fullscreen · {screenSize.w}×{screenSize.h}
         </span>
       </footer>
+      <SiteFooter />
     </div>
   );
 }

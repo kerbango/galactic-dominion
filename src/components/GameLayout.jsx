@@ -1,6 +1,7 @@
 import React from 'react';
 import { Outlet } from 'react-router-dom';
 import SpaceBackground from '@/components/SpaceBackground';
+import SiteFooter from '@/components/SiteFooter';
 import { EmpireProvider } from '@/lib/EmpireContext';
 
 export default function GameLayout() {
@@ -11,6 +12,7 @@ export default function GameLayout() {
         <EmpireProvider>
           <Outlet />
         </EmpireProvider>
+        <SiteFooter />
       </div>
     </div>
   );
