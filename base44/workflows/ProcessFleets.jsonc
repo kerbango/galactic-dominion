@@ -1,0 +1,44 @@
+{
+  "name": "Process Fleets",
+  "definition": {
+    "document": {
+      "dsl": "1.0.0",
+      "name": "process_fleets",
+      "version": "1.0",
+      "namespace": "base44"
+    },
+    "do": [
+      {
+        "process": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "processFleets"
+          },
+          "then": "end",
+          "x-base44": {
+            "title": "Process due fleets",
+            "description": "Resolve combat & return legs"
+          }
+        }
+      }
+    ]
+  },
+  "trigger": {
+    "condition": null,
+    "config": {
+      "trigger_type": "scheduled",
+      "events": [],
+      "schedule_mode": "recurring",
+      "cron_expression": "*/5 * * * *",
+      "one_time_date": null,
+      "timezone": "America/New_York",
+      "interval_value": null,
+      "interval_unit": null,
+      "interval_anchor": null,
+      "ends_type": "never",
+      "ends_on_date": null,
+      "ends_after_count": null
+    }
+  },
+  "description": "Advances every in-transit fleet whose travel time has elapsed: resolves combat on outbound arrival (stealing loot on a win and starting the return leg) and deposits carried loot on return arrival. Catches up all due fleets each run using their authoritative arrival timestamps, so the 5-minute cadence doesn't delay journeys \u2014 it just batches processing."
+}

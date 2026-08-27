@@ -1,14 +1,4 @@
 {
   "name": "processFleets",
-  "entry": "entry.ts",
-  "automations": [
-    {
-      "type": "scheduled",
-      "name": "fleet_tick",
-      "schedule_mode": "recurring",
-      "schedule_type": "simple",
-      "repeat_unit": "minutes",
-      "repeat_interval": 1
-    }
-  ]
+  "entry": "entry.ts"
 }
