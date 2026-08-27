@@ -63,7 +63,9 @@ export default function CombatLog() {
         <div className="space-y-3">
           {fleets.map((f) => {
             const win = f.outcome === 'win';
-            const date = f.return_arrival_date || f.arrival_date;
+            // return_departure_date is the moment combat resolved and the
+            // return leg began — the true "time of resolution".
+            const date = f.return_departure_date || f.return_arrival_date || f.arrival_date;
             return (
               <div key={f.id} className="glass-panel rounded-lg p-4 flex items-center gap-4">
                 <div
