@@ -1,5 +1,5 @@
 import React from 'react';
-import { Crown, Code, Gamepad2, Bot, Heart } from 'lucide-react';
+import { Crown, Code, Gamepad2, Bot, ExternalLink, Heart } from 'lucide-react';
 
 const CREDITS = [
   {
@@ -14,7 +14,7 @@ const CREDITS = [
     role: 'Code Tester',
     name: 'PainNGain',
     studio: 'Reanimate Games',
-    link: 'https://reanimate.loveable.app',
+    link: 'https://reanimate.lovable.app',
     icon: Code,
     color: 'text-cyan-300',
     ring: 'border-cyan-400/30 bg-cyan-400/10'
@@ -71,8 +71,9 @@ export default function CreditsTab() {
                 {c.studio && (
                   c.link ? (
                     <a href={c.link} target="_blank" rel="noreferrer"
-                       className="block text-xs text-muted-foreground font-body mt-0.5 no-underline">
+                       className="inline-flex items-center gap-1 text-xs text-muted-foreground font-body mt-0.5 no-underline">
                       {c.studio}
+                      <ExternalLink className="w-3 h-3 opacity-60" />
                     </a>
                   ) : (
                     <p className="text-xs text-muted-foreground font-body mt-0.5">{c.studio}</p>
