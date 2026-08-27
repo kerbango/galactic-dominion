@@ -1,6 +1,7 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
 import { authorizeTick } from '../../shared/authGuard.ts';
 import { cyclesDue, martialLawMultiplier } from '../../shared/tickMath.ts';
+import { totalResearchSpeedBonus, computeCompletionMs } from '../../shared/researchSpeed.ts';
 
 // Hourly resource tick. Each empire earns 1 of every resource (Aetherium
 // Crystal, Ferrite-Titanium, Energy, VRIND) per run — every player controls
@@ -39,28 +40,51 @@ export default async function(req) {
       granted += grant;
     }
 
-    // Advance every player's in-progress research by one turn. TechProgress
-    // RLS is owner-only, so read/update as service role to reach all players.
-    // research_turns is snapshotted on the record at start, so no dataset
-    // lookup is needed here.
+    // Time-based research completion. A record completes when
+    //   now >= start_date + research_turns * BASE_TURN_SECONDS * (1 - bonus)
+    // where bonus stacks from a completed tech + the player's purchased
+    // upgrade level. The tick cadence only affects how soon completions are
+    // detected — not when they're due — so lengthening the cron is a pure
+    // cost knob. TechProgress RLS is owner-only, so read/update as service
+    // role to reach all players. Legacy records without start_date fall back
+    // to created_date. `now` is declared above for the resource tick.
+    const completedTech = await base44.asServiceRole.entities.TechProgress.filter(
+      { status: 'completed' },
+      '-created_date',
+      5000
+    );
+    const completedByOwner = {};
+    for (const c of completedTech) {
+      (completedByOwner[c.created_by_id] ||= new Set()).add(c.tech_id);
+    }
+    const empireByOwner = {};
+    for (const e of empires) empireByOwner[e.created_by_id] = e;
+
     const researching = await base44.asServiceRole.entities.TechProgress.filter(
       { status: 'researching' },
       '-created_date',
-      1000
+      5000
     );
     let advanced = 0;
     let completed = 0;
     for (const tp of researching) {
-      const next = (tp.progress || 0) + 1;
-      const turns = tp.research_turns || 0;
-      if (turns > 0 && next >= turns) {
+      const owner = tp.created_by_id;
+      const doneSet = completedByOwner[owner] || new Set();
+      const empire = empireByOwner[owner];
+      const level = empire?.research_speed_level || 0;
+      const bonus = totalResearchSpeedBonus(doneSet, level);
+      const startMs = tp.start_date
+        ? new Date(tp.start_date).getTime()
+        : (tp.created_date ? new Date(tp.created_date).getTime() : now);
+      const completionMs = computeCompletionMs(startMs, tp.research_turns, bonus);
+      if (now >= completionMs) {
         await base44.asServiceRole.entities.TechProgress.update(tp.id, {
           status: 'completed',
-          progress: turns,
+          progress: tp.research_turns || 1,
         });
+        (completedByOwner[owner] ||= new Set()).add(tp.tech_id);
         completed += 1;
       } else {
-        await base44.asServiceRole.entities.TechProgress.update(tp.id, { progress: next });
         advanced += 1;
       }
     }

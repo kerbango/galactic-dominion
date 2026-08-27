@@ -81,7 +81,7 @@ export const TECH_TREE = [
   { id: "fuel_refining", name: "Fuel Refining", description: "High-density propellants.", category: "Energy", researchTurns: 3, prerequisites: ["energy_storage"], tier: 3 },
   { id: "nanotech", name: "Nanotech Assembly", description: "Build structures molecule by molecule.", category: "Construction", researchTurns: 3, prerequisites: ["advanced_alloys"], tier: 3 },
   { id: "habitat_domes", name: "Habitat Domes", description: "Sealed colony structures.", category: "Construction", researchTurns: 3, prerequisites: ["advanced_alloys"], tier: 3 },
-  { id: "quantum_computing", name: "Quantum Computing", description: "Superposed logic at scale.", category: "Computing", researchTurns: 3, prerequisites: ["microprocessors"], tier: 3 },
+  { id: "quantum_computing", name: "Quantum Computing", description: "Superposed logic at scale — accelerates all future research.", category: "Computing", researchTurns: 3, prerequisites: ["microprocessors"], tier: 3, unlocks: { abilities: ["research_speed"] } },
   { id: "electronic_warfare", name: "Electronic Warfare", description: "Disrupt enemy systems.", category: "Computing", researchTurns: 3, prerequisites: ["cyber_warfare"], tier: 3 },
   { id: "warp_drive", name: "Warp Drive", description: "Fold space for faster transit.", category: "Propulsion", researchTurns: 3, prerequisites: ["ion_drive"], tier: 3 },
   { id: "freighter_fleets", name: "Freighter Fleets", description: "Coordinated trade convoys.", category: "Ship Technology", researchTurns: 3, prerequisites: ["freighters", "banking"], tier: 3 },

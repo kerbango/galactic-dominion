@@ -20,16 +20,22 @@
     "progress": {
       "type": "number",
       "title": "Progress",
-      "description": "Turns of research completed toward this tech.",
+      "description": "Display-only snapshot of turns completed. Completion is driven by start_date + research_turns and the player's live speed bonus, not by this field.",
       "default": 0,
       "minimum": 0
     },
     "research_turns": {
       "type": "number",
       "title": "Research Turns",
-      "description": "Snapshot of the tech's researchTurns at start, used by the hourly tick to know when to complete.",
+      "description": "Snapshot of the tech's researchTurns at start. Completion = start_date + research_turns * BASE_TURN_SECONDS * (1 - speedBonus).",
       "default": 1,
       "minimum": 1
+    },
+    "start_date": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Start Date",
+      "description": "ISO timestamp when research began. Legacy records without this fall back to created_date."
     }
   },
   "required": [

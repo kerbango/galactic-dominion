@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, FlaskConical, Lock, CheckCircle2, Loader2, Coins, Clock, Link2 } from 'lucide-react';
 import TechIcon from './techIcons';
-import { TECH_TREE, CATEGORIES, getResearchCost, getUnlocks, isPrimaryTech, normalizePrereqs } from '@/data/techTree';
+import { TECH_TREE, CATEGORIES, getResearchCost, getUnlocks, isPrimaryTech, normalizePrereqs, computeCompletionMs, BASE_TURN_SECONDS } from '@/data/techTree';
 import { getTechnologyState } from '@/lib/techLayout';
 
 const STATE_LABEL = {
@@ -27,7 +27,7 @@ function PrereqRow({ id, statusMap }) {
   );
 }
 
-export default function TechInfoPanel({ tech, statusMap, progress, submitting, error, onBeginResearch, onClose }) {
+export default function TechInfoPanel({ tech, statusMap, progress, speedBonus = 0, submitting, error, onBeginResearch, onClose }) {
   if (!tech) {
     return (
       <div className="glass-panel rounded-2xl p-6 h-full min-h-[300px] flex flex-col items-center justify-center text-center">
@@ -87,7 +87,7 @@ export default function TechInfoPanel({ tech, statusMap, progress, submitting, e
             </span>
           ))}
           <span className="text-xs font-mono px-2 py-1 rounded-md bg-slate-800/60 border border-slate-700/50 text-slate-200 flex items-center gap-1">
-            <Clock className="w-3 h-3" /> {tech.researchTurns} turn{tech.researchTurns !== 1 ? 's' : ''}
+            <Clock className="w-3 h-3" /> ~{formatDuration(tech.researchTurns * BASE_TURN_SECONDS * (1 - speedBonus))}
           </span>
         </div>
       </div>
@@ -131,15 +131,7 @@ export default function TechInfoPanel({ tech, statusMap, progress, submitting, e
       {/* Action / progress */}
       <div className="mt-5">
         {state === 'researching' && rec && (
-          <div>
-            <div className="h-2 rounded-full bg-slate-800 overflow-hidden">
-              <div
-                className="h-full bg-cyan-400 transition-all"
-                style={{ width: `${Math.min(100, ((rec.progress || 0) / (rec.research_turns || 1)) * 100)}%` }}
-              />
-            </div>
-            <p className="text-xs text-cyan-200/80 font-mono mt-1.5">Turn {rec.progress || 0} / {rec.research_turns}</p>
-          </div>
+          <ResearchProgress rec={rec} speedBonus={speedBonus} />
         )}
         {state === 'available' && (
           <button
@@ -161,6 +153,55 @@ export default function TechInfoPanel({ tech, statusMap, progress, submitting, e
           </div>
         )}
         {error && <p className="text-xs text-rose-300 mt-2">{error}</p>}
+      </div>
+    </div>
+  );
+}
+
+function formatDuration(seconds) {
+  const s = Math.max(1, Math.round(seconds));
+  if (s < 60) return `${s}s`;
+  const m = Math.floor(s / 60);
+  if (m < 60) return `${m}m`;
+  const h = Math.floor(m / 60);
+  return `${h}h ${m % 60}m`;
+}
+
+function formatRemaining(ms) {
+  if (ms <= 0) return 'Complete';
+  const s = Math.ceil(ms / 1000);
+  if (s < 60) return `${s}s`;
+  const m = Math.floor(s / 60);
+  return `${m}m ${s % 60}s`;
+}
+
+// Live, time-based progress + countdown for the active research. The
+// completion line is recomputed from the record's start_date + research_turns
+// and the player's live speed bonus, so it shifts instantly when the bonus
+// changes (e.g. buying an upgrade on the Upgrades page).
+function ResearchProgress({ rec, speedBonus }) {
+  const [now, setNow] = useState(Date.now());
+  useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(id);
+  }, []);
+  const startMs = rec.start_date
+    ? new Date(rec.start_date).getTime()
+    : (rec.created_date ? new Date(rec.created_date).getTime() : now);
+  const completionMs = computeCompletionMs(startMs, rec.research_turns || 1, speedBonus);
+  const span = Math.max(1, completionMs - startMs);
+  const frac = Math.min(1, Math.max(0, (now - startMs) / span));
+  const remaining = Math.max(0, completionMs - now);
+  return (
+    <div>
+      <div className="h-2 rounded-full bg-slate-800 overflow-hidden">
+        <div className="h-full bg-cyan-400 transition-all" style={{ width: `${frac * 100}%` }} />
+      </div>
+      <div className="flex items-center justify-between mt-1.5">
+        <p className="text-xs text-cyan-200/80 font-mono">{formatRemaining(remaining)} remaining</p>
+        {speedBonus > 0 && (
+          <p className="text-[10px] font-mono text-amber-300/80 uppercase tracking-widest">⚡ {Math.round(speedBonus * 100)}% faster</p>
+        )}
       </div>
     </div>
   );

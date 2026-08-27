@@ -83,6 +83,13 @@
       "format": "date-time",
       "title": "Martial Law Cooldown Until",
       "description": "ISO timestamp until which martial law cannot be reactivated. Null when ready."
+    },
+    "research_speed_level": {
+      "type": "number",
+      "title": "Research Speed Level",
+      "description": "Purchased tier of the research-speed upgrade (0-3). Each level shortens all research completion times; stacks with the Quantum Computing tech bonus.",
+      "default": 0,
+      "minimum": 0
     }
   },
   "required": [

@@ -5,7 +5,7 @@
       "trigger_type": "scheduled",
       "events": [],
       "schedule_mode": "recurring",
-      "cron_expression": "*/5 * * * *",
+      "cron_expression": "*/10 * * * *",
       "one_time_date": null,
       "timezone": "America/New_York",
       "interval_value": null,
@@ -16,7 +16,7 @@
       "ends_after_count": null
     }
   },
-  "description": "Grants accumulated production to every empire on a recurring schedule so resources persist and accumulate while players are offline. cyclesDue batches owed cycles, so the per-minute production rate is preserved regardless of tick cadence.",
+  "description": "Grants accumulated production to every empire on a recurring schedule so resources persist and accumulate while players are offline. cyclesDue batches owed cycles, so the per-minute production rate is preserved regardless of tick cadence. Runs every 10 minutes \u2014 research completion is time-based, so lengthening this cadence cuts scan cost with no gameplay impact.",
   "definition": {
     "document": {
       "dsl": "1.0.0",

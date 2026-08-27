@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useEmpire } from '@/lib/EmpireContext';
-import { TECH_TREE } from '@/data/techTree';
+import { TECH_TREE, totalResearchSpeedBonus } from '@/data/techTree';
+import { useCycleRefresh } from '@/hooks/useCycleRefresh';
 import { computeLayout, deriveStatuses, getEdges, getTechnologyState } from '@/lib/techLayout';
 import TechCanvas from '@/components/research/TechCanvas';
 import TechInfoPanel from '@/components/research/TechInfoPanel';
@@ -14,7 +15,7 @@ import { Loader2 } from 'lucide-react';
 // a pannable/zoomable graph. No visual state is hard-coded in the tech data;
 // the whole tree repaints automatically when the player's research changes.
 export default function Research() {
-  const { refresh: refreshEmpire } = useEmpire();
+  const { empire, refresh: refreshEmpire } = useEmpire();
   const [progress, setProgress] = useState(null);
   const [selectedId, setSelectedId] = useState(null);
   const [search, setSearch] = useState('');
@@ -36,15 +37,25 @@ export default function Research() {
 
   useEffect(() => { loadProgress(); }, [loadProgress]);
 
-  // Realtime subscription plus a 60s poll so tick-driven completions
-  // (service-role writes that don't reach the socket) eventually appear.
+  // Realtime subscription catches completions instantly when the socket
+  // delivers them; the production-cycle refresh reloads on each tick rollover
+  // so tick-driven completions (service-role writes that don't reach the
+  // socket) appear without an independent polling timer.
   useEffect(() => {
     const unsub = base44.entities.TechProgress.subscribe(() => { loadProgress(); });
-    const id = setInterval(loadProgress, 60000);
-    return () => { unsub(); clearInterval(id); };
+    return unsub;
   }, [loadProgress]);
+  useCycleRefresh(empire?.last_tick_date, loadProgress);
 
   const statusMap = useMemo(() => (progress ? deriveStatuses(progress) : {}), [progress]);
+  const completedIds = useMemo(
+    () => new Set(Object.entries(progress || {}).filter(([, r]) => r?.status === 'completed').map(([id]) => id)),
+    [progress]
+  );
+  const speedBonus = useMemo(
+    () => (progress ? totalResearchSpeedBonus(completedIds, empire?.research_speed_level || 0) : 0),
+    [progress, completedIds, empire]
+  );
   const layout = useMemo(() => computeLayout(), []);
   const edges = useMemo(() => getEdges(), []);
 
@@ -119,6 +130,7 @@ export default function Research() {
             tech={selected}
             statusMap={statusMap}
             progress={progress}
+            speedBonus={speedBonus}
             submitting={submitting}
             error={error}
             onBeginResearch={beginResearch}
@@ -134,6 +146,7 @@ export default function Research() {
             tech={selected}
             statusMap={statusMap}
             progress={progress}
+            speedBonus={speedBonus}
             submitting={submitting}
             error={error}
             onBeginResearch={beginResearch}

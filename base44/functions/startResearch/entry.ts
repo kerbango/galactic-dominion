@@ -82,6 +82,7 @@ export default async function(req) {
       status: 'researching',
       progress: 0,
       research_turns: tech.researchTurns,
+      start_date: new Date().toISOString(),
     });
 
     return Response.json({ record, charged: updates });
