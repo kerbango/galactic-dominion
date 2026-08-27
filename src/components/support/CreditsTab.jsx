@@ -19,8 +19,16 @@ const CREDITS = [
     ring: 'border-cyan-400/30 bg-cyan-400/10'
   },
   {
+    role: 'Tester',
+    name: 'ReinaKuro',
+    studio: '',
+    icon: Code,
+    color: 'text-emerald-300',
+    ring: 'border-emerald-400/30 bg-emerald-400/10'
+  },
+  {
     role: 'Play Tester',
-    name: 'JakTek',
+    name: 'Jack23Tek',
     studio: '',
     icon: Gamepad2,
     color: 'text-violet-300',
