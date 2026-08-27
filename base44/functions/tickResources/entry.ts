@@ -2,6 +2,7 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
 import { authorizeTick } from '../../shared/authGuard.ts';
 import { cyclesDue, martialLawMultiplier } from '../../shared/tickMath.ts';
 import { totalResearchSpeedBonus, computeCompletionMs } from '../../shared/researchSpeed.ts';
+import { researchPointsPerCycle } from '../../shared/researchPoints.ts';
 
 // Hourly resource tick. Each empire earns 1 of every resource (Aetherium
 // Crystal, Ferrite-Titanium, Energy, VRIND) per run — every player controls
@@ -24,6 +25,7 @@ export default async function(req) {
       const due = cyclesDue(empire.last_tick_date, now);
       if (due <= 0) continue;
       const grant = due * martialLawMultiplier(empire, now);
+      const rpGrant = grant * researchPointsPerCycle(empire.research_points_production_level || 0);
       await base44.asServiceRole.entities.Empire.updateMany(
         { id: empire.id },
         { $inc: {
@@ -32,6 +34,7 @@ export default async function(req) {
           energy: grant,
           vrind: grant,
           berentium: grant,
+          research_points: rpGrant,
         }, $set: {
           last_tick_date: tickedAt,
         } }

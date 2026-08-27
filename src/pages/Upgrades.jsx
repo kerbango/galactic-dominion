@@ -1,5 +1,6 @@
 import React from 'react';
 import ResearchSpeedUpgrade from '@/components/upgrades/ResearchSpeedUpgrade';
+import ResearchPointsProduction from '@/components/upgrades/ResearchPointsProduction';
 
 export default function Upgrades() {
   return (
@@ -9,6 +10,9 @@ export default function Upgrades() {
         <p className="text-xs md:text-sm text-muted-foreground font-body mt-1">Permanent enhancements for your empire.</p>
       </div>
       <ResearchSpeedUpgrade />
+      <div className="mt-6">
+        <ResearchPointsProduction />
+      </div>
     </div>
   );
 }

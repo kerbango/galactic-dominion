@@ -12,7 +12,7 @@ const STATE_LABEL = {
 };
 
 const UNLOCK_LABELS = { units: 'Units', weapons: 'Weapons', upgrades: 'Upgrades', buildings: 'Buildings', abilities: 'Abilities' };
-const RES_LABELS = { aetherium_crystal: 'Aetherium', ferrite_titanium: 'Ferrite', energy: 'Energy', vrind: 'VRIND', berentium: 'Berentium' };
+const RES_LABELS = { aetherium_crystal: 'Aetherium', ferrite_titanium: 'Ferrite', energy: 'Energy', vrind: 'VRIND', berentium: 'Berentium', research_points: 'Research Pts' };
 
 function PrereqRow({ id, statusMap }) {
   const t = TECH_TREE.find((x) => x.id === id);

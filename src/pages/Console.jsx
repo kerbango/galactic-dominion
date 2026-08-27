@@ -1,6 +1,6 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
-import { Gem, Layers, Zap, Coins, Pickaxe, Users, Loader2, LayoutDashboard } from 'lucide-react';
+import { Gem, Layers, Zap, Coins, Pickaxe, Users, Loader2, LayoutDashboard, FlaskConical } from 'lucide-react';
 import { useEmpire } from '@/lib/EmpireContext';
 import ProductionBreakdown from '@/components/console/ProductionBreakdown';
 import LowResourceWarning from '@/components/console/LowResourceWarning';
@@ -11,6 +11,7 @@ const RESOURCES = [
   { key: 'aetherium_crystal', label: 'Aetherium Crystal', icon: Gem, color: 'text-violet-300' },
   { key: 'energy', label: 'Energy', icon: Zap, color: 'text-amber-300' },
   { key: 'vrind', label: 'VRIND', icon: Coins, color: 'text-cyan-300' },
+  { key: 'research_points', label: 'Research Pts', icon: FlaskConical, color: 'text-fuchsia-300' },
   { key: 'population', label: 'Population', icon: Users, color: 'text-rose-300' },
 ];
 
@@ -50,7 +51,7 @@ export default function Console() {
 
       {/* Accumulated resources */}
       <h2 className="font-heading text-[0.65rem] tracking-[0.3em] text-cyan-200/80 uppercase mb-1 text-center">Accumulated Resources</h2>
-      <div className="grid grid-cols-2 md:grid-cols-6 gap-[5px] mb-2 md:w-3/5 md:mx-auto">
+      <div className="grid grid-cols-2 md:grid-cols-7 gap-[5px] mb-2 md:w-4/5 md:mx-auto">
         {RESOURCES.map((r) => {
           const Icon = r.icon;
           return (

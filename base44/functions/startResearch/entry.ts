@@ -11,7 +11,7 @@ import { TECH_TREE, normalizePrereqs, getResearchCost } from '../../shared/techT
 // TechProgress record; the hourly tick advances progress and flips it to
 // completed.
 const techById = new Map(TECH_TREE.map((t) => [t.id, t]));
-const COST_RESOURCES = ['aetherium_crystal', 'ferrite_titanium', 'energy', 'vrind', 'berentium'];
+const COST_RESOURCES = ['research_points', 'vrind'];
 
 export default async function(req) {
   try {

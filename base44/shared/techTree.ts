@@ -172,9 +172,8 @@ export function normalizePrereqs(tech) {
 export function defaultResearchCost(tier) {
   const scale = Math.pow(2, tier - 1);
   return {
-    aetherium_crystal: 50 * scale,
-    ferrite_titanium: 100 * scale,
-    energy: 50 * scale,
+    research_points: 20 * scale,
+    vrind: 40 * scale,
   };
 }
 

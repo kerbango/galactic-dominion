@@ -15,7 +15,7 @@
     "aetherium_crystal": {
       "type": "number",
       "title": "Aetherium Crystal",
-      "description": "Rare crystal resource used for advanced construction and research.",
+      "description": "Rare crystal resource used for advanced construction and upgrades.",
       "default": 1000,
       "minimum": 0
     },
@@ -36,7 +36,7 @@
     "vrind": {
       "type": "number",
       "title": "VRIND",
-      "description": "Galactic currency for trade and transactions.",
+      "description": "Galactic currency for trade, transactions, research, and unit construction.",
       "default": 500,
       "minimum": 0
     },
@@ -45,6 +45,13 @@
       "title": "Berentium",
       "description": "Rare mined ore used for advanced alloys and exotic construction.",
       "default": 500,
+      "minimum": 0
+    },
+    "research_points": {
+      "type": "number",
+      "title": "Research Points",
+      "description": "Currency produced each production cycle and spent alongside VRIND to start research. Base 1/cycle, raised by the Research Point Synthesis upgrade.",
+      "default": 0,
       "minimum": 0
     },
     "population": {
@@ -88,6 +95,13 @@
       "type": "number",
       "title": "Research Speed Level",
       "description": "Purchased tier of the research-speed upgrade (0-3). Each level shortens all research completion times; stacks with the Quantum Computing tech bonus.",
+      "default": 0,
+      "minimum": 0
+    },
+    "research_points_production_level": {
+      "type": "number",
+      "title": "Research Points Production Level",
+      "description": "Purchased tier of the Research Point Synthesis upgrade (0-3). Each level adds +1 Research Point per production cycle (base 1).",
       "default": 0,
       "minimum": 0
     }

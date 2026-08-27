@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Gem, Layers, Zap, Coins, Pickaxe, Users, Loader2 } from 'lucide-react';
+import { Gem, Layers, Zap, Coins, Pickaxe, Users, Loader2, FlaskConical } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useCycleRefresh } from '@/hooks/useCycleRefresh';
 
@@ -9,6 +9,7 @@ const RESOURCES = [
   { key: 'aetherium_crystal', label: 'Aetherium Crystal', icon: Gem, color: 'text-violet-300', glow: 'rgba(167,139,250,0.5)' },
   { key: 'energy', label: 'Energy', icon: Zap, color: 'text-amber-300', glow: 'rgba(252,211,77,0.5)' },
   { key: 'vrind', label: 'VRIND', icon: Coins, color: 'text-cyan-300', glow: 'rgba(103,232,249,0.5)' },
+  { key: 'research_points', label: 'Research Pts', icon: FlaskConical, color: 'text-fuchsia-300', glow: 'rgba(232,121,249,0.5)' },
   { key: 'population', label: 'Population', icon: Users, color: 'text-rose-300', glow: 'rgba(253,164,175,0.5)' },
 ];
 
