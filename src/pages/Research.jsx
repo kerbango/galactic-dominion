@@ -82,7 +82,7 @@ export default function Research() {
       await loadProgress();
       await refreshEmpire();
     } catch (e) {
-      setError(e?.message || 'Failed to begin research.');
+      setError(e?.response?.data?.error || e?.message || 'Failed to begin research.');
     } finally {
       setSubmitting(false);
     }
