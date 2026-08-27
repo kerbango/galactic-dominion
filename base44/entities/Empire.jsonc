@@ -71,6 +71,18 @@
       "format": "date-time",
       "title": "Last Tick Date",
       "description": "ISO timestamp of the most recent resource tick applied to this empire."
+    },
+    "martial_law_active_until": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Martial Law Active Until",
+      "description": "ISO timestamp until which martial law's 5x production boost is active. Null when not active."
+    },
+    "martial_law_cooldown_until": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Martial Law Cooldown Until",
+      "description": "ISO timestamp until which martial law cannot be reactivated. Null when ready."
     }
   },
   "required": [

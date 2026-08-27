@@ -1,6 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
 import { authorizeTick } from '../../shared/authGuard.ts';
-import { cyclesDue } from '../../shared/tickMath.ts';
+import { cyclesDue, martialLawMultiplier } from '../../shared/tickMath.ts';
 
 // Hourly resource tick. Each empire earns 1 of every resource (Aetherium
 // Crystal, Ferrite-Titanium, Energy, VRIND) per run — every player controls
@@ -22,20 +22,21 @@ export default async function(req) {
     for (const empire of empires) {
       const due = cyclesDue(empire.last_tick_date, now);
       if (due <= 0) continue;
+      const grant = due * martialLawMultiplier(empire, now);
       await base44.asServiceRole.entities.Empire.updateMany(
         { id: empire.id },
         { $inc: {
-          aetherium_crystal: due,
-          ferrite_titanium: due,
-          energy: due,
-          vrind: due,
-          berentium: due,
+          aetherium_crystal: grant,
+          ferrite_titanium: grant,
+          energy: grant,
+          vrind: grant,
+          berentium: grant,
         }, $set: {
           last_tick_date: tickedAt,
         } }
       );
       ticked += 1;
-      granted += due;
+      granted += grant;
     }
 
     // Advance every player's in-progress research by one turn. TechProgress

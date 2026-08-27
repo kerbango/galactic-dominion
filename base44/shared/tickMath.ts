@@ -14,3 +14,14 @@ export function cyclesDue(lastTick, nowMs) {
   if (elapsed < CYCLE_MS) return 0;
   return Math.floor(elapsed / CYCLE_MS);
 }
+
+// Martial law grants a 5x multiplier on production while active. Returns the
+// per-empire multiplier to apply to a tick's granted amount at tick time, so
+// only empires with an active martial law window get the boost.
+export const MARTIAL_LAW_MULTIPLIER = 5;
+export function martialLawMultiplier(empire, nowMs) {
+  if (!empire || !empire.martial_law_active_until) return 1;
+  const until = new Date(empire.martial_law_active_until).getTime();
+  if (isNaN(until)) return 1;
+  return nowMs < until ? MARTIAL_LAW_MULTIPLIER : 1;
+}

@@ -1,5 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
-import { cyclesDue } from '../../shared/tickMath.ts';
+import { cyclesDue, martialLawMultiplier } from '../../shared/tickMath.ts';
 
 // Owner-callable, idempotent production tick. Triggered by the client when
 // the production-cycle countdown rolls over. Grants any owed cycles
@@ -22,18 +22,19 @@ export default async function(req) {
       return Response.json({ empire, granted: 0 });
     }
 
+    const grant = due * martialLawMultiplier(empire, now);
     const tickedAt = new Date(now).toISOString();
     await base44.entities.Empire.update(empire.id, {
-      aetherium_crystal: (empire.aetherium_crystal || 0) + due,
-      ferrite_titanium: (empire.ferrite_titanium || 0) + due,
-      energy: (empire.energy || 0) + due,
-      vrind: (empire.vrind || 0) + due,
-      berentium: (empire.berentium || 0) + due,
+      aetherium_crystal: (empire.aetherium_crystal || 0) + grant,
+      ferrite_titanium: (empire.ferrite_titanium || 0) + grant,
+      energy: (empire.energy || 0) + grant,
+      vrind: (empire.vrind || 0) + grant,
+      berentium: (empire.berentium || 0) + grant,
       last_tick_date: tickedAt,
     });
 
     const fresh = await base44.entities.Empire.get(empire.id);
-    return Response.json({ empire: fresh, granted: due });
+    return Response.json({ empire: fresh, granted: grant });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
   }

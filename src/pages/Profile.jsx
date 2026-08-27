@@ -6,6 +6,7 @@ import ProductionTimer from '@/components/profile/ProductionTimer';
 import CombatLog from '@/components/profile/CombatLog';
 import OperationsTabs, { OPERATIONS_TABS } from '@/components/operations/OperationsTabs';
 import UnderConstruction from '@/components/operations/UnderConstruction';
+import MartialLawButton from '@/components/operations/MartialLawButton';
 import { useCycleRefresh } from '@/hooks/useCycleRefresh';
 
 const RESOURCES = [
@@ -77,6 +78,11 @@ export default function Profile() {
 
       {tab === 'overview' && (
         <>
+          {/* Martial Law — temporary 5x production boost */}
+          <div className="mb-8">
+            <MartialLawButton />
+          </div>
+
           {/* Resources grid */}
           <h2 className="font-heading text-sm tracking-[0.3em] text-cyan-200/80 uppercase mb-4">Treasury</h2>
           <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
