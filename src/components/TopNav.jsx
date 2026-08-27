@@ -1,5 +1,5 @@
 import React from 'react';
-import { NavLink, Link } from 'react-router-dom';
+import { NavLink, Link, useLocation } from 'react-router-dom';
 import { LogOut } from 'lucide-react';
 import { Image } from '@/components/ui/image';
 import { base44 } from '@/api/base44Client';
@@ -15,6 +15,10 @@ const ADMIN_ICON_URL = 'https://media.base44.com/images/public/6a8dedaa90af486a5
 export default function TopNav() {
   const { user, isAuthenticated } = useAuth();
   const isAdmin = user?.role === 'admin';
+  const location = useLocation();
+  // Treasury HUD only on empire-management screens where resources are spent.
+  const SHOW_TREASURY_ON = ['/profile', '/research', '/military', '/upgrades', '/market'];
+  const showTreasury = SHOW_TREASURY_ON.includes(location.pathname);
   const linkClass = ({ isActive }) =>
     `flex items-center gap-1 px-2 py-1 rounded-md text-[0.65rem] font-heading uppercase tracking-wider whitespace-nowrap transition-colors ${
       isActive ? 'text-cyan-200 bg-cyan-400/10' : 'text-muted-foreground hover:text-cyan-100'
@@ -86,7 +90,7 @@ export default function TopNav() {
           <MobileMenu />
         </div>
       </div>
-      {isAuthenticated && (
+      {isAuthenticated && showTreasury && (
         <div className="flex justify-center px-4 md:px-8 py-1.5 border-b border-cyan-400/10 bg-background/60 backdrop-blur-sm">
           <ResourceBar />
         </div>
