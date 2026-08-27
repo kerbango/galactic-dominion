@@ -14,6 +14,13 @@ export default defineConfig({
       analyticsTracker: true,
       visualEditAgent: true
     }),
-    react(),
-  ]
+    react()
+  ],
+  // Force React + ReactDOM into a single dep-optimization pass. Without
+  // this, Vite can serve react and react-dom from two different optimization
+  // runs (different ?v= hashes), which puts two divergent React copies in the
+  // page and throws "Cannot read properties of null (reading 'useState')".
+  optimizeDeps: {
+    include: ['react', 'react-dom', 'react-dom/client', 'react/jsx-runtime']
+  }
 });
