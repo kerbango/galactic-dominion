@@ -1,5 +1,5 @@
 import React from 'react';
-import { Crown, Code, Gamepad2, Heart } from 'lucide-react';
+import { Crown, Code, Gamepad2, Bot, Heart } from 'lucide-react';
 
 const CREDITS = [
   {
@@ -14,15 +14,16 @@ const CREDITS = [
     role: 'Code Tester',
     name: 'PainNGain',
     studio: 'Reanimate Games',
+    link: 'https://reanimate.loveable.app',
     icon: Code,
     color: 'text-cyan-300',
     ring: 'border-cyan-400/30 bg-cyan-400/10'
   },
   {
-    role: 'Tester',
+    role: 'Play Tester',
     name: 'ReinaKuro',
     studio: '',
-    icon: Code,
+    icon: Gamepad2,
     color: 'text-emerald-300',
     ring: 'border-emerald-400/30 bg-emerald-400/10'
   },
@@ -33,6 +34,14 @@ const CREDITS = [
     icon: Gamepad2,
     color: 'text-violet-300',
     ring: 'border-violet-400/30 bg-violet-400/10'
+  },
+  {
+    role: 'AI code Help',
+    name: 'Base1 AI',
+    studio: '',
+    icon: Bot,
+    color: 'text-sky-300',
+    ring: 'border-sky-400/30 bg-sky-400/10'
   }
 ];
 
@@ -60,7 +69,14 @@ export default function CreditsTab() {
                 <p className="font-mono text-[10px] uppercase tracking-widest text-cyan-200/60">{c.role}</p>
                 <p className="font-heading text-base tracking-wide text-white uppercase">{c.name}</p>
                 {c.studio && (
-                  <p className="text-xs text-muted-foreground font-body mt-0.5">{c.studio}</p>
+                  c.link ? (
+                    <a href={c.link} target="_blank" rel="noreferrer"
+                       className="block text-xs text-muted-foreground font-body mt-0.5 no-underline">
+                      {c.studio}
+                    </a>
+                  ) : (
+                    <p className="text-xs text-muted-foreground font-body mt-0.5">{c.studio}</p>
+                  )
                 )}
               </div>
             </div>
