@@ -1,4 +1,4 @@
-import { TECH_TREE, CATEGORY_ORDER } from "@/data/techTree";
+import { TECH_TREE, CATEGORY_ORDER, normalizePrereqs } from "@/data/techTree";
 
 // Auto-layout constants. Nodes are arranged in a grid: tiers advance
 // left-to-right, categories occupy vertical bands, and multiple techs in the
@@ -82,8 +82,9 @@ export function getDescendants(id, set = new Set()) {
 
 // Derive each tech's effective status from persisted progress records.
 // 'available' is implicit when all prerequisites are completed and no
-// researching/completed record exists. Sorted by tier so prerequisites
-// resolve before dependents.
+// researching/completed record exists. Supports AND (all) and OR (any)
+// prerequisite groups. Sorted by tier so prerequisites resolve before
+// dependents.
 export function deriveStatuses(progressMap) {
   const sorted = [...TECH_TREE].sort((a, b) => a.tier - b.tier);
   const status = {};
@@ -97,8 +98,44 @@ export function deriveStatuses(progressMap) {
       status[t.id] = "researching";
       continue;
     }
-    const allMet = (t.prerequisites || []).every((p) => status[p] === "completed");
-    status[t.id] = allMet ? "available" : "locked";
+    const { all, any } = normalizePrereqs(t);
+    const allMet = all.every((p) => status[p] === "completed");
+    const anyMet = any.length === 0 || any.some((p) => status[p] === "completed");
+    status[t.id] = allMet && anyMet ? "available" : "locked";
   }
   return status;
+}
+
+// Map a derived status ("completed"/"researching"/"available"/"locked") to
+// the UI state string the tree renders from.
+export function getTechnologyState(tech, statusMap) {
+  const s = statusMap[tech.id];
+  if (s === "completed") return "researched";
+  if (s === "researching") return "researching";
+  if (s === "available") return "available";
+  return "locked";
+}
+
+// Every prerequisite declares a directed edge prerequisite -> tech. These
+// edges are the connection lines; no separate "connections" data is stored.
+export function getEdges() {
+  const edges = [];
+  for (const t of TECH_TREE) {
+    const { all, any } = normalizePrereqs(t);
+    for (const p of all) edges.push({ from: p, to: t.id });
+    for (const p of any) edges.push({ from: p, to: t.id, or: true });
+  }
+  return edges;
+}
+
+// Edge visual state from its two endpoint UI states.
+// researched->researched = completed (green)
+// researched->available/researching = active (gold)
+// researched->locked = dormant (grey)
+// otherwise = inactive (dark grey)
+export function getConnectionState(fromState, toState) {
+  if (fromState === "researched" && toState === "researched") return "completed";
+  if (fromState === "researched" && (toState === "available" || toState === "researching")) return "active";
+  if (fromState === "researched" && toState === "locked") return "dormant";
+  return "inactive";
 }
