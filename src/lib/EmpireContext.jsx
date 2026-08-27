@@ -27,9 +27,26 @@ export function EmpireProvider({ children }) {
     }
   }, []);
 
+  // On first load, grant any production cycles the player earned while
+  // offline so the treasury shows accumulated totals immediately — instead
+  // of waiting up to a minute for useCycleRefresh's rollover. tickMyEmpire is
+  // idempotent per cycle (cyclesDue), so this can't double-count with the
+  // scheduled tickResources workflow.
   useEffect(() => {
     if (isLoadingAuth) return;
-    refresh();
+    let cancelled = false;
+    (async () => {
+      await refresh();
+      try {
+        const res = await base44.functions.invoke('tickMyEmpire', {});
+        if (cancelled) return;
+        const fresh = res.data?.empire;
+        if (fresh) setEmpire(fresh);
+      } catch {
+        /* no empire yet, or tick not due — next cycle refresh will retry */
+      }
+    })();
+    return () => { cancelled = true; };
   }, [isLoadingAuth, user?.id, refresh]);
 
   // Realtime subscription as a secondary signal: merge updates into the
