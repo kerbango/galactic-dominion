@@ -29,7 +29,7 @@ export default async function(req) {
     }
 
     const activeUntil = new Date(now + ACTIVE_MS).toISOString();
-    const newCooldownUntil = new Date(now + ACTIVE_MS + COOLDOWN_MS).toISOString();
+    const newCooldownUntil = new Date(now + COOLDOWN_MS).toISOString();
     const tickedAt = new Date(now).toISOString();
 
     await base44.entities.Empire.update(empire.id, {
