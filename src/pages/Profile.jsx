@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { Crown, Flag, Gem, Layers, Zap, Coins, Pickaxe, Users, Loader2, MapPin } from 'lucide-react';
 import { useEmpire } from '@/lib/EmpireContext';
 import ProductionTimer from '@/components/profile/ProductionTimer';
 import CombatLog from '@/components/profile/CombatLog';
+import OperationsTabs, { OPERATIONS_TABS } from '@/components/operations/OperationsTabs';
+import UnderConstruction from '@/components/operations/UnderConstruction';
 import { useCycleRefresh } from '@/hooks/useCycleRefresh';
 
 const RESOURCES = [
@@ -15,6 +17,8 @@ const RESOURCES = [
   { key: 'population', label: 'Population', icon: Users, color: 'text-rose-300' },
 ];
 
+const UNDER_CONSTRUCTION_TABS = ['espionage', 'political', 'exploration', 'scouting', 'embassy'];
+
 function formatAmount(n) {
   if (n == null) return '0';
   return Math.floor(n).toLocaleString();
@@ -22,6 +26,7 @@ function formatAmount(n) {
 
 export default function Profile() {
   const { empire, loading, refresh } = useEmpire();
+  const [tab, setTab] = useState('overview');
 
   // Refetch the instant the production-cycle countdown hits zero, so freshly
   // ticked totals appear without waiting for a manual refresh.
@@ -38,6 +43,8 @@ export default function Profile() {
   if (!empire) {
     return <Navigate to="/setup" replace />;
   }
+
+  const tabLabel = (key) => OPERATIONS_TABS.find((t) => t.key === key)?.label || key;
 
   return (
     <div className="max-w-5xl mx-auto px-4 md:px-8 py-10">
@@ -66,33 +73,40 @@ export default function Profile() {
         </div>
       </div>
 
-      {/* Resources grid */}
-      <h2 className="font-heading text-sm tracking-[0.3em] text-cyan-200/80 uppercase mb-4">Treasury</h2>
-      <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
-        {RESOURCES.map((r) => {
-          const Icon = r.icon;
-          return (
-            <div key={r.key} className="glass-panel rounded-lg p-2.5">
-              <Icon className={`w-3 h-3 ${r.color} mb-1.5`} />
-              <p className="font-mono text-sm font-bold text-foreground tabular-nums">
-                {formatAmount(empire[r.key])}
-              </p>
-              <p className="text-[10px] uppercase tracking-widest text-muted-foreground mt-0.5">{r.label}</p>
-            </div>
-          );
-        })}
-      </div>
+      <OperationsTabs active={tab} onSelect={setTab} />
 
-      {/* Production — resources gained per hour from controlled planets */}
-      <h2 className="font-heading text-sm tracking-[0.3em] text-cyan-200/80 uppercase mt-10 mb-4">Production Cycles</h2>
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-        {RESOURCES.filter((r) => r.key !== 'population').map((r) => (
-          <ProductionTimer key={r.key} resource={r} lastTick={empire.last_tick_date || empire.updated_date} />
-        ))}
-      </div>
+      {tab === 'overview' && (
+        <>
+          {/* Resources grid */}
+          <h2 className="font-heading text-sm tracking-[0.3em] text-cyan-200/80 uppercase mb-4">Treasury</h2>
+          <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
+            {RESOURCES.map((r) => {
+              const Icon = r.icon;
+              return (
+                <div key={r.key} className="glass-panel rounded-lg p-2.5">
+                  <Icon className={`w-3 h-3 ${r.color} mb-1.5`} />
+                  <p className="font-mono text-sm font-bold text-foreground tabular-nums">
+                    {formatAmount(empire[r.key])}
+                  </p>
+                  <p className="text-[10px] uppercase tracking-widest text-muted-foreground mt-0.5">{r.label}</p>
+                </div>
+              );
+            })}
+          </div>
 
-      <CombatLog />
+          {/* Production — resources gained per hour from controlled planets */}
+          <h2 className="font-heading text-sm tracking-[0.3em] text-cyan-200/80 uppercase mt-10 mb-4">Production Cycles</h2>
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+            {RESOURCES.filter((r) => r.key !== 'population').map((r) => (
+              <ProductionTimer key={r.key} resource={r} lastTick={empire.last_tick_date || empire.updated_date} />
+            ))}
+          </div>
+        </>
+      )}
 
+      {tab === 'combat' && <CombatLog />}
+
+      {UNDER_CONSTRUCTION_TABS.includes(tab) && <UnderConstruction title={tabLabel(tab)} />}
     </div>
   );
 }
