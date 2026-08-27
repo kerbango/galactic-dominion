@@ -103,7 +103,7 @@ export default function Profile() {
           {/* Production — resources gained per hour from controlled planets */}
           <h2 className="font-heading text-sm tracking-[0.3em] text-cyan-200/80 uppercase mt-10 mb-4">Production Cycles</h2>
           <p className="mb-4 text-sm font-bold text-orange-400 tracking-wide">
-            ⚡ Resources are granted each time the cycle bar fills. While you are offline, production continues automatically and is awarded every 5 minutes — so your treasury keeps growing even when you're away.
+            ⚡ Resources are granted each time the cycle bar fills. While you are offline, production continues automatically and is awarded every 5 minutes.
           </p>
           <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
             {RESOURCES.filter((r) => r.key !== 'population').map((r) => (
