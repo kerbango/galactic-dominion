@@ -13,7 +13,7 @@ export const UNITS = [
     gatingTechId: "basic_ship",
     buildTurns: 1,
     buildCost: { ferrite_titanium: 150, energy: 80, vrind: 100 },
-    baseStats: { attack: 5, defense: 6, stealth: 0, exploration: 0, shielding: 0, hull_armor: 0, speed: 12, range: 0, efficiency: 0 },
+    baseStats: { attack: 1, defense: 1, stealth: 1, exploration: 1, shielding: 1, hull_armor: 1, speed: 1, range: 1, efficiency: 1 },
   },
   {
     id: "freighter",
@@ -22,7 +22,7 @@ export const UNITS = [
     gatingTechId: "freighters",
     buildTurns: 2,
     buildCost: { ferrite_titanium: 400, energy: 150, vrind: 250 },
-    baseStats: { attack: 2, defense: 10, stealth: 0, exploration: 0, shielding: 0, hull_armor: 0, speed: 6, range: 0, efficiency: 0 },
+    baseStats: { attack: 1, defense: 1, stealth: 1, exploration: 1, shielding: 1, hull_armor: 1, speed: 1, range: 1, efficiency: 1 },
   },
   {
     id: "battleship",
@@ -31,7 +31,7 @@ export const UNITS = [
     gatingTechId: "battleship_hull",
     buildTurns: 4,
     buildCost: { ferrite_titanium: 2000, aetherium_crystal: 500, energy: 800, vrind: 1500 },
-    baseStats: { attack: 40, defense: 50, stealth: 0, exploration: 0, shielding: 0, hull_armor: 0, speed: 6, range: 0, efficiency: 0 },
+    baseStats: { attack: 1, defense: 1, stealth: 1, exploration: 1, shielding: 1, hull_armor: 1, speed: 1, range: 1, efficiency: 1 },
   },
   {
     id: "carrier",
@@ -40,7 +40,7 @@ export const UNITS = [
     gatingTechId: "carrier_hull",
     buildTurns: 4,
     buildCost: { ferrite_titanium: 1800, aetherium_crystal: 600, energy: 700, vrind: 1400 },
-    baseStats: { attack: 20, defense: 35, stealth: 0, exploration: 0, shielding: 0, hull_armor: 0, speed: 5, range: 0, efficiency: 0 },
+    baseStats: { attack: 1, defense: 1, stealth: 1, exploration: 1, shielding: 1, hull_armor: 1, speed: 1, range: 1, efficiency: 1 },
   },
   {
     id: "titan",
@@ -49,7 +49,7 @@ export const UNITS = [
     gatingTechId: "titan_hull",
     buildTurns: 6,
     buildCost: { ferrite_titanium: 5000, aetherium_crystal: 2000, berentium: 500, energy: 2000, vrind: 4000 },
-    baseStats: { attack: 120, defense: 150, stealth: 0, exploration: 0, shielding: 0, hull_armor: 0, speed: 4, range: 0, efficiency: 0 },
+    baseStats: { attack: 1, defense: 1, stealth: 1, exploration: 1, shielding: 1, hull_armor: 1, speed: 1, range: 1, efficiency: 1 },
   },
   {
     id: "titan_class_vessel",
@@ -58,7 +58,7 @@ export const UNITS = [
     gatingTechId: "titan_class",
     buildTurns: 9,
     buildCost: { ferrite_titanium: 12000, aetherium_crystal: 6000, berentium: 2000, energy: 5000, vrind: 10000 },
-    baseStats: { attack: 400, defense: 500, stealth: 0, exploration: 0, shielding: 0, hull_armor: 0, speed: 3, range: 0, efficiency: 0 },
+    baseStats: { attack: 1, defense: 1, stealth: 1, exploration: 1, shielding: 1, hull_armor: 1, speed: 1, range: 1, efficiency: 1 },
   },
 ];
 
