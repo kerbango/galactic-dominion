@@ -17,6 +17,7 @@ export const CATEGORIES = {
   "Ship Technology": { icon: "Ship", color: "text-blue-300" },
   Terraforming: { icon: "Globe", color: "text-teal-300" },
   Automation: { icon: "Bot", color: "text-cyan-300" },
+  Fleet: {icon: "Rocket", color: "text-cyan-300" },
 };
 
 // Vertical order of category bands in the auto-layout.
