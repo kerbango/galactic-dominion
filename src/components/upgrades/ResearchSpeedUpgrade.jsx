@@ -5,6 +5,7 @@ import { RESEARCH_SPEED_TIERS, nextResearchSpeedTier } from '@/data/techTree';
 import { FlaskConical, Loader2 } from 'lucide-react';
 import TierPadRow from './TierPadRow';
 import CostChip from './CostChip';
+import { purchaseErrorMessage } from '@/lib/upgradeError';
 
 // Tiered research-speed upgrade ladder. Each level grants a total bonus
 // (+10/+20/+30%) that stacks with the Quantum Computing tech bonus and
@@ -26,10 +27,10 @@ export default function ResearchSpeedUpgrade() {
     setBusy(true);
     try {
       const res = await base44.functions.invoke('buyResearchSpeedUpgrade', {});
-      if (res?.data?.error) { setError(res.data.error); return; }
+      if (res?.data?.error) { setError(purchaseErrorMessage(res.data.error)); return; }
       await refresh();
     } catch (e) {
-      setError(e?.message || 'Purchase failed.');
+      setError(purchaseErrorMessage(e));
     } finally {
       setBusy(false);
     }

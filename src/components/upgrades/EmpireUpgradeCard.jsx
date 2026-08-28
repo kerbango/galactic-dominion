@@ -6,6 +6,7 @@ import { getTech } from '@/lib/techLayout';
 import { Lock, Loader2, Zap } from 'lucide-react';
 import TierPadRow from './TierPadRow';
 import CostChip from './CostChip';
+import { purchaseErrorMessage } from '@/lib/upgradeError';
 
 // Generic card for a tech-gated empire-wide upgrade. The level is stored in
 // the Empire's empire_upgrade_levels map. When the gating tech isn't
@@ -27,10 +28,10 @@ export default function EmpireUpgradeCard({ upgrade, unlocked }) {
     setBusy(true);
     try {
       const res = await base44.functions.invoke('buyEmpireUpgrade', { upgrade_id: upgrade.id });
-      if (res?.data?.error) { setError(res.data.error); return; }
+      if (res?.data?.error) { setError(purchaseErrorMessage(res.data.error)); return; }
       await refresh();
     } catch (e) {
-      setError(e?.message || 'Purchase failed.');
+      setError(purchaseErrorMessage(e));
     } finally {
       setBusy(false);
     }

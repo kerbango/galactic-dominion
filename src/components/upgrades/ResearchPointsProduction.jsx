@@ -5,6 +5,7 @@ import { RESEARCH_POINTS_TIERS, nextResearchPointsTier, researchPointsPerCycle }
 import { FlaskConical, Loader2 } from 'lucide-react';
 import TierPadRow from './TierPadRow';
 import CostChip from './CostChip';
+import { purchaseErrorMessage } from '@/lib/upgradeError';
 
 // Tiered Research Points production upgrade. Each level adds +1 Research
 // Point per production cycle (base 1), so level L produces (1 + L)/cycle.
@@ -26,10 +27,10 @@ export default function ResearchPointsProduction() {
     setBusy(true);
     try {
       const res = await base44.functions.invoke('buyResearchPointsUpgrade', {});
-      if (res?.data?.error) { setError(res.data.error); return; }
+      if (res?.data?.error) { setError(purchaseErrorMessage(res.data.error)); return; }
       await refresh();
     } catch (e) {
-      setError(e?.message || 'Purchase failed.');
+      setError(purchaseErrorMessage(e));
     } finally {
       setBusy(false);
     }
