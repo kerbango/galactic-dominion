@@ -67,6 +67,7 @@ export const getUnit = (id) => unitById.get(id);
 
 // A unit is unlocked when its gating tech is in the completed set.
 export function isUnitUnlocked(unit, completedTechIds) {
+  if (!unit.gatingTechId) return true;
   const set = completedTechIds instanceof Set ? completedTechIds : new Set(completedTechIds || []);
   return set.has(unit.gatingTechId);
 }
