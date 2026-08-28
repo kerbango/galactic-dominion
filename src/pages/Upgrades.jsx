@@ -3,6 +3,7 @@ import { base44 } from '@/api/base44Client';
 import ResearchSpeedUpgrade from '@/components/upgrades/ResearchSpeedUpgrade';
 import ResearchPointsProduction from '@/components/upgrades/ResearchPointsProduction';
 import EmpireUpgradeCard from '@/components/upgrades/EmpireUpgradeCard';
+import PcbTraceOverlay from '@/components/upgrades/PcbTraceOverlay';
 import { EMPIRE_UPGRADES, isEmpireUpgradeAvailable } from '@/data/empireUpgrades';
 
 export default function Upgrades() {
@@ -46,8 +47,9 @@ export default function Upgrades() {
 
       <div className="pcb-trace w-32 mx-auto my-5" />
 
-      <div className="pcb-grid-overlay rounded-2xl p-4 md:p-5">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+      <div className="relative pcb-grid-overlay rounded-2xl p-4 md:p-5">
+        <PcbTraceOverlay />
+        <div className="relative grid grid-cols-1 md:grid-cols-2 gap-5" style={{ zIndex: 1 }}>
           <ResearchSpeedUpgrade />
           <ResearchPointsProduction />
           {EMPIRE_UPGRADES.map((u) => (
@@ -59,6 +61,10 @@ export default function Upgrades() {
           ))}
         </div>
       </div>
+
+      <p className="pcb-silkscreen text-[10px] text-cyan-300/40 text-center mt-6">
+        Imperial Upgrades · Aethernet Systems
+      </p>
     </div>
   );
 }

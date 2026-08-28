@@ -4,8 +4,7 @@ import { useEmpire } from '@/lib/EmpireContext';
 import { RESEARCH_SPEED_TIERS, nextResearchSpeedTier } from '@/data/techTree';
 import { FlaskConical, Loader2 } from 'lucide-react';
 import TierPadRow from './TierPadRow';
-
-const RES_LABELS = { aetherium_crystal: 'Aetherium', ferrite_titanium: 'Ferrite', energy: 'Energy', vrind: 'VRIND' };
+import CostChip from './CostChip';
 
 // Tiered research-speed upgrade ladder. Each level grants a total bonus
 // (+10/+20/+30%) that stacks with the Quantum Computing tech bonus and
@@ -66,9 +65,7 @@ export default function ResearchSpeedUpgrade() {
           <>
             <div className="flex flex-wrap gap-1.5 mb-3 justify-center">
               {Object.entries(next.cost).filter(([, v]) => v > 0).map(([k, v]) => (
-                <span key={k} className="pcb-cost text-[10px] font-mono px-2 py-1 rounded">
-                  {RES_LABELS[k] || k} <span className="text-cyan-300">{Math.floor(v).toLocaleString()}</span>
-                </span>
+                <CostChip key={k} resourceKey={k} value={v} />
               ))}
             </div>
             <button
