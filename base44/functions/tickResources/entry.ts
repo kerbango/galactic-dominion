@@ -3,6 +3,7 @@ import { authorizeTick } from '../../shared/authGuard.ts';
 import { cyclesDue, martialLawMultiplier } from '../../shared/tickMath.ts';
 import { totalResearchSpeedBonus, computeCompletionMs } from '../../shared/researchSpeed.ts';
 import { researchPointsPerCycle } from '../../shared/researchPoints.ts';
+import { processBuildCompletions } from '../../shared/buildCompletion.ts';
 
 // Hourly resource tick. Each empire earns 1 of every resource (Aetherium
 // Crystal, Ferrite-Titanium, Energy, VRIND) per run — every player controls
@@ -92,7 +93,13 @@ export default async function(req) {
       }
     }
 
-    return Response.json({ ok: true, ticked, granted, advanced, completed, at: new Date().toISOString() });
+    // Time-based ship-construction completion. Unit RLS is owner-only, so
+    // read as service role to reach all players. A construction completes
+    // when now >= construction_start_date + construction_turns * BASE_TURN_SECONDS.
+    const allUnits = await base44.asServiceRole.entities.Unit.list('-created_date', 5000);
+    const buildsCompleted = await processBuildCompletions(base44.asServiceRole, allUnits, now);
+
+    return Response.json({ ok: true, ticked, granted, advanced, completed, buildsCompleted, at: new Date().toISOString() });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
   }

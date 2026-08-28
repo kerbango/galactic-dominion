@@ -104,6 +104,12 @@
       "description": "Purchased tier of the Research Point Synthesis upgrade (0-3). Each level adds +1 Research Point per production cycle (base 1).",
       "default": 0,
       "minimum": 0
+    },
+    "empire_upgrade_levels": {
+      "type": "object",
+      "title": "Empire Upgrade Levels",
+      "description": "Map of tech-gated empire-wide upgrade id to purchased tier. Effects are combat-oriented and read by combat later.",
+      "default": {}
     }
   },
   "required": [

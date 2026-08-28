@@ -1,0 +1,4 @@
+{
+  "name": "buildUnit",
+  "entry": "entry.ts"
+}

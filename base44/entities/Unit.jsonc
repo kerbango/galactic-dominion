@@ -1,0 +1,54 @@
+{
+  "name": "Unit",
+  "type": "object",
+  "properties": {
+    "unit_type": {
+      "type": "string",
+      "title": "Unit Type",
+      "description": "The unit type id (matches a unit in the shared units dataset)."
+    },
+    "owned_count": {
+      "type": "number",
+      "title": "Owned Count",
+      "description": "Number of ships of this type the player owns.",
+      "default": 0,
+      "minimum": 0
+    },
+    "construction_start_date": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Construction Start Date",
+      "description": "ISO timestamp when the current build started. Null when no build is in progress. One active construction per unit type."
+    },
+    "construction_turns": {
+      "type": "number",
+      "title": "Construction Turns",
+      "description": "Snapshot of the unit's buildTurns at start. Completion = start_date + construction_turns * BASE_TURN_SECONDS.",
+      "default": 1,
+      "minimum": 1
+    },
+    "upgrade_levels": {
+      "type": "object",
+      "title": "Upgrade Levels",
+      "description": "Map of upgrade_id to purchased level for this unit type. Per-type upgrades apply to all owned ships of this type.",
+      "default": {}
+    }
+  },
+  "required": [
+    "unit_type"
+  ],
+  "rls": {
+    "read": {
+      "created_by_id": "{{user.id}}"
+    },
+    "create": {
+      "created_by_id": "{{user.id}}"
+    },
+    "update": {
+      "created_by_id": "{{user.id}}"
+    },
+    "delete": {
+      "created_by_id": "{{user.id}}"
+    }
+  }
+}

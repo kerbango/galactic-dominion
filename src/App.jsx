@@ -20,7 +20,6 @@ import GalacticMap from '@/pages/GalacticMap';
 import Console from '@/pages/Console';
 import AdminLogin from '@/pages/AdminLogin';
 import Admin from '@/pages/Admin';
-import SectionPlaceholder from '@/pages/SectionPlaceholder';
 import Research from '@/pages/Research';
 import GalacticMarket from '@/pages/GalacticMarket';
 import Comms from '@/pages/Comms';
@@ -29,6 +28,7 @@ import Alliance from '@/pages/Alliance';
 import { Sword, Radio } from 'lucide-react';
 // Add page imports here
 import Upgrades from '@/pages/Upgrades';
+import Military from '@/pages/Military';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError } = useAuth();
@@ -72,7 +72,7 @@ const AuthenticatedApp = () => {
           <Route path="/profile" element={<Profile />} />
           <Route path="/map" element={<GalacticMap />} />
           <Route path="/console" element={<Console />} />
-          <Route path="/military" element={<SectionPlaceholder title="Military" Icon={Sword} />} />
+          <Route path="/military" element={<Military />} />
           <Route path="/research" element={<Research />} />
           <Route path="/upgrades" element={<Upgrades />} />
           <Route path="/market" element={<GalacticMarket />} />
