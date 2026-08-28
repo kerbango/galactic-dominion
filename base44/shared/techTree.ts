@@ -14,7 +14,7 @@ export const CATEGORIES = {
   Biotechnology: { icon: "Dna", color: "text-emerald-300" },
   Economics: { icon: "Coins", color: "text-yellow-300" },
   Military: { icon: "Shield", color: "text-red-300" },
-  "Ship Technology": { icon: "Ship", color: "text-blue-300" },
+  Ship Technology: { icon: "Ship", color: "text-blue-300" },
   Terraforming: { icon: "Globe", color: "text-teal-300" },
   Automation: { icon: "Bot", color: "text-cyan-300" },
   Fleet: {icon: "Rocket", color: "text-cyan-300" },
@@ -74,6 +74,8 @@ export const TECH_TREE = [
   { id: "soil_regen", name: "Soil Regeneration", description: "Accelerate ecosystem recovery.", category: "Terraforming", researchTurns: 2, prerequisites: ["basic_terraforming"], tier: 2 },
   { id: "assembly_lines", name: "Assembly Lines", description: "Sequential automated fabrication.", category: "Automation", researchTurns: 2, prerequisites: ["basic_automation"], tier: 2 },
   { id: "frigate_hull", name: "Standard Hull Framing", description: "Creates a Stadnard Hull Frame design.", category: "Fleet", icon: "Rocket", researchTurns: 2, prerequisites: ["fleet_hull"], tier: 2 },
+  { id: "Jump_drive_attune", name: "Jump Drive Attunement", description: "Drive Recalibration for Faster Hulls", category: "Fleet", icon: "Rocket", researchTurns: 2, prerequisites: ["fleet_hull"], tier: 2 },
+
   // ───────────────────────── TIER 3 ─────────────────────────
   { id: "heavy_ion_beams", name: "Heavy Ion Beams", description: "Capital-scale ion weaponry.", category: "Weapons", icon: "Zap", researchTurns: 3, prerequisites: ["ion_beams"], tier: 3 },
   { id: "turbolasers", name: "Turbolasers", description: "Rapid-fire coherent beams.", category: "Weapons", icon: "Sun", researchTurns: 3, prerequisites: ["laser_weapons"], tier: 3, isPrimary: true, unlocks: { weapons: ["turbolaser_array"] } },
