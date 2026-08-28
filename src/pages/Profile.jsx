@@ -7,6 +7,7 @@ import CombatLog from '@/components/profile/CombatLog';
 import OperationsTabs, { OPERATIONS_TABS } from '@/components/operations/OperationsTabs';
 import UnderConstruction from '@/components/operations/UnderConstruction';
 import MartialLawButton from '@/components/operations/MartialLawButton';
+import ActiveResearchPanel from '@/components/research/ActiveResearchPanel';
 import { useCycleRefresh } from '@/hooks/useCycleRefresh';
 
 const RESOURCES = [
@@ -82,6 +83,12 @@ export default function Profile() {
           {/* Martial Law — temporary 5x production boost */}
           <div className="mb-8">
             <MartialLawButton />
+          </div>
+
+          {/* Active research — live progress + time remaining */}
+          <h2 className="font-heading text-sm tracking-[0.3em] text-cyan-200/80 uppercase mb-4">Active Research</h2>
+          <div className="mb-10">
+            <ActiveResearchPanel />
           </div>
 
           {/* Resources grid */}

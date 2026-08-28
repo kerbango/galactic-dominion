@@ -4,6 +4,7 @@ import { Gem, Layers, Zap, Coins, Pickaxe, Users, Loader2, LayoutDashboard, Flas
 import { useEmpire } from '@/lib/EmpireContext';
 import ProductionBreakdown from '@/components/console/ProductionBreakdown';
 import LowResourceWarning from '@/components/console/LowResourceWarning';
+import ActiveResearchPanel from '@/components/research/ActiveResearchPanel';
 
 const RESOURCES = [
   { key: 'berentium', label: 'Berentium', icon: Pickaxe, color: 'text-emerald-300' },
@@ -69,6 +70,11 @@ export default function Console() {
       <LowResourceWarning empire={empire} />
 
       <ProductionBreakdown />
+
+      <h2 className="font-heading text-[0.65rem] tracking-[0.3em] text-cyan-200/80 uppercase mb-2 mt-6 text-center">Active Research</h2>
+      <div className="md:w-3/5 md:mx-auto">
+        <ActiveResearchPanel />
+      </div>
 
     </div>
   );
