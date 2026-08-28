@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useEmpire } from '@/lib/EmpireContext';
 import { RESEARCH_SPEED_TIERS, nextResearchSpeedTier } from '@/data/techTree';
-import { FlaskConical, Zap, CheckCircle2, Lock, Loader2 } from 'lucide-react';
+import { FlaskConical, Loader2 } from 'lucide-react';
+import TierPadRow from './TierPadRow';
 
 const RES_LABELS = { aetherium_crystal: 'Aetherium', ferrite_titanium: 'Ferrite', energy: 'Energy', vrind: 'VRIND' };
 
@@ -36,62 +37,49 @@ export default function ResearchSpeedUpgrade() {
   };
 
   return (
-    <div className="glass-panel-strong rounded-2xl p-6">
-      <div className="flex items-center gap-3 mb-1">
-        <div className="shrink-0 inline-flex items-center justify-center w-11 h-11 rounded-xl border border-cyan-400/20 bg-cyan-400/10">
+    <div className="pcb-panel rounded-2xl p-5 flex flex-col">
+      <div className="flex items-center gap-3 mb-4">
+        <div className="pcb-chip rounded-lg w-12 h-12 flex items-center justify-center shrink-0">
           <FlaskConical className="w-5 h-5 text-cyan-300" />
         </div>
-        <div>
-          <h2 className="font-heading text-lg tracking-wide text-white uppercase">Research Accelerator</h2>
-          <p className="text-xs text-muted-foreground font-body">Shorten every research project. Stacks with the Quantum Computing bonus.</p>
+        <div className="min-w-0">
+          <h2 className="pcb-silkscreen text-base text-[#e0e0e0]">Research Accelerator</h2>
+          <p className="text-[11px] text-slate-400 font-body leading-snug">Shorten every research project. Stacks with the Quantum Computing bonus.</p>
         </div>
       </div>
 
-      <div className="mt-5 space-y-3">
+      <div className="space-y-2 mb-4">
         {RESEARCH_SPEED_TIERS.map((tier) => {
           const owned = level >= tier.level;
           const isNext = next?.level === tier.level;
-          const cls = owned
-            ? 'border-emerald-400/30 bg-emerald-400/5'
-            : isNext
-              ? 'border-amber-400/40 bg-amber-400/5'
-              : 'border-slate-700/40 bg-slate-800/30';
-          const Icon = owned ? CheckCircle2 : isNext ? Zap : Lock;
-          const iconCls = owned ? 'text-emerald-300' : isNext ? 'text-amber-300' : 'text-slate-500';
+          const status = owned ? 'owned' : isNext ? 'next' : 'locked';
           return (
-            <div key={tier.level} className={`rounded-xl border p-4 flex items-center gap-4 ${cls}`}>
-              <div className="shrink-0">
-                <Icon className={`w-5 h-5 ${iconCls}`} />
-              </div>
-              <div className="flex-1">
-                <p className="font-heading text-sm tracking-wide text-white uppercase">Level {tier.level} · +{Math.round(tier.bonus * 100)}%</p>
-                <div className="flex flex-wrap gap-1.5 mt-1.5">
-                  {Object.entries(tier.cost).filter(([, v]) => v > 0).map(([k, v]) => (
-                    <span key={k} className="text-[11px] font-mono px-1.5 py-0.5 rounded bg-slate-800/60 border border-slate-700/50 text-slate-200">
-                      {RES_LABELS[k] || k}: <span className="text-cyan-200">{Math.floor(v).toLocaleString()}</span>
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </div>
+            <TierPadRow key={tier.level} label={`Level ${tier.level} · +${Math.round(tier.bonus * 100)}%`} status={status} />
           );
         })}
       </div>
 
-      <div className="mt-5">
+      <div className="mt-auto">
         {maxed ? (
-          <div className="w-full rounded-xl border border-emerald-400/30 bg-emerald-400/10 text-emerald-200 font-heading text-sm tracking-wide uppercase py-2.5 text-center">
-            Maximum Acceleration
-          </div>
+          <div className="pcb-maxed rounded-lg py-2.5 text-center pcb-silkscreen text-xs">Maximum Acceleration</div>
         ) : (
-          <button
-            onClick={buy}
-            disabled={busy}
-            className="w-full rounded-xl bg-amber-500/90 hover:bg-amber-400 text-slate-900 font-heading text-sm tracking-wide uppercase py-2.5 disabled:opacity-60 transition-colors inline-flex items-center justify-center gap-2"
-          >
-            {busy && <Loader2 className="w-4 h-4 animate-spin" />}
-            {busy ? 'Purchasing…' : `Purchase Level ${next.level} · +${Math.round(next.bonus * 100)}%`}
-          </button>
+          <>
+            <div className="flex flex-wrap gap-1.5 mb-3 justify-center">
+              {Object.entries(next.cost).filter(([, v]) => v > 0).map(([k, v]) => (
+                <span key={k} className="pcb-cost text-[10px] font-mono px-2 py-1 rounded">
+                  {RES_LABELS[k] || k} <span className="text-cyan-300">{Math.floor(v).toLocaleString()}</span>
+                </span>
+              ))}
+            </div>
+            <button
+              onClick={buy}
+              disabled={busy}
+              className="pcb-btn w-full rounded-lg py-2.5 pcb-silkscreen text-xs disabled:opacity-60 inline-flex items-center justify-center gap-2"
+            >
+              {busy && <Loader2 className="w-4 h-4 animate-spin" />}
+              {busy ? 'Purchasing…' : `Purchase Level ${next.level} · +${Math.round(next.bonus * 100)}%`}
+            </button>
+          </>
         )}
         {error && <p className="text-xs text-rose-300 mt-2 text-center">{error}</p>}
       </div>

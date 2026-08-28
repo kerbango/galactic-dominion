@@ -99,3 +99,76 @@
   50% { opacity: 0.2; }
 }
 .animate-flash-red { animation: flash-red 0.8s ease-in-out infinite; }
+
+/* ===== PCB Panel Grid aesthetic (Upgrades page) ===== */
+.pcb-grid-overlay {
+  background-image:
+    linear-gradient(rgba(0, 212, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 212, 255, 0.05) 1px, transparent 1px);
+  background-size: 30px 30px;
+}
+
+.pcb-panel {
+  background: linear-gradient(160deg, rgba(18, 22, 28, 0.92), rgba(10, 13, 18, 0.96));
+  border: 1px solid rgba(143, 109, 83, 0.55);
+  box-shadow: 0 0 0 1px rgba(143, 109, 83, 0.10), 0 10px 30px rgba(0, 0, 0, 0.5);
+  position: relative;
+}
+.pcb-panel-locked { opacity: 0.72; }
+
+.pcb-chip {
+  background: radial-gradient(circle at 50% 40%, rgba(0, 212, 255, 0.14), rgba(10, 13, 18, 0.7));
+  border: 1px solid rgba(143, 109, 83, 0.5);
+  box-shadow: inset 0 0 12px rgba(0, 212, 255, 0.15);
+}
+
+.pcb-trace {
+  background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.6), transparent);
+  height: 1px;
+}
+
+.pcb-pad {
+  background: rgba(20, 24, 30, 0.7);
+  border: 1px solid rgba(143, 109, 83, 0.28);
+}
+
+.led {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  display: inline-block;
+  flex-shrink: 0;
+}
+.led-green { background: #2ecc71; box-shadow: 0 0 8px rgba(46, 204, 113, 0.7); }
+.led-amber { background: #f1c40f; box-shadow: 0 0 8px rgba(241, 196, 15, 0.7); }
+.led-dim   { background: #2a3038; }
+
+.pcb-cost {
+  background: rgba(12, 15, 19, 0.8);
+  border: 1px solid rgba(143, 109, 83, 0.35);
+  color: #e0e0e0;
+}
+
+.pcb-btn {
+  background: rgba(0, 212, 255, 0.12);
+  border: 1px solid rgba(0, 212, 255, 0.7);
+  color: #00d4ff;
+  box-shadow: 0 0 16px rgba(0, 212, 255, 0.35), inset 0 0 12px rgba(0, 212, 255, 0.12);
+  transition: all 0.2s ease;
+}
+.pcb-btn:hover:not(:disabled) {
+  background: rgba(0, 212, 255, 0.2);
+  box-shadow: 0 0 24px rgba(0, 212, 255, 0.55), inset 0 0 14px rgba(0, 212, 255, 0.18);
+}
+
+.pcb-maxed {
+  background: rgba(60, 65, 72, 0.5);
+  border: 1px solid rgba(120, 128, 138, 0.4);
+  color: #8a929c;
+}
+
+.pcb-silkscreen {
+  font-family: 'Orbitron', sans-serif;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}

@@ -31,20 +31,34 @@ export default function Upgrades() {
   );
 
   return (
-    <div className="max-w-2xl mx-auto px-4 md:px-8 py-10">
-      <div className="flex flex-col items-center text-center mb-8">
-        <h1 className="font-heading text-2xl md:text-3xl tracking-wide text-white neon-text uppercase">Imperial Upgrades</h1>
-        <p className="text-xs md:text-sm text-muted-foreground font-body mt-1">Permanent enhancements for your empire.</p>
+    <div className="max-w-5xl mx-auto px-4 md:px-8 py-10">
+      <div className="flex flex-col items-center text-center mb-2">
+        <h1
+          className="pcb-silkscreen text-2xl md:text-3xl text-[#e0e0e0]"
+          style={{ textShadow: '0 0 14px rgba(0,212,255,0.4)' }}
+        >
+          Imperial Upgrades
+        </h1>
+        <p className="text-xs md:text-sm text-slate-400 font-body mt-1 tracking-wide uppercase">
+          Permanent enhancements for your empire.
+        </p>
       </div>
-      <ResearchSpeedUpgrade />
-      <div className="mt-6">
-        <ResearchPointsProduction />
-      </div>
-      {EMPIRE_UPGRADES.map((u) => (
-        <div key={u.id} className="mt-6">
-          <EmpireUpgradeCard upgrade={u} unlocked={progress ? isEmpireUpgradeAvailable(u, completedIds) : false} />
+
+      <div className="pcb-trace w-32 mx-auto my-5" />
+
+      <div className="pcb-grid-overlay rounded-2xl p-4 md:p-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <ResearchSpeedUpgrade />
+          <ResearchPointsProduction />
+          {EMPIRE_UPGRADES.map((u) => (
+            <EmpireUpgradeCard
+              key={u.id}
+              upgrade={u}
+              unlocked={progress ? isEmpireUpgradeAvailable(u, completedIds) : false}
+            />
+          ))}
         </div>
-      ))}
+      </div>
     </div>
   );
 }
