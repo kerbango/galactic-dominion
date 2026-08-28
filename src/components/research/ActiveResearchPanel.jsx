@@ -3,7 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { useEmpire } from '@/lib/EmpireContext';
 import { TECH_TREE, CATEGORIES, totalResearchSpeedBonus, computeCompletionMs } from '@/data/techTree';
 import TechIcon from './techIcons';
-import { FlaskConical, Loader2, CheckCircle2 } from 'lucide-react';
+import { FlaskConical, Loader2, CheckCircle2, X } from 'lucide-react';
 
 const techById = Object.fromEntries(TECH_TREE.map((t) => [t.id, t]));
 
@@ -49,6 +49,30 @@ export default function ActiveResearchPanel() {
     const id = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(id);
   }, []);
+
+  const [dismissing, setDismissing] = useState({});
+  // Dismissing a completed research flips its record to 'completed' — exactly
+  // what the scheduled tick does once it scans the record — so it leaves the
+  // active list permanently rather than just hiding locally.
+  const dismiss = async (rec) => {
+    setDismissing((d) => ({ ...d, [rec.id]: true }));
+    try {
+      await base44.entities.TechProgress.update(rec.id, {
+        status: 'completed',
+        progress: rec.research_turns || 1,
+      });
+      setData((prev) => prev
+        ? {
+            researching: prev.researching.filter((r) => r.id !== rec.id),
+            completed: [...prev.completed, rec.tech_id],
+          }
+        : prev);
+    } catch {
+      /* ignore — next load re-syncs from server */
+    } finally {
+      setDismissing((d) => ({ ...d, [rec.id]: false }));
+    }
+  };
 
   if (data === null) {
     return (
@@ -100,9 +124,20 @@ export default function ActiveResearchPanel() {
                 </h3>
               </div>
               {done ? (
-                <span className="inline-flex items-center gap-1 font-mono text-[10px] uppercase tracking-widest text-emerald-300 whitespace-nowrap">
-                  <CheckCircle2 className="w-3.5 h-3.5" /> Complete
-                </span>
+                <div className="flex items-center gap-2">
+                  <span className="inline-flex items-center gap-1 font-mono text-[10px] uppercase tracking-widest text-emerald-300 whitespace-nowrap">
+                    <CheckCircle2 className="w-3.5 h-3.5" /> Complete
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => dismiss(rec)}
+                    disabled={!!dismissing[rec.id]}
+                    title="Dismiss"
+                    className="shrink-0 text-muted-foreground hover:text-white transition-colors disabled:opacity-50"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
               ) : (
                 <span className="font-mono text-xs text-cyan-200 tabular-nums whitespace-nowrap">
                   {formatRemaining(remaining)}
