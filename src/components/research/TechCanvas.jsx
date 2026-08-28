@@ -1,21 +1,18 @@
 import React, { useRef, useState, useEffect, useMemo } from 'react';
 import { ZoomIn, ZoomOut, Maximize, Crosshair } from 'lucide-react';
 import TechNode from './TechNode';
-import { TECH_TREE, isPrimaryTech } from '@/data/techTree';
+import { TECH_TREE } from '@/data/techTree';
 import { getTechnologyState, getConnectionState } from '@/lib/techLayout';
-
-const techById = Object.fromEntries(TECH_TREE.map((t) => [t.id, t]));
-const nodeW = (id) => (techById[id] && isPrimaryTech(techById[id]) ? 200 : 168);
-const nodeH = (id) => (techById[id] && isPrimaryTech(techById[id]) ? 92 : 74);
 
 // Connection line colors/widths keyed off the derived edge state.
 const LINE_COLORS = {
-  completed: 'rgba(52,211,153,0.7)',
-  active: 'rgba(251,191,36,0.7)',
-  dormant: 'rgba(100,116,139,0.45)',
-  inactive: 'rgba(71,85,105,0.3)',
+  completed: 'rgba(34,197,94,0.78)',
+  active: 'rgba(34,211,238,0.78)',
+  dormant: 'rgba(107,114,128,0.42)',
+  inactive: 'rgba(71,85,105,0.22)',
 };
-const LINE_WIDTH = { completed: 2.5, active: 2.5, dormant: 1.8, inactive: 1.5 };
+const LINE_WIDTH = { completed: 2.2, active: 2.2, dormant: 1.5, inactive: 1.2 };
+const ARROW_FOR = { completed: 'url(#cwArrowGreen)', active: 'url(#cwArrowCyan)', dormant: 'url(#cwArrowGrey)', inactive: '' };
 
 // Pannable / zoomable graph surface. SVG layer draws connection lines behind
 // an absolutely-positioned HTML node layer. Pan starts only from the
@@ -163,8 +160,28 @@ export default function TechCanvas({ statusMap, edges, layout, selectedId, onSel
           className="absolute origin-top-left"
           style={{ transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`, width: worldW, height: worldH }}
         >
-          <div data-canvas-bg="1" className="absolute inset-0" />
+          <div
+            data-canvas-bg="1"
+            className="absolute inset-0"
+            style={{
+              backgroundColor: '#0b1117',
+              backgroundImage:
+                'linear-gradient(rgba(56,189,248,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(56,189,248,0.06) 1px, transparent 1px)',
+              backgroundSize: '28px 28px',
+            }}
+          />
           <svg className="absolute inset-0 pointer-events-none" width={worldW} height={worldH} style={{ overflow: 'visible' }}>
+            <defs>
+              <marker id="cwArrowGreen" markerWidth="7" markerHeight="7" refX="6.5" refY="3.5" orient="auto" markerUnits="userSpaceOnUse">
+                <path d="M0,0 L7,3.5 L0,7 Z" fill="rgba(34,197,94,0.9)" />
+              </marker>
+              <marker id="cwArrowCyan" markerWidth="7" markerHeight="7" refX="6.5" refY="3.5" orient="auto" markerUnits="userSpaceOnUse">
+                <path d="M0,0 L7,3.5 L0,7 Z" fill="rgba(34,211,238,0.9)" />
+              </marker>
+              <marker id="cwArrowGrey" markerWidth="7" markerHeight="7" refX="6.5" refY="3.5" orient="auto" markerUnits="userSpaceOnUse">
+                <path d="M0,0 L7,3.5 L0,7 Z" fill="rgba(148,163,184,0.6)" />
+              </marker>
+            </defs>
             {edges.map((ed, i) => {
               const from = pos[ed.from];
               const to = pos[ed.to];
@@ -172,19 +189,32 @@ export default function TechCanvas({ statusMap, edges, layout, selectedId, onSel
               const fs = getTechnologyState({ id: ed.from }, statusMap);
               const ts = getTechnologyState({ id: ed.to }, statusMap);
               const cs = getConnectionState(fs, ts);
-              const x1 = from.x + nodeW(ed.from);
-              const y1 = from.y + nodeH(ed.from) / 2;
+              const x1 = from.x + from.w;
+              const y1 = from.y + from.h / 2;
               const x2 = to.x;
-              const y2 = to.y + nodeH(ed.to) / 2;
-              const mx = (x1 + x2) / 2;
+              const y2 = to.y + to.h / 2;
+              const midX = x1 + (x2 - x1) / 2;
+              const d = `M ${x1} ${y1} L ${midX} ${y1} L ${midX} ${y2} L ${x2} ${y2}`;
+              const flow = cs === 'completed' || cs === 'active';
+              const isSel = selectedId && (ed.from === selectedId || ed.to === selectedId);
+              const stroke = isSel ? 'rgba(103,232,249,0.95)' : LINE_COLORS[cs];
+              const width = isSel ? 2.8 : LINE_WIDTH[cs];
               return (
                 <path
                   key={i}
-                  d={`M ${x1} ${y1} C ${mx} ${y1}, ${mx} ${y2}, ${x2} ${y2}`}
+                  d={d}
                   fill="none"
-                  stroke={LINE_COLORS[cs]}
-                  strokeWidth={LINE_WIDTH[cs]}
-                />
+                  stroke={stroke}
+                  strokeWidth={width}
+                  strokeLinejoin="round"
+                  strokeLinecap="round"
+                  markerEnd={ARROW_FOR[cs] || undefined}
+                  strokeDasharray={flow ? '5 11' : undefined}
+                >
+                  {flow && (
+                    <animate attributeName="stroke-dashoffset" from="0" to="-16" dur="0.9s" repeatCount="indefinite" />
+                  )}
+                </path>
               );
             })}
           </svg>

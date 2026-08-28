@@ -1,12 +1,13 @@
-import { TECH_TREE, CATEGORY_ORDER, normalizePrereqs } from "@/data/techTree";
+import { TECH_TREE, CATEGORY_ORDER, normalizePrereqs, isPrimaryTech } from "@/data/techTree";
 
 // Auto-layout constants. Nodes are arranged in a grid: tiers advance
 // left-to-right, categories occupy vertical bands, and multiple techs in the
 // same category+tier stack vertically. No x/y is hard-coded per tech.
-export const NODE_W = 212;
-export const NODE_H = 88;
-export const NODE_GAP_Y = 16;
-export const COL_W = 300;
+export const NODE_W = 210;
+export const SUPPORT_W = 176;
+export const NODE_H = 76;
+export const NODE_GAP_Y = 14;
+export const COL_W = 270;
 export const BAND_PAD = 44;
 export const PAD_LEFT = 64;
 export const PAD_TOP = 56;
@@ -46,7 +47,7 @@ export function computeLayout() {
     pos[t.id] = {
       x: PAD_LEFT + (t.tier - 1) * COL_W,
       y: catBase[t.category] + BAND_PAD / 2 + i * (NODE_H + NODE_GAP_Y),
-      w: NODE_W,
+      w: isPrimaryTech(t) ? NODE_W : SUPPORT_W,
       h: NODE_H,
     };
   }
