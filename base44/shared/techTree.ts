@@ -21,7 +21,7 @@ export const CATEGORIES = {
 
 // Vertical order of category bands in the auto-layout.
 export const CATEGORY_ORDER = [
-  "Energy",
+  "Military",
   "Construction",
   "Computing",
   "Propulsion",
@@ -29,7 +29,7 @@ export const CATEGORY_ORDER = [
   "Weapons",
   "Biotechnology",
   "Economics",
-  "Military",
+  "Energy",
   "Ship Technology",
   "Terraforming",
   "Automation",
@@ -37,7 +37,7 @@ export const CATEGORY_ORDER = [
 
 export const TECH_TREE = [
   // ───────────────────────── TIER 1 — roots ─────────────────────────
-  { id: "basic_power", name: "Fusion Reactor", description: "Compact fusion power for colonies and ships.", category: "Energy", researchTurns: 1, prerequisites: [], tier: 1 },
+  { id: "fleet_research", name: "Fleet Power", description: "Research Hulls and Fleet Technology", category: "military", researchTurns: 1, prerequisites: [], tier: 1 },
   { id: "basic_materials", name: "Alloy Smelting", description: "Refine ferrite-titanium into structural alloys.", category: "Construction", researchTurns: 1, prerequisites: [], tier: 1 },
   { id: "basic_computing", name: "Logic Circuits", description: "Programmable logic for control systems.", category: "Computing", researchTurns: 1, prerequisites: [], tier: 1 },
   { id: "basic_propulsion", name: "Chemical Thrusters", description: "Reliable reaction drives for early ships.", category: "Propulsion", researchTurns: 1, prerequisites: [], tier: 1 },
