@@ -33,10 +33,12 @@ export const CATEGORY_ORDER = [
   "Ship Technology",
   "Terraforming",
   "Automation",
+  "Fleet",
 ];
 
 export const TECH_TREE = [
   // ───────────────────────── TIER 1 — roots ─────────────────────────
+
   { id: "basic_power", name: "Fusion Reactor", description: "Compact fusion power for colonies and ships.", category: "Energy", researchTurns: 1, prerequisites: [], tier: 1 },
   { id: "basic_materials", name: "Alloy Smelting", description: "Refine ferrite-titanium into structural alloys.", category: "Construction", researchTurns: 1, prerequisites: [], tier: 1 },
   { id: "basic_computing", name: "Logic Circuits", description: "Programmable logic for control systems.", category: "Computing", researchTurns: 1, prerequisites: [], tier: 1 },
@@ -49,10 +51,10 @@ export const TECH_TREE = [
   { id: "basic_ship", name: "Orbital Frames", description: "Modular hull frameworks for stations.", category: "Ship Technology", researchTurns: 1, prerequisites: [], tier: 1, isPrimary: true, unlocks: { units: ["scout_frigate"] } },
   { id: "basic_terraforming", name: "Soil Conditioning", description: "Render barren regolith arable.", category: "Terraforming", researchTurns: 1, prerequisites: [], tier: 1 },
   { id: "basic_automation", name: "Simple Machines", description: "Mechanized assistance for labor.", category: "Automation", researchTurns: 1, prerequisites: [], tier: 1 },
-
+  { id: "fleet_hull", name: "Fleet Technology", description: "Advance your Fleet in Research and open new hull types", category: "Fleet", researchTurns: 1, prerequisites: [], tier: 1 },
   // ───────────────────────── TIER 2 ─────────────────────────
   { id: "ion_beams", name: "Ion Beams", description: "Focused ion streams as ship-scale weapons.", category: "Weapons", icon: "Zap", researchTurns: 2, prerequisites: ["basic_power"], tier: 2 },
-  { id: "laser_weapons", name: "Laser Batteries", description: "Coherent-light point defense.", category: "Weapons", icon: "Sun", researchTurns: 2, prerequisites: ["basic_weapons"], tier: 2, isPrimary: true, unlocks: { weapons: ["laser_battery"] } },
+  { id: "laser_weapons", name: "Laser Batteries", description: "Coherent-light point dfense.", category: "Weapons", icon: "Sun", researchTurns: 2, prerequisites: ["basic_weapons"], tier: 2, isPrimary: true, unlocks: { weapons: ["laser_battery"] } },
   { id: "missile_weapons", name: "Missile Pods", description: "Guided ordnance salvos.", category: "Weapons", icon: "Rocket", researchTurns: 2, prerequisites: ["basic_weapons"], tier: 2 },
   { id: "energy_storage", name: "Capacitor Banks", description: "Store surplus energy for surges.", category: "Energy", researchTurns: 2, prerequisites: ["basic_power"], tier: 2 },
   { id: "shielding", name: "Deflector Shields", description: "Energy barriers against weapons fire.", category: "Energy", researchTurns: 2, prerequisites: ["basic_power"], tier: 2 },
