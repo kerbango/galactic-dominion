@@ -8,8 +8,16 @@
 const STANDARD_STATS = [
   { stat: "attack", name: "Weapon Calibration", perLevel: 0.10 },
   { stat: "defense", name: "Reinforced Hull", perLevel: 0.10 },
+  { stat: "stealth", name: "Stealth Coating", perLevel: 0.10 },
+  { stat: "shielding", name: "Shield Amplifier", perLevel: 0.10 },
+  { stat: "hull_armor", name: "Hull Armor", perLevel: 0.10 },
   { stat: "speed", name: "Engine Tuning", perLevel: 0.08 },
+  { stat: "range", name: "Targeting Range", perLevel: 0.10 },
+  { stat: "efficiency", name: "Systems Efficiency", perLevel: 0.08 },
 ];
+
+// Exploration is a stored-only stat (no upgrade track) — read by future
+// exploration/scouting mechanics, not boosted per-level.
 
 // Base cost for a level-1 purchase, per unit type. Cost for level L scales as
 // base x L (so level 2 costs 2x, level 3 costs 3x).
@@ -38,7 +46,7 @@ function makeUpgrades(unitType, stats) {
 
 export const UNIT_UPGRADES = [
   ...makeUpgrades("scout_frigate", STANDARD_STATS),
-  ...makeUpgrades("freighter", [STANDARD_STATS[1], STANDARD_STATS[2]]),
+  ...makeUpgrades("freighter", STANDARD_STATS.filter((s) => ["defense", "speed", "hull_armor", "efficiency"].includes(s.stat))),
   ...makeUpgrades("battleship", STANDARD_STATS),
   ...makeUpgrades("carrier", STANDARD_STATS),
   ...makeUpgrades("titan", STANDARD_STATS),
@@ -73,7 +81,7 @@ export function nextUnitUpgradeLevel(upgrade, currentLevel) {
 // combat later; not consumed yet.
 export function unitStatMultipliers(unitType, upgradeLevels) {
   const levels = upgradeLevels || {};
-  const out = { attack: 1, defense: 1, speed: 1 };
+  const out = { attack: 1, defense: 1, stealth: 1, exploration: 1, shielding: 1, hull_armor: 1, speed: 1, range: 1, efficiency: 1 };
   for (const up of upgradesForUnit(unitType)) {
     const lvl = levels[up.id] || 0;
     if (lvl > 0) out[up.stat] = (out[up.stat] || 1) * (1 + up.perLevel * lvl);

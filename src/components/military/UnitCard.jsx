@@ -2,11 +2,23 @@ import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useEmpire } from '@/lib/EmpireContext';
 import { getTech } from '@/lib/techLayout';
-import { Ship, Lock, Loader2, Sword, Shield, Gauge } from 'lucide-react';
+import { Ship, Lock, Loader2, Sword, Shield, Gauge, Eye, Compass, ShieldHalf, Layers, Ruler, Zap } from 'lucide-react';
 import ConstructionTimer from './ConstructionTimer';
 import UnitUpgradeList from './UnitUpgradeList';
 
 const RES_LABELS = { aetherium_crystal: 'Aetherium', ferrite_titanium: 'Ferrite', energy: 'Energy', vrind: 'VRIND', berentium: 'Berentium' };
+
+const STAT_DISPLAY = [
+  { key: 'attack', icon: Sword, color: 'text-rose-300', label: 'ATK' },
+  { key: 'defense', icon: Shield, color: 'text-sky-300', label: 'DEF' },
+  { key: 'stealth', icon: Eye, color: 'text-violet-300', label: 'STH' },
+  { key: 'exploration', icon: Compass, color: 'text-emerald-300', label: 'EXP' },
+  { key: 'shielding', icon: ShieldHalf, color: 'text-cyan-300', label: 'SHD' },
+  { key: 'hull_armor', icon: Layers, color: 'text-stone-300', label: 'HUL' },
+  { key: 'speed', icon: Gauge, color: 'text-amber-300', label: 'SPD' },
+  { key: 'range', icon: Ruler, color: 'text-orange-300', label: 'RNG' },
+  { key: 'efficiency', icon: Zap, color: 'text-yellow-300', label: 'EFF' },
+];
 
 // A single ship-type card on the Military roster. Locked cards are greyed
 // and show the gating tech name; unlocked cards show owned count, base
@@ -56,10 +68,13 @@ export default function UnitCard({ unit, unitRecord, unlocked, onBuilt }) {
 
       {unlocked ? (
         <>
-          <div className="flex gap-3 mt-3 text-[11px] font-mono">
-            <span className="inline-flex items-center gap-1 text-rose-300"><Sword className="w-3 h-3" />{unit.baseStats.attack}</span>
-            <span className="inline-flex items-center gap-1 text-sky-300"><Shield className="w-3 h-3" />{unit.baseStats.defense}</span>
-            <span className="inline-flex items-center gap-1 text-amber-300"><Gauge className="w-3 h-3" />{unit.baseStats.speed}</span>
+          <div className="grid grid-cols-3 gap-x-2 gap-y-1.5 mt-3 text-[11px] font-mono">
+            {STAT_DISPLAY.map(({ key, icon: Icon, color, label }) => (
+              <span key={key} className="inline-flex items-center gap-1 whitespace-nowrap" title={label}>
+                <Icon className={`w-3 h-3 shrink-0 ${color}`} />
+                <span className={color}>{unit.baseStats[key] ?? 0}</span>
+              </span>
+            ))}
           </div>
 
           <div className="flex flex-wrap gap-1 mt-2">

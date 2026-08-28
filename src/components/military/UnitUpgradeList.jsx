@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useEmpire } from '@/lib/EmpireContext';
 import { upgradesForUnit, unitUpgradeCost, nextUnitUpgradeLevel } from '@/data/unitUpgrades';
-import { ChevronDown, ChevronUp, CheckCircle2, Loader2, Sword, Shield, Gauge } from 'lucide-react';
+import { ChevronDown, ChevronUp, CheckCircle2, Loader2, Sword, Shield, Gauge, Eye, ShieldHalf, Layers, Ruler, Zap } from 'lucide-react';
 
 const RES_LABELS = { aetherium_crystal: 'Aetherium', ferrite_titanium: 'Ferrite', energy: 'Energy', vrind: 'VRIND', berentium: 'Berentium' };
-const STAT_ICON = { attack: Sword, defense: Shield, speed: Gauge };
+const STAT_ICON = { attack: Sword, defense: Shield, stealth: Eye, shielding: ShieldHalf, hull_armor: Layers, speed: Gauge, range: Ruler, efficiency: Zap };
 
 // Expandable list of per-unit-type upgrades shown under an unlocked ship.
 // Each upgrade applies to all ships of that type; buying a level deducts the
