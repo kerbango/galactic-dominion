@@ -1,5 +1,6 @@
 import React from 'react';
 import TechIcon from './techIcons';
+import UnlockBadges from './UnlockBadges';
 import { CATEGORIES, isPrimaryTech } from '@/data/techTree';
 
 // Visual state is driven entirely by the derived state string — no per-tech
@@ -81,6 +82,7 @@ export default function TechNode({ tech, state, position, selected, onClick }) {
         <TechIcon name={iconName} className={`w-3.5 h-3.5 shrink-0 ${cat?.color || 'text-slate-300'} ${s.icon}`} />
         <span className="font-mono text-[9px] uppercase tracking-widest text-slate-400/80">T{tech.tier}</span>
         {primary && <span className="font-mono text-[8px] uppercase tracking-widest text-amber-300/80">★</span>}
+        <UnlockBadges tags={tech.unlockTags} />
         <span className={`ml-auto font-mono text-[8px] uppercase tracking-widest ${s.labelColor}`}>{s.label}</span>
       </div>
       <p className={`font-heading ${primary ? 'text-[13px]' : 'text-[11px]'} tracking-wide ${s.text} uppercase leading-tight mt-1 line-clamp-2`}>

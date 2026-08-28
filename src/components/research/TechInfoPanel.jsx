@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, FlaskConical, Lock, CheckCircle2, Loader2, Coins, Clock, Link2 } from 'lucide-react';
 import TechIcon from './techIcons';
+import UnlockBadges from './UnlockBadges';
 import { TECH_TREE, CATEGORIES, getResearchCost, getUnlocks, isPrimaryTech, normalizePrereqs, computeCompletionMs, BASE_TURN_SECONDS } from '@/data/techTree';
 import { getTechnologyState } from '@/lib/techLayout';
 
@@ -60,6 +61,7 @@ export default function TechInfoPanel({ tech, statusMap, progress, speedBonus = 
           <div className="flex items-center gap-2">
             <span className="font-mono text-[10px] uppercase tracking-widest text-slate-400/80">T{tech.tier} · {tech.category}</span>
             {primary && <span className="font-mono text-[9px] uppercase tracking-widest text-amber-300/80">★ Primary</span>}
+            <UnlockBadges tags={tech.unlockTags} size="lg" />
           </div>
           <h2 className="font-heading text-base tracking-wide text-white uppercase leading-tight">{tech.name}</h2>
         </div>
