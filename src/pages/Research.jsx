@@ -7,6 +7,7 @@ import { computeLayout, deriveStatuses, getEdges, getTechnologyState } from '@/l
 import TechCanvas from '@/components/research/TechCanvas';
 import TechInfoPanel from '@/components/research/TechInfoPanel';
 import TechControls from '@/components/research/TechControls';
+import ActiveResearchPanel from '@/components/research/ActiveResearchPanel';
 import { Loader2 } from 'lucide-react';
 
 // Research Nexus — data-driven technology tree. Loads the shared tech
@@ -103,6 +104,10 @@ export default function Research() {
         <p className="text-xs md:text-sm text-muted-foreground font-body mt-1">
           Chart your empire's technological ascension.
         </p>
+      </div>
+
+      <div className="max-w-md mx-auto mb-4">
+        <ActiveResearchPanel />
       </div>
 
       <TechControls
