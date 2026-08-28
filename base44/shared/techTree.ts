@@ -32,9 +32,9 @@ export const CATEGORY_ORDER = [
   "Economics",
   "Energy",
   "Ship Technology",
+  "Fleet",
   "Terraforming",
   "Automation",
-  "Fleet",
 ];
 
 export const TECH_TREE = [
