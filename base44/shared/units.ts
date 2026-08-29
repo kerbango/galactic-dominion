@@ -65,24 +65,24 @@ export const UNITS = [
 },
 {
   id: "light_frigate",                 // unique id, matches unlocks.units in techTree if you wire one
-  name: "Light Defense Destroyer",
-  description: "Defender Class Destroyer",
+  name: "Light Defensive Frigate",
+  description: "Protect the Empire with patrols",
   buildTurns: 1,                     // construction time in ticks
   buildCost: { ferrite_titanium: 150, energy: 80, vrind: 100 },
   baseStats: { attack: 1, defense: 1, stealth: 1, exploration: 1, shielding: 1, hull_armor: 1, speed: 1, range: 1, efficiency: 1 },
 },
 {
   id: "medium_frigate",                 // unique id, matches unlocks.units in techTree if you wire one
-  name: "Light Defense Destroyer",
-  description: "Defender Class Destroyer",
+  name: "Medium Missle Frigate",
+  description: "Plays both Attack and Defender roles",
   buildTurns: 1,                     // construction time in ticks
   buildCost: { ferrite_titanium: 150, energy: 80, vrind: 100 },
   baseStats: { attack: 1, defense: 1, stealth: 1, exploration: 1, shielding: 1, hull_armor: 1, speed: 1, range: 1, efficiency: 1 },
 },
 {
   id: "heavy_frigate",                 // unique id, matches unlocks.units in techTree if you wire one
-  name: "Light Defense Destroyer",
-  description: "Defender Class Destroyer",
+  name: "Heavy Frigate",
+  description: "Top of the Class in Defensive rolls.",
   buildTurns: 1,                     // construction time in ticks
   buildCost: { ferrite_titanium: 150, energy: 80, vrind: 100 },
   baseStats: { attack: 1, defense: 1, stealth: 1, exploration: 1, shielding: 1, hull_armor: 1, speed: 1, range: 1, efficiency: 1 },
@@ -97,96 +97,96 @@ export const UNITS = [
 },
 {
   id: "heavy_destroyer",                 // unique id, matches unlocks.units in techTree if you wire one
-  name: "Light Defense Destroyer",
-  description: "Defender Class Destroyer",
+  name: "Heavy Destroyer",
+  description: "Designed for Frigate and Cruiser Hunters",
   buildTurns: 1,                     // construction time in ticks
   buildCost: { ferrite_titanium: 150, energy: 80, vrind: 100 },
   baseStats: { attack: 1, defense: 1, stealth: 1, exploration: 1, shielding: 1, hull_armor: 1, speed: 1, range: 1, efficiency: 1 },
 },
 {
   id: "phalanx_destroyer",                 // unique id, matches unlocks.units in techTree if you wire one
-  name: "Light Defense Destroyer",
-  description: "Defender Class Destroyer",
+  name: "Phalanx Detroyer",
+  description: "A Destroyer Killer. Hunter Killer of the first class",
   buildTurns: 1,                     // construction time in ticks
   buildCost: { ferrite_titanium: 150, energy: 80, vrind: 100 },
   baseStats: { attack: 1, defense: 1, stealth: 1, exploration: 1, shielding: 1, hull_armor: 1, speed: 1, range: 1, efficiency: 1 },
 },
 {
   id: "light_cruiser",                 // unique id, matches unlocks.units in techTree if you wire one
-  name: "Light Defense Destroyer",
-  description: "Defender Class Destroyer",
+  name: "Light Cruiser",
+  description: "First Entry into Captial Ship class. Spearhead of an offensive fleet",
   buildTurns: 1,                     // construction time in ticks
   buildCost: { ferrite_titanium: 150, energy: 80, vrind: 100 },
   baseStats: { attack: 1, defense: 1, stealth: 1, exploration: 1, shielding: 1, hull_armor: 1, speed: 1, range: 1, efficiency: 1 },
 },
 {
   id: "battle_cruiser",                 // unique id, matches unlocks.units in techTree if you wire one
-  name: "Light Defense Destroyer",
-  description: "Defender Class Destroyer",
+  name: "Battle Cruiser",
+  description: "Designed to Attack or Defend Enemy Captial Ships",
   buildTurns: 1,                     // construction time in ticks
   buildCost: { ferrite_titanium: 150, energy: 80, vrind: 100 },
   baseStats: { attack: 1, defense: 1, stealth: 1, exploration: 1, shielding: 1, hull_armor: 1, speed: 1, range: 1, efficiency: 1 },
 },
 {
-  id: "drop_carrier",                 // unique id, matches unlocks.units in techTree if you wire one
-  name: "Light Defense Destroyer",
-  description: "Defender Class Destroyer",
+  id: "drone_carrier",                 // unique id, matches unlocks.units in techTree if you wire one
+  name: "Drone Carrier",
+  description: "Send swarms of offeenive drones against Enemy Light Craft",
   buildTurns: 1,                     // construction time in ticks
   buildCost: { ferrite_titanium: 150, energy: 80, vrind: 100 },
   baseStats: { attack: 1, defense: 1, stealth: 1, exploration: 1, shielding: 1, hull_armor: 1, speed: 1, range: 1, efficiency: 1 },
 },
 {
   id: "Dreadnaught",                 // unique id, matches unlocks.units in techTree if you wire one
-  name: "Light Defense Destroyer",
-  description: "Defender Class Destroyer",
+  name: "Dreadnaught",
+  description: "Largest Ship in the Fleet. Used as Flag Ships.",
   buildTurns: 1,                     // construction time in ticks
   buildCost: { ferrite_titanium: 150, energy: 80, vrind: 100 },
   baseStats: { attack: 1, defense: 1, stealth: 1, exploration: 1, shielding: 1, hull_armor: 1, speed: 1, range: 1, efficiency: 1 },
 },
 {
   id: "void_siphon",                 // unique id, matches unlocks.units in techTree if you wire one
-  name: "Light Defense Destroyer",
-  description: "Defender Class Destroyer",
+  name: "Void Siphon",
+  description: "Draws energy from the universe transfering it to the fleet to increase shileding",
   buildTurns: 1,                     // construction time in ticks
   buildCost: { ferrite_titanium: 150, energy: 80, vrind: 100 },
   baseStats: { attack: 1, defense: 1, stealth: 1, exploration: 1, shielding: 1, hull_armor: 1, speed: 1, range: 1, efficiency: 1 },
 },
 {
   id: "quantum_jumpcarrier",                 // unique id, matches unlocks.units in techTree if you wire one
-  name: "Light Defense Destroyer",
-  description: "Defender Class Destroyer",
+  name: "Jump Carrier",
+  description: "USed to deploy wings of interceptors for defense or antiship duties.",
   buildTurns: 1,                     // construction time in ticks
   buildCost: { ferrite_titanium: 150, energy: 80, vrind: 100 },
   baseStats: { attack: 1, defense: 1, stealth: 1, exploration: 1, shielding: 1, hull_armor: 1, speed: 1, range: 1, efficiency: 1 },
 },
 {
   id: "vampiric_shieldship",                 // unique id, matches unlocks.units in techTree if you wire one
-  name: "Light Defense Destroyer",
-  description: "Defender Class Destroyer",
+  name: "Vampiric Shield Ship",
+  description: "used to break through heavy shielding and weakening enemy ships.",
   buildTurns: 1,                     // construction time in ticks
   buildCost: { ferrite_titanium: 150, energy: 80, vrind: 100 },
   baseStats: { attack: 1, defense: 1, stealth: 1, exploration: 1, shielding: 1, hull_armor: 1, speed: 1, range: 1, efficiency: 1 },
 },
 {
   id: "phase_scout",                 // unique id, matches unlocks.units in techTree if you wire one
-  name: "Light Defense Destroyer",
-  description: "Defender Class Destroyer",
+  name: "Phase Scout",
+  description: "Top of Class Scout. Used to bypass enemy defense detection.",
   buildTurns: 1,                     // construction time in ticks
   buildCost: { ferrite_titanium: 150, energy: 80, vrind: 100 },
   baseStats: { attack: 1, defense: 1, stealth: 1, exploration: 1, shielding: 1, hull_armor: 1, speed: 1, range: 1, efficiency: 1 },
 },
 {
   id: "bullk_frieghter",                 // unique id, matches unlocks.units in techTree if you wire one
-  name: "Light Defense Destroyer",
-  description: "Defender Class Destroyer",
+  name: "Bulk Freighter",
+  description: "Carry more spoils of war home to the empire",
   buildTurns: 1,                     // construction time in ticks
   buildCost: { ferrite_titanium: 150, energy: 80, vrind: 100 },
   baseStats: { attack: 1, defense: 1, stealth: 1, exploration: 1, shielding: 1, hull_armor: 1, speed: 1, range: 1, efficiency: 1 },
 },
 {
   id: "living_frigate",                 // unique id, matches unlocks.units in techTree if you wire one
-  name: "Light Defense Destroyer",
-  description: "Defender Class Destroyer",
+  name: "The Living Frigater",
+  description: "Achient Tech creating a ship that cannot be killed by energy weapons.",
   buildTurns: 1,                     // construction time in ticks
   buildCost: { ferrite_titanium: 150, energy: 80, vrind: 100 },
   baseStats: { attack: 1, defense: 1, stealth: 1, exploration: 1, shielding: 1, hull_armor: 1, speed: 1, range: 1, efficiency: 1 },
