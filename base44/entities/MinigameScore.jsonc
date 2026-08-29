@@ -1,0 +1,74 @@
+{
+  "name": "MinigameScore",
+  "type": "object",
+  "properties": {
+    "score": {
+      "type": "number",
+      "title": "Score",
+      "description": "Final score achieved in the minigame round.",
+      "minimum": 0,
+      "default": 0
+    },
+    "game": {
+      "type": "string",
+      "title": "Game",
+      "description": "Which minigame the score came from.",
+      "enum": [
+        "power_grid",
+        "radar_shooter"
+      ]
+    },
+    "empire_name": {
+      "type": "string",
+      "title": "Empire Name",
+      "description": "Denormalized empire name of the scoring player for leaderboard display."
+    },
+    "empire_id": {
+      "type": "string",
+      "title": "Empire ID",
+      "description": "The scoring player's empire id, used to credit/reclaim VRIND payouts."
+    },
+    "play_date": {
+      "type": "string",
+      "format": "date",
+      "title": "Play Date",
+      "description": "UTC calendar date (YYYY-MM-DD) the score was submitted, used for the shared daily play-limit accounting."
+    }
+  },
+  "required": [
+    "score",
+    "game",
+    "empire_name",
+    "play_date"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "created_by_id": "{{user.id}}"
+    },
+    "update": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}

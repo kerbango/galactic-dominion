@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Clock, Target, Hash, Sparkles, X, RotateCcw, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useToast } from '@/components/ui/use-toast';
 
 const NODES = ['power', 'shield', 'cooling', 'surge'];
 const NODE_META = {
@@ -125,7 +126,8 @@ function freshBoard() {
   return cleanGrid(makeGrid());
 }
 
-export default function PowerGridPuzzle({ onClose }) {
+export default function PowerGridPuzzle({ onClose, remainingPlays = 5, onSubmitScore }) {
+  const { toast } = useToast();
   const [grid, setGrid] = useState(() => freshBoard());
   const [selected, setSelected] = useState(null);
   const [score, setScore] = useState(0);
@@ -134,6 +136,9 @@ export default function PowerGridPuzzle({ onClose }) {
   const [won, setWon] = useState(false);
   const [autoBusy, setAutoBusy] = useState(false);
   const [flash, setFlash] = useState(null); // {r,c} brief highlight on auto-resolve
+  const [submitted, setSubmitted] = useState(false);
+  const [lastResult, setLastResult] = useState(null);
+  const exhausted = remainingPlays <= 0;
 
   useEffect(() => {
     const id = setInterval(() => setQueueSeconds((s) => s + 1), 1000);
@@ -143,6 +148,24 @@ export default function PowerGridPuzzle({ onClose }) {
   useEffect(() => {
     if (!won && (moves <= 0 || score >= TARGET_SCORE)) setWon(true);
   }, [moves, score, won]);
+
+  // Submit the final score once the round ends.
+  useEffect(() => {
+    if (!won || submitted) return;
+    setSubmitted(true);
+    if (!onSubmitScore) return;
+    onSubmitScore(score, 'power_grid')
+      .then((res) => {
+        setLastResult(res);
+        if (res?.my_rank > 0) {
+          toast({
+            title: `Ranked #${res.my_rank}!`,
+            description: `+${res.my_payout} VRIND credited to your empire.`,
+          });
+        }
+      })
+      .catch(() => {});
+  }, [won, submitted, score, onSubmitScore, toast]);
 
   const commitSwap = (swapped) => {
     const { grid: resolved, cleared } = resolveCascades(swapped);
@@ -202,6 +225,8 @@ export default function PowerGridPuzzle({ onClose }) {
     setMoves(START_MOVES);
     setWon(false);
     setQueueSeconds(0);
+    setSubmitted(false);
+    setLastResult(null);
   };
 
   const mmss = `${String(Math.floor(queueSeconds / 60)).padStart(2, '0')}:${String(queueSeconds % 60).padStart(2, '0')}`;
@@ -326,12 +351,27 @@ export default function PowerGridPuzzle({ onClose }) {
             <p className="text-xs font-mono text-muted-foreground mb-1">
               Final Score: <span className="text-amber-200 font-bold">{score.toLocaleString()}</span>
             </p>
-            <p className="text-[10px] font-mono uppercase tracking-widest text-cyan-200/60 mb-4">
+            <p className="text-[10px] font-mono uppercase tracking-widest text-cyan-200/60 mb-2">
               Queue Time {mmss}
             </p>
-            <Button onClick={handleReset} className="w-full font-heading tracking-widest uppercase text-xs">
-              <RotateCcw className="w-3.5 h-3.5" /> Reset Board
-            </Button>
+            {lastResult?.my_rank > 0 ? (
+              <p className="text-xs font-mono text-emerald-300 mb-3">
+                Ranked #{lastResult.my_rank} — +{lastResult.my_payout} VRIND
+              </p>
+            ) : (
+              <p className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground mb-3">
+                No leaderboard placement
+              </p>
+            )}
+            {exhausted ? (
+              <p className="text-[10px] font-mono uppercase tracking-widest text-rose-300">
+                Daily plays exhausted — return tomorrow
+              </p>
+            ) : (
+              <Button onClick={handleReset} className="w-full font-heading tracking-widest uppercase text-xs">
+                <RotateCcw className="w-3.5 h-3.5" /> Reset Board
+              </Button>
+            )}
           </div>
         </div>
       )}
