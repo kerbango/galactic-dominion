@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { LifeBuoy, Trash2, Loader2, AlertTriangle, ShieldAlert, Gamepad2, Radar } from 'lucide-react';
+import { LifeBuoy, Trash2, Loader2, AlertTriangle, ShieldAlert } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -15,13 +15,10 @@ import {
 '@/components/ui/dialog';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import MyTickets from '@/components/support/MyTickets';
-import PowerGridPuzzle from '@/components/minigame/PowerGridPuzzle';
-import RadarShooter from '@/components/minigame/RadarShooter';
+import MinigamesTab from '@/components/support/MinigamesTab';
 import LegalTab from '@/components/support/LegalTab';
 import PrivacyTab from '@/components/support/PrivacyTab';
 import CreditsTab from '@/components/support/CreditsTab';
-import LeaderboardCard from '@/components/minigame/LeaderboardCard';
-import { useMinigameLeaderboard } from '@/hooks/useMinigameLeaderboard';
 
 export default function Support() {
   const [empireName, setEmpireName] = useState('');
@@ -30,10 +27,6 @@ export default function Support() {
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState('');
-  const [showMini, setShowMini] = useState(false);
-  const [showRadar, setShowRadar] = useState(false);
-  const { top5, remainingPlays, loading: lbLoading, submitScore } = useMinigameLeaderboard();
-  const exhausted = remainingPlays <= 0;
 
   useEffect(() => {
     let active = true;
@@ -82,8 +75,9 @@ export default function Support() {
       </div>
 
       <Tabs defaultValue="support" className="w-full">
-        <TabsList className="grid w-full grid-cols-4 h-auto py-1 bg-muted/60">
+        <TabsList className="grid w-full grid-cols-3 sm:grid-cols-5 h-auto py-1 bg-muted/60">
           <TabsTrigger value="support" className="font-heading text-[10px] md:text-xs tracking-widest uppercase">Support</TabsTrigger>
+          <TabsTrigger value="minigames" className="font-heading text-[10px] md:text-xs tracking-widest uppercase">Minigames</TabsTrigger>
           <TabsTrigger value="legal" className="font-heading text-[10px] md:text-xs tracking-widest uppercase">Legal</TabsTrigger>
           <TabsTrigger value="privacy" className="font-heading text-[10px] md:text-xs tracking-widest uppercase">Privacy</TabsTrigger>
           <TabsTrigger value="credits" className="font-heading text-[10px] md:text-xs tracking-widest uppercase">Credits</TabsTrigger>
@@ -103,97 +97,6 @@ export default function Support() {
               </a>
             </p>
           </div>
-
-          {/* Minigame toggle */}
-          <div className="glass-panel rounded-2xl p-6">
-            <div className="flex items-center justify-between gap-4 flex-wrap">
-              <div className="flex items-center gap-3">
-                <Gamepad2 className="w-5 h-5 text-amber-300" />
-                <div>
-                  <h2 className="font-heading text-sm tracking-[0.25em] text-amber-100 uppercase mb-0.5">
-                    Re-route Power Circuits
-                  </h2>
-                  <p className="text-xs text-muted-foreground font-body">
-                    A calibration puzzle to pass the time while you wait.
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <span className="text-[10px] font-mono uppercase tracking-widest text-cyan-200/70">
-                  Plays left today: <span className="text-cyan-200">{remainingPlays}/5</span>
-                </span>
-                <Button
-                  onClick={() => setShowMini((v) => !v)}
-                  variant={showMini ? 'ghost' : 'default'}
-                  disabled={!showMini && exhausted}
-                  className="font-heading tracking-widest uppercase text-xs"
-                >
-                  {exhausted && !showMini ? 'Daily Limit Reached' : showMini ? 'Hide Minigame' : 'Play Minigame'}
-                </Button>
-              </div>
-            </div>
-            {exhausted && !showMini && (
-              <p className="text-[10px] font-mono uppercase tracking-widest text-rose-300/80 mt-3">
-                Daily plays exhausted — return tomorrow
-              </p>
-            )}
-            {showMini && (
-              <div className="mt-4">
-                <PowerGridPuzzle
-                  onClose={() => setShowMini(false)}
-                  remainingPlays={remainingPlays}
-                  onSubmitScore={submitScore}
-                />
-              </div>
-            )}
-          </div>
-
-          {/* Radar shooter minigame toggle */}
-          <div className="glass-panel rounded-2xl p-6">
-            <div className="flex items-center justify-between gap-4 flex-wrap">
-              <div className="flex items-center gap-3">
-                <Radar className="w-5 h-5 text-cyan-300" />
-                <div>
-                  <h2 className="font-heading text-sm tracking-[0.25em] text-cyan-100 uppercase mb-0.5">
-                    Radar Defense Drill
-                  </h2>
-                  <p className="text-xs text-muted-foreground font-body">
-                    A reaction trainer — clear hostile contacts before they fade.
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <span className="text-[10px] font-mono uppercase tracking-widest text-cyan-200/70">
-                  Plays left today: <span className="text-cyan-200">{remainingPlays}/5</span>
-                </span>
-                <Button
-                  onClick={() => setShowRadar((v) => !v)}
-                  variant={showRadar ? 'ghost' : 'default'}
-                  disabled={!showRadar && exhausted}
-                  className="font-heading tracking-widest uppercase text-xs"
-                >
-                  {exhausted && !showRadar ? 'Daily Limit Reached' : showRadar ? 'Hide Minigame' : 'Play Minigame'}
-                </Button>
-              </div>
-            </div>
-            {exhausted && !showRadar && (
-              <p className="text-[10px] font-mono uppercase tracking-widest text-rose-300/80 mt-3">
-                Daily plays exhausted — return tomorrow
-              </p>
-            )}
-            {showRadar && (
-              <div className="mt-4">
-                <RadarShooter
-                  onClose={() => setShowRadar(false)}
-                  remainingPlays={remainingPlays}
-                  onSubmitScore={submitScore}
-                />
-              </div>
-            )}
-          </div>
-
-          {/* Combined minigame leaderboard */}
-          <LeaderboardCard top5={top5} loading={lbLoading} />
 
           {/* In-game ticket system */}
           <MyTickets />
@@ -253,6 +156,10 @@ export default function Support() {
               </DialogContent>
             </Dialog>
           </div>
+        </TabsContent>
+
+        <TabsContent value="minigames" className="mt-6">
+          <MinigamesTab />
         </TabsContent>
 
         <TabsContent value="legal" className="mt-6">
