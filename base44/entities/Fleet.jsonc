@@ -102,7 +102,7 @@
     "outcome": {
       "type": "string",
       "title": "Outcome",
-      "description": "Combat result at the target: win or loss. Null until resolved.",
+      "description": "Space combat result at the target: win or loss. Null until resolved.",
       "enum": [
         "win",
         "loss"
@@ -135,6 +135,35 @@
           "type": "number",
           "minimum": 0
         }
+      }
+    },
+    "ground_forces": {
+      "type": "object",
+      "title": "Ground Forces",
+      "description": "Map of ground unit_type \u2192 count deployed with this fleet. Empty when no ground forces are carried.",
+      "default": {},
+      "additionalProperties": {
+        "type": "number",
+        "minimum": 0
+      }
+    },
+    "ground_outcome": {
+      "type": "string",
+      "title": "Ground Outcome",
+      "description": "Ground combat result: win or loss. Null until the ground phase resolves.",
+      "enum": [
+        "win",
+        "loss"
+      ]
+    },
+    "ground_survivors": {
+      "type": "object",
+      "title": "Ground Survivors",
+      "description": "Map of ground unit_type \u2192 count surviving the ground assault to return home. Empty when no ground forces survived.",
+      "default": {},
+      "additionalProperties": {
+        "type": "number",
+        "minimum": 0
       }
     }
   },

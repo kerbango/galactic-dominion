@@ -3,24 +3,17 @@ import { base44 } from '@/api/base44Client';
 import { useEmpire } from '@/lib/EmpireContext';
 import { getTech } from '@/lib/techLayout';
 import { unitStatMultipliers, upgradesForUnit } from '@/data/unitUpgrades';
-import { Ship, Lock, Loader2, Sword, Shield, Gauge, Eye, Compass, ShieldHalf, Layers, Ruler, Zap } from 'lucide-react';
+import { Ship, Lock, Loader2, Package, Footprints, Building2 } from 'lucide-react';
 import StatBar from './StatBar';
 import ConstructionTimer from './ConstructionTimer';
 import UnitUpgradeList from './UnitUpgradeList';
+import { getStatDisplay, isTransport } from '@/lib/unitStats';
 
 const RES_LABELS = { aetherium_crystal: 'Aetherium', ferrite_titanium: 'Ferrite', energy: 'Energy', vrind: 'VRIND', berentium: 'Berentium' };
 
-const STAT_DISPLAY = [
-  { key: 'attack', icon: Sword, label: 'ATK' },
-  { key: 'defense', icon: Shield, label: 'DEF' },
-  { key: 'stealth', icon: Eye, label: 'STH' },
-  { key: 'exploration', icon: Compass, label: 'EXP' },
-  { key: 'shielding', icon: ShieldHalf, label: 'SHD' },
-  { key: 'hull_armor', icon: Layers, label: 'HUL' },
-  { key: 'speed', icon: Gauge, label: 'SPD' },
-  { key: 'range', icon: Ruler, label: 'RNG' },
-  { key: 'efficiency', icon: Zap, label: 'EFF' },
-];
+const CATEGORY_ICON = {
+  ship: Ship, transport: Package, ground: Footprints, defense: Building2,
+};
 
 // Right-hand detail panel for the selected ship. Shows effective stats
 // (base × per-type upgrade multipliers) as diagnostic bars, build cost,
@@ -37,6 +30,8 @@ export default function UnitDetailPanel({ unit, unitRecord, unlocked, onBuilt })
   const upgrades = upgradesForUnit(unit.id);
   const maxMul = {};
   for (const up of upgrades) maxMul[up.stat] = 1 + up.perLevel * up.maxLevel;
+  const statDisplay = getStatDisplay(unit);
+  const CatIcon = CATEGORY_ICON[unit.category || 'ship'] || Ship;
 
   const build = async () => {
     setError('');
@@ -57,7 +52,7 @@ export default function UnitDetailPanel({ unit, unitRecord, unlocked, onBuilt })
     <div className={`glass-panel-strong rounded-2xl p-5 flex flex-col ${unlocked ? '' : 'opacity-70'}`}>
       <div className="flex items-start gap-3 mb-4">
         <div className={`shrink-0 inline-flex items-center justify-center w-12 h-12 rounded-xl border ${unlocked ? 'border-cyan-400/30 bg-cyan-400/10' : 'border-slate-600/40 bg-slate-700/30'}`}>
-          {unlocked ? <Ship className="w-6 h-6 text-cyan-300" /> : <Lock className="w-6 h-6 text-slate-400" />}
+          {unlocked ? <CatIcon className="w-6 h-6 text-cyan-300" /> : <Lock className="w-6 h-6 text-slate-400" />}
         </div>
         <div className="flex-1 min-w-0">
           <h3 className="font-heading text-lg tracking-wide text-white uppercase">{unit.name}</h3>
@@ -74,13 +69,23 @@ export default function UnitDetailPanel({ unit, unitRecord, unlocked, onBuilt })
       {unlocked ? (
         <>
           <div className="space-y-1.5 mb-4">
-            {STAT_DISPLAY.map(({ key, icon, label }) => {
+            {statDisplay.map(({ key, icon, label }) => {
               const base = unit.baseStats[key] ?? 0;
               const mul = multipliers[key] || 1;
               return (
                 <StatBar key={key} stat={key} icon={icon} label={label} value={base * mul} base={base} multiplier={mul} maxMultiplier={maxMul[key] || 1} />
               );
             })}
+            {isTransport(unit) && (
+              <div className="flex items-center gap-2 pt-1 border-t border-cyan-400/10">
+                <Package className="w-3.5 h-3.5 text-amber-300 shrink-0" />
+                <span className="text-[10px] font-mono uppercase tracking-widest text-slate-400 w-9 shrink-0">CAP</span>
+                <div className="flex-1 h-2 rounded-full bg-slate-800/70 overflow-hidden">
+                  <div className="h-full bg-amber-400" style={{ width: '100%' }} />
+                </div>
+                <span className="text-[10px] font-mono text-amber-200 tabular-nums w-12 text-right">{unit.carryingCapacity}</span>
+              </div>
+            )}
           </div>
 
           <div className="mb-4">

@@ -7,7 +7,8 @@ import UnitRosterRow from '@/components/military/UnitRosterRow';
 import UnitDetailPanel from '@/components/military/UnitDetailPanel';
 import ClassFilter from '@/components/military/ClassFilter';
 import { unitClass, UNIT_CLASSES } from '@/lib/unitClasses';
-import { Loader2, Sword } from 'lucide-react';
+import { computePlanetDefenseRating } from '@/data/planetDefense';
+import { Loader2, Sword, Shield } from 'lucide-react';
 
 const MILITARY_BG = "https://media.base44.com/images/public/6a8dedaa90af486a558f758e/d4a4244f4_ChatGPTImageAug28202609_39_29PM.png";
 
@@ -104,6 +105,7 @@ export default function Military() {
 
   const totalOwned = Object.values(units).reduce((s, u) => s + (u.owned_count || 0), 0);
   const totalBuilding = Object.values(units).filter((u) => u.construction_start_date).length;
+  const defenseRating = empire ? computePlanetDefenseRating(empire, Object.values(units)) : 0;
 
   return (
     <>
@@ -125,6 +127,10 @@ export default function Military() {
         <div className="flex items-center gap-4 text-[11px] font-mono uppercase tracking-widest">
           <span className="text-slate-400">Fleet <span className="text-cyan-200">{totalOwned}</span></span>
           <span className="text-slate-400">Building <span className="text-amber-300">{totalBuilding}</span></span>
+          <span className="flex items-center gap-1 text-slate-400">
+            <Shield className="w-3 h-3 text-emerald-300" />
+            Defense <span className="text-emerald-200">{defenseRating.toLocaleString()}</span>
+          </span>
         </div>
         <button
           onClick={finalizeBuilds}

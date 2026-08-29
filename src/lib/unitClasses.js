@@ -11,10 +11,15 @@ const CLASS_MAP = {
   carrier: 'Carriers', drone_carrier: 'Carriers', quantum_jumpcarrier: 'Carriers',
   Dreadnaught: 'Capital',
   stealth_boat: 'Support', void_siphon: 'Support', vampiric_shieldship: 'Support', bullk_frieghter: 'Support',
+  troop_transport: 'Transport',
+  infantry: 'Ground Forces', heavy_infantry: 'Ground Forces', assault_infantry: 'Ground Forces',
+  mechanized_infantry: 'Ground Forces', mecha: 'Ground Forces',
+  bunker: 'Defense', ground_ion_cannon: 'Defense', orbit_defense_platform: 'Defense',
 };
 
 export const UNIT_CLASSES = [
   'All', 'Scouts', 'Explorers', 'Frigates', 'Destroyers', 'Cruisers', 'Carriers', 'Capital', 'Support',
+  'Ground Forces', 'Transport', 'Defense',
 ];
 
 export function unitClass(unit) {

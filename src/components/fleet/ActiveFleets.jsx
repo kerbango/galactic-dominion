@@ -79,6 +79,18 @@ export default function ActiveFleets({ fleets, now, myUserId }) {
                 )}
               </div>
             )}
+            {returning && f.ground_outcome && (
+              <div className="mt-1 flex items-center gap-2 text-[10px] font-mono uppercase tracking-widest">
+                <span className={f.ground_outcome === 'win' ? 'text-emerald-300' : 'text-rose-300'}>
+                  Ground {f.ground_outcome === 'win' ? 'Captured' : 'Repelled'}
+                </span>
+                {f.ground_survivors && Object.keys(f.ground_survivors).length > 0 && (
+                  <span className="text-muted-foreground">
+                    · {Object.values(f.ground_survivors).reduce((s, n) => s + (n || 0), 0)} ground surv
+                  </span>
+                )}
+              </div>
+            )}
           </div>
         );
       })}

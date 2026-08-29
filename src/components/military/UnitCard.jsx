@@ -2,23 +2,23 @@ import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useEmpire } from '@/lib/EmpireContext';
 import { getTech } from '@/lib/techLayout';
-import { Ship, Lock, Loader2, Sword, Shield, Gauge, Eye, Compass, ShieldHalf, Layers, Ruler, Zap } from 'lucide-react';
+import { Ship, Lock, Loader2, Package, Footprints, Building2 } from 'lucide-react';
 import ConstructionTimer from './ConstructionTimer';
 import UnitUpgradeList from './UnitUpgradeList';
+import { getStatDisplay, isTransport } from '@/lib/unitStats';
 
 const RES_LABELS = { aetherium_crystal: 'Aetherium', ferrite_titanium: 'Ferrite', energy: 'Energy', vrind: 'VRIND', berentium: 'Berentium' };
 
-const STAT_DISPLAY = [
-  { key: 'attack', icon: Sword, color: 'text-rose-300', label: 'ATK' },
-  { key: 'defense', icon: Shield, color: 'text-sky-300', label: 'DEF' },
-  { key: 'stealth', icon: Eye, color: 'text-violet-300', label: 'STH' },
-  { key: 'exploration', icon: Compass, color: 'text-emerald-300', label: 'EXP' },
-  { key: 'shielding', icon: ShieldHalf, color: 'text-cyan-300', label: 'SHD' },
-  { key: 'hull_armor', icon: Layers, color: 'text-stone-300', label: 'HUL' },
-  { key: 'speed', icon: Gauge, color: 'text-amber-300', label: 'SPD' },
-  { key: 'range', icon: Ruler, color: 'text-orange-300', label: 'RNG' },
-  { key: 'efficiency', icon: Zap, color: 'text-yellow-300', label: 'EFF' },
-];
+const CATEGORY_ICON = {
+  ship: Ship, transport: Package, ground: Footprints, defense: Building2,
+};
+
+const STAT_COLORS = {
+  attack: 'text-rose-300', defense: 'text-sky-300', stealth: 'text-violet-300',
+  exploration: 'text-emerald-300', shielding: 'text-cyan-300', hull_armor: 'text-stone-300',
+  speed: 'text-amber-300', range: 'text-orange-300', efficiency: 'text-yellow-300',
+  armor: 'text-amber-400', defense_rating: 'text-emerald-300',
+};
 
 // A single ship-type card on the Military roster. Locked cards are greyed
 // and show the gating tech name; unlocked cards show owned count, base
@@ -32,6 +32,8 @@ export default function UnitCard({ unit, unitRecord, unlocked, onBuilt }) {
   const owned = unitRecord?.owned_count || 0;
   const building = !!unitRecord?.construction_start_date;
   const gatingTech = getTech(unit.gatingTechId);
+  const statDisplay = getStatDisplay(unit);
+  const CatIcon = CATEGORY_ICON[unit.category || 'ship'] || Ship;
 
   const build = async () => {
     setError('');
@@ -52,7 +54,7 @@ export default function UnitCard({ unit, unitRecord, unlocked, onBuilt }) {
     <div className={`glass-panel rounded-2xl p-4 flex flex-col ${unlocked ? '' : 'opacity-60'}`}>
       <div className="flex items-start gap-3">
         <div className={`shrink-0 inline-flex items-center justify-center w-11 h-11 rounded-xl border ${unlocked ? 'border-cyan-400/25 bg-cyan-400/10' : 'border-slate-600/30 bg-slate-700/20'}`}>
-          {unlocked ? <Ship className="w-5 h-5 text-cyan-300" /> : <Lock className="w-5 h-5 text-slate-400" />}
+          {unlocked ? <CatIcon className="w-5 h-5 text-cyan-300" /> : <Lock className="w-5 h-5 text-slate-400" />}
         </div>
         <div className="flex-1 min-w-0">
           <h3 className="font-heading text-sm tracking-wide text-white uppercase truncate">{unit.name}</h3>
@@ -69,13 +71,24 @@ export default function UnitCard({ unit, unitRecord, unlocked, onBuilt }) {
       {unlocked ? (
         <>
           <div className="grid grid-cols-3 gap-x-2 gap-y-1.5 mt-3 text-[11px] font-mono">
-            {STAT_DISPLAY.map(({ key, icon: Icon, color, label }) => (
-              <span key={key} className="inline-flex items-center gap-1 whitespace-nowrap" title={label}>
-                <Icon className={`w-3 h-3 shrink-0 ${color}`} />
-                <span className={color}>{unit.baseStats[key] ?? 0}</span>
-              </span>
-            ))}
+            {statDisplay.map(({ key, icon: Icon, label }) => {
+              const color = STAT_COLORS[key] || 'text-cyan-300';
+              return (
+                <span key={key} className="inline-flex items-center gap-1 whitespace-nowrap" title={label}>
+                  <Icon className={`w-3 h-3 shrink-0 ${color}`} />
+                  <span className={color}>{unit.baseStats[key] ?? 0}</span>
+                </span>
+              );
+            })}
           </div>
+          {isTransport(unit) && (
+            <div className="mt-2 flex items-center gap-1.5 text-[10px] font-mono">
+              <Package className="w-3 h-3 text-amber-300" />
+              <span className="text-amber-300 uppercase tracking-widest">Capacity</span>
+              <span className="text-amber-200 font-bold">{unit.carryingCapacity}</span>
+              <span className="text-slate-500">ground units</span>
+            </div>
+          )}
 
           <div className="flex flex-wrap gap-1 mt-2">
             {Object.entries(unit.buildCost).filter(([, v]) => v > 0).map(([k, v]) => (

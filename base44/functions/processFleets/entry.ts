@@ -1,5 +1,7 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
 import { authorizeTick } from '../../shared/authGuard.ts';
+import { getUnit } from '../../shared/units.ts';
+import { computePlanetDefenseRating, computeGroundStrength, computeGarrisonStrength } from '../../shared/planetDefense.ts';
 
 // Processes every active fleet whose current phase has elapsed:
 //   • outbound arrival  → enter a visible "In Battle" window (status=in_battle)
@@ -36,11 +38,16 @@ const ATTACKER_POWER_PER_SHIP = 10;  // attacker strength = fleet_size * this
 const SURVIVOR_RATE_WIN = 0.7;       // fraction of ships that survive a win
 const SURVIVOR_RATE_LOSS = 0.3;      // fraction that survive a loss
 const LOOT_RATE = 0.2;               // on a win, steal this fraction of each resource
+const GROUND_LOOT_RATE = 0.15;       // additional plunder when ground forces win
 const RES_KEYS = ['aetherium_crystal', 'ferrite_titanium', 'energy', 'vrind'];
 
-// Resolves combat for a fleet whose battle has ended: computes the win/loss,
-// steals loot from the defender on a win, and starts the return leg home.
+// Resolves combat for a fleet whose battle has ended: computes the space
+// combat win/loss, steals loot from the defender on a win, then — if ground
+// forces are present and the space battle was won — resolves the sequential
+// two-phase ground assault (Planet Defense Rating, then garrison troops),
+// and starts the return leg home.
 async function resolveCombatAndReturn(base44, f, byId, now, nowIso) {
+  const svc = base44.asServiceRole;
   const defender = byId.get(f.target_empire_id);
   const attackerStrength = (f.fleet_size || 0) * ATTACKER_POWER_PER_SHIP;
   const win = attackerStrength > DEFENDER_STRENGTH;
@@ -59,19 +66,106 @@ async function resolveCombatAndReturn(base44, f, byId, now, nowIso) {
     // Deduct the stolen resources from the defender immediately.
     const inc = {};
     for (const k of RES_KEYS) inc[k] = -(loot[k] || 0);
-    await base44.asServiceRole.entities.Empire.updateMany({ id: defender.id }, { $inc: inc });
+    await svc.entities.Empire.updateMany({ id: defender.id }, { $inc: inc });
+  }
+
+  // ── Ground combat (only on a space win with ground forces aboard) ──
+  let groundOutcome = null;
+  let groundSurvivors = {};
+  const groundForces = f.ground_forces || {};
+  if (win && defender && Object.keys(groundForces).length > 0) {
+    // Read attacker's Unit records for per-type upgrade levels.
+    const attackerUnits = await svc.entities.Unit.filter({ created_by_id: f.created_by_id });
+    const attackerUpgrades = {};
+    for (const u of attackerUnits) attackerUpgrades[u.unit_type] = u.upgrade_levels || {};
+
+    // Read defender's Unit records for PDR + garrison strength.
+    const defenderUnits = await svc.entities.Unit.filter({ created_by_id: defender.created_by_id });
+
+    // Phase 1 — attacker ground strength vs Planet Defense Rating.
+    const attackerGroundStr = computeGroundStrength(groundForces, attackerUpgrades);
+    const pdr = computePlanetDefenseRating(defender, defenderUnits);
+
+    if (attackerGroundStr > pdr) {
+      // Phase 1 won: compute surviving attacker ground forces (some losses
+      // from breaching the defenses).
+      const phase1Rate = Math.min(0.9, 0.5 + 0.4 * (1 - pdr / Math.max(1, attackerGroundStr)));
+      const phase1Surv = {};
+      for (const [type, count] of Object.entries(groundForces)) {
+        const s = Math.max(1, Math.floor(count * phase1Rate));
+        if (s > 0) phase1Surv[type] = s;
+      }
+
+      // Phase 2 — surviving attacker vs defender's garrisoned ground troops.
+      const garrisonStr = computeGarrisonStrength(defenderUnits);
+      const attackerSurvStr = computeGroundStrength(phase1Surv, attackerUpgrades);
+
+      if (attackerSurvStr > garrisonStr) {
+        // Attacker wins Phase 2: destroy defender ground units + some
+        // defensive structures, ground survivors return with bonus loot.
+        for (const u of defenderUnits) {
+          const unit = getUnit(u.unit_type);
+          if (unit?.category === 'ground' && u.owned_count > 0) {
+            await svc.entities.Unit.update(u.id, { owned_count: 0 });
+          }
+        }
+        const structLossRate = Math.min(0.8, 0.3 + 0.5 * (1 - garrisonStr / Math.max(1, attackerSurvStr)));
+        for (const u of defenderUnits) {
+          const unit = getUnit(u.unit_type);
+          if (unit?.category === 'defense' && u.owned_count > 0) {
+            const destroyed = Math.floor(u.owned_count * structLossRate);
+            if (destroyed > 0) {
+              await svc.entities.Unit.update(u.id, { owned_count: u.owned_count - destroyed });
+            }
+          }
+        }
+        const phase2Rate = Math.min(0.85, 0.5 + 0.35 * (1 - garrisonStr / Math.max(1, attackerSurvStr)));
+        for (const [type, count] of Object.entries(phase1Surv)) {
+          const s = Math.max(1, Math.floor(count * phase2Rate));
+          if (s > 0) groundSurvivors[type] = s;
+        }
+        groundOutcome = 'win';
+
+        // Extend loot: ground forces plunder additional resources.
+        if (loot) {
+          const bonus = {};
+          const inc = {};
+          for (const k of RES_KEYS) {
+            const avail = Math.max(0, defender[k] || 0);
+            bonus[k] = Math.floor(avail * GROUND_LOOT_RATE);
+            loot[k] = (loot[k] || 0) + bonus[k];
+            inc[k] = -(bonus[k] || 0);
+          }
+          await svc.entities.Empire.updateMany({ id: defender.id }, { $inc: inc });
+        }
+      } else {
+        // Defender garrison wins: attacker ground forces destroyed.
+        groundOutcome = 'loss';
+      }
+    } else {
+      // Phase 1 lost: partial ground survivors retreat.
+      const ratio = attackerGroundStr / Math.max(1, pdr);
+      const retRate = Math.max(0.1, ratio * 0.5);
+      for (const [type, count] of Object.entries(groundForces)) {
+        const s = Math.floor(count * retRate);
+        if (s > 0) groundSurvivors[type] = s;
+      }
+      groundOutcome = 'loss';
+    }
   }
 
   const d = dist(f.origin_x, f.origin_y, f.target_x, f.target_y);
   const returnTravelMs = Math.round(d * TRAVEL_SECONDS_PER_UNIT) * 1000;
   const returnArrival = new Date(now + returnTravelMs).toISOString();
 
-  await base44.asServiceRole.entities.Fleet.update(f.id, {
+  await svc.entities.Fleet.update(f.id, {
     status: 'in_transit',
     leg: 'return',
     outcome: win ? 'win' : 'loss',
     survivors,
     loot,
+    ground_outcome: groundOutcome,
+    ground_survivors: groundSurvivors,
     return_departure_date: nowIso,
     return_arrival_date: returnArrival,
   });
@@ -131,12 +225,29 @@ export default async function(req) {
           resolved += 1;
         }
       } else {
-        // --- Return arrival: deposit carried loot, mark fleet home ---
+        // --- Return arrival: deposit carried loot, return ground survivors, mark fleet home ---
         const attacker = byOwnerId.get(f.created_by_id);
         if (f.loot && attacker) {
           const inc = {};
           for (const k of RES_KEYS) inc[k] = f.loot[k] || 0;
           await base44.asServiceRole.entities.Empire.updateMany({ id: attacker.id }, { $inc: inc });
+        }
+        // Return surviving ground forces to the attacker's garrison. The
+        // deployed counts were subtracted at dispatch time; survivors come
+        // back home and rejoin the planet defense pool.
+        const groundSurv = f.ground_survivors || {};
+        if (attacker && Object.keys(groundSurv).length > 0) {
+          const attackerUnits = await base44.asServiceRole.entities.Unit.filter({ created_by_id: f.created_by_id });
+          const unitMap = {};
+          for (const u of attackerUnits) unitMap[u.unit_type] = u;
+          for (const [type, count] of Object.entries(groundSurv)) {
+            const rec = unitMap[type];
+            if (rec) {
+              await base44.asServiceRole.entities.Unit.update(rec.id, {
+                owned_count: (rec.owned_count || 0) + count,
+              });
+            }
+          }
         }
         await base44.asServiceRole.entities.Fleet.update(f.id, { status: 'arrived' });
         returned += 1;

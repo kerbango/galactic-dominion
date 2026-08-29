@@ -1,5 +1,5 @@
 import React from 'react';
-import { Ship, Lock } from 'lucide-react';
+import { Ship, Lock, Package, Footprints, Building2 } from 'lucide-react';
 import { unitClass } from '@/lib/unitClasses';
 
 // A single slim row in the left roster rail. Status is encoded as an LED pip
@@ -10,11 +10,16 @@ const STATUS = {
   ready: { led: 'led-green', label: 'Ready', text: 'text-emerald-300' },
 };
 
+const CATEGORY_ICON = {
+  ship: Ship, transport: Package, ground: Footprints, defense: Building2,
+};
+
 export default function UnitRosterRow({ unit, unitRecord, unlocked, selected, onClick }) {
   const owned = unitRecord?.owned_count || 0;
   const building = !!unitRecord?.construction_start_date;
   const status = !unlocked ? 'locked' : building ? 'building' : 'ready';
   const s = STATUS[status];
+  const CatIcon = CATEGORY_ICON[unit.category || 'ship'] || Ship;
   return (
     <button
       onClick={onClick}
@@ -22,7 +27,7 @@ export default function UnitRosterRow({ unit, unitRecord, unlocked, selected, on
     >
       <span className={`led ${s.led}`} />
       <span className={`shrink-0 inline-flex items-center justify-center w-7 h-7 rounded-md border ${unlocked ? 'border-cyan-400/25 bg-cyan-400/10' : 'border-slate-700/40 bg-slate-800/40'}`}>
-        {unlocked ? <Ship className="w-3.5 h-3.5 text-cyan-300" /> : <Lock className="w-3.5 h-3.5 text-slate-500" />}
+        {unlocked ? <CatIcon className="w-3.5 h-3.5 text-cyan-300" /> : <Lock className="w-3.5 h-3.5 text-slate-500" />}
       </span>
       <span className="flex-1 min-w-0">
         <span className="block font-heading text-[11px] tracking-wide text-white uppercase truncate">{unit.name}</span>

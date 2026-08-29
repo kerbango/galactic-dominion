@@ -4,6 +4,7 @@ import { Gem, Layers, Zap, Coins, Pickaxe, Users, Loader2, LayoutDashboard, Flas
 import { useEmpire } from '@/lib/EmpireContext';
 import ProductionBreakdown from '@/components/console/ProductionBreakdown';
 import LowResourceWarning from '@/components/console/LowResourceWarning';
+import PlanetDefenseRating from '@/components/console/PlanetDefenseRating';
 import ActiveResearchPanel from '@/components/research/ActiveResearchPanel';
 
 const RESOURCES = [
@@ -68,6 +69,8 @@ export default function Console() {
       </div>
 
       <LowResourceWarning empire={empire} />
+
+      <PlanetDefenseRating />
 
       <ProductionBreakdown />
 

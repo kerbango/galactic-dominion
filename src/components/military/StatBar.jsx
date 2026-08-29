@@ -9,6 +9,7 @@ const STAT_COLORS = {
   attack: 'bg-rose-400', defense: 'bg-sky-400', stealth: 'bg-violet-400',
   exploration: 'bg-emerald-400', shielding: 'bg-cyan-400', hull_armor: 'bg-stone-300',
   speed: 'bg-amber-400', range: 'bg-orange-400', efficiency: 'bg-yellow-400',
+  armor: 'bg-amber-500', defense_rating: 'bg-emerald-400',
 };
 
 const BASE_CAP = 30; // baseline segment occupies at most the first 30% of the bar

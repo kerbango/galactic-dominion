@@ -97,6 +97,8 @@ export const TECH_TREE = [
   { id: "trade_guilds", name: "Trade Guilds", description: "Regulated merchant cartels.", category: "Economics", researchTurns: 3, prerequisites: ["banking"], tier: 3 },
   { id: "fleet_command", name: "Fleet Command", description: "Multi-squadron coordination.", category: "Military", researchTurns: 3, prerequisites: ["command"], tier: 3 },
   { id: "atmosphere_processing", name: "Atmosphere Processing", description: "Tailor planetary atmospheres.", category: "Terraforming", researchTurns: 3, prerequisites: ["soil_regen"], tier: 3 },
+  { id: "planetary_fortifications", name: "Planetary Fortifications", description: "Construct ground-based defensive installations to protect your planet.", category: "Military", icon: "Shield", researchTurns: 3, prerequisites: ["orbital_defense", "advanced_alloys"], tier: 3, isPrimary: true, unlocks: { units: ["bunker", "ground_ion_cannon", "orbit_defense_platform"] }, unlockTags: ["defense"] },
+  { id: "planetary_invasion", name: "Planetary Invasion Doctrine", description: "Train and deploy ground forces for planetary assault operations.", category: "Military", icon: "Sword", researchTurns: 3, prerequisites: ["command", "orbital_defense"], tier: 3, isPrimary: true, unlocks: { units: ["troop_transport", "infantry", "heavy_infantry", "assault_infantry", "mechanized_infantry", "mecha"] }, unlockTags: ["ground", "transport"] },
 
   // ───────────────────────── TIER 4 ─────────────────────────
   { id: "neutron_beams", name: "Neutron Beams", description: "Skip armor, kill crews.", category: "Weapons", icon: "Atom", researchTurns: 4, prerequisites: ["heavy_ion_beams"], tier: 4 },
