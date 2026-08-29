@@ -13,7 +13,7 @@ export const UNITS = [
     gatingTechId: "carrier_hull",
     buildTurns: 4,
     buildCost: { ferrite_titanium: 1800, aetherium_crystal: 600, energy: 700, vrind: 1400 },
-    baseStats: { attack: 1, defense: 1, stealth: 1, exploration: 1, shielding: 1, hull_armor: 1, speed: 1, range: 1, efficiency: 1 },
+    baseStats: { attack: 90, defense: 1, stealth: 1, exploration: 1, shielding: 1, hull_armor: 90, speed: 1, range: 1, efficiency: 1 },
   },
   {
   id: "light_explorer",                 // unique id, matches unlocks.units in techTree if you wire one
@@ -21,7 +21,7 @@ export const UNITS = [
   description: "Ability to scan for and return resources!",
   buildTurns: 1,                     // construction time in ticks
   buildCost: { ferrite_titanium: 150, energy: 80, vrind: 100 },
-  baseStats: { attack: 1, defense: 1, stealth: 1, exploration: 1, shielding: 1, hull_armor: 1, speed: 1, range: 1, efficiency: 1 },
+  baseStats: { attack: 1, defense: 1, stealth: 1, exploration: 100, shielding: 100, hull_armor: 100, speed: 20, range: 1, efficiency: 100 },
 },
 {
   id: "heavy_explorer",                 // unique id, matches unlocks.units in techTree if you wire one
@@ -173,7 +173,7 @@ export const UNITS = [
   description: "Top of Class Scout. Used to bypass enemy defense detection.",
   buildTurns: 1,                     // construction time in ticks
   buildCost: { ferrite_titanium: 150, energy: 80, vrind: 100 },
-  baseStats: { attack: 1, defense: 1, stealth: 1, exploration: 1, shielding: 1, hull_armor: 1, speed: 1, range: 1, efficiency: 1 },
+  baseStats: { attack: 1, defense: 1, stealth: 1, exploration: 5, shielding: 1, hull_armor: 1, speed: 1, range: 1, efficiency: 10 },
 },
 {
   id: "bullk_frieghter",                 // unique id, matches unlocks.units in techTree if you wire one
@@ -181,7 +181,7 @@ export const UNITS = [
   description: "Carry more spoils of war home to the empire",
   buildTurns: 1,                     // construction time in ticks
   buildCost: { ferrite_titanium: 150, energy: 80, vrind: 100 },
-  baseStats: { attack: 1, defense: 1, stealth: 1, exploration: 1, shielding: 1, hull_armor: 1, speed: 1, range: 1, efficiency: 1 },
+  baseStats: { attack: 1, defense: 1, stealth: 1, exploration: 1, shielding: 1, hull_armor: 100, speed: 1, range: 1, efficiency: 100 },
 },
 {
   id: "living_frigate",                 // unique id, matches unlocks.units in techTree if you wire one
@@ -189,7 +189,7 @@ export const UNITS = [
   description: "Achient Tech creating a ship that cannot be killed by energy weapons.",
   buildTurns: 1,                     // construction time in ticks
   buildCost: { ferrite_titanium: 150, energy: 80, vrind: 100 },
-  baseStats: { attack: 1, defense: 1, stealth: 1, exploration: 1, shielding: 1, hull_armor: 1, speed: 1, range: 1, efficiency: 1 },
+  baseStats: { attack: 1, defense: 1, stealth: 1, exploration: 1, shielding: 100, hull_armor: 100, speed: 1, range: 1, efficiency: 100 },
 },
 ];
 
