@@ -22,12 +22,7 @@ const STANDARD_STATS = [
 // Base cost for a level-1 purchase, per unit type. Cost for level L scales as
 // base x L (so level 2 costs 2x, level 3 costs 3x).
 const BASE_COSTS = {
-  scout_frigate: { ferrite_titanium: 100, vrind: 80 },
-  freighter: { ferrite_titanium: 200, vrind: 120 },
-  battleship: { aetherium_crystal: 200, ferrite_titanium: 600, vrind: 500 },
   carrier: { aetherium_crystal: 250, ferrite_titanium: 500, vrind: 450 },
-  titan: { aetherium_crystal: 800, berentium: 200, ferrite_titanium: 1500, vrind: 1200 },
-  titan_class_vessel: { aetherium_crystal: 2000, berentium: 600, ferrite_titanium: 4000, vrind: 3000 },
 };
 
 function makeUpgrades(unitType, stats) {
@@ -45,12 +40,7 @@ function makeUpgrades(unitType, stats) {
 }
 
 export const UNIT_UPGRADES = [
-  ...makeUpgrades("scout_frigate", STANDARD_STATS),
-  ...makeUpgrades("freighter", STANDARD_STATS.filter((s) => ["defense", "speed", "hull_armor", "efficiency"].includes(s.stat))),
-  ...makeUpgrades("battleship", STANDARD_STATS),
   ...makeUpgrades("carrier", STANDARD_STATS),
-  ...makeUpgrades("titan", STANDARD_STATS),
-  ...makeUpgrades("titan_class_vessel", STANDARD_STATS),
 ];
 
 const upgradeById = new Map(UNIT_UPGRADES.map((u) => [u.id, u]));
