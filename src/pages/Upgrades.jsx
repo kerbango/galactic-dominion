@@ -7,7 +7,7 @@ import BonusDashboard from '@/components/upgrades/BonusDashboard';
 import { EMPIRE_UPGRADES, isEmpireUpgradeAvailable } from '@/data/empireUpgrades';
 import { Wrench, Loader2 } from 'lucide-react';
 
-const UPGRADES_BG = "https://media.base44.com/images/public/6a8dedaa90af486a558f758e/d4a4244f4_ChatGPTImageAug28202609_39_29PM.png";
+const UPGRADES_BG = "https://media.base44.com/images/public/6a8dedaa90af486a558f758e/9e981c261_ChatGPTImageAug29202607_36_06AM.png";
 
 // Upgrades — empire-wide permanent enhancements. A summary-first layout:
 // a bonus dashboard on top showing active empire bonuses as circular
