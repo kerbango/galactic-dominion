@@ -4,6 +4,10 @@
 // page. Base stats are stored here for later combat integration; the build
 // cost and build turns drive the timed-construction system. The ids match
 // the `unlocks.units` entries in the tech tree.
+//
+// Base stats use a 0–100 scale: ~1–10 negligible, 10–30 light, 30–50
+// standard, 50–70 heavy, 70–90 capital, 90–100 flagship/super. Values are
+// deliberately under 100 so per-type upgrades (up to ~+30%) still grow them.
 
 export const UNITS = [
   {
@@ -13,184 +17,184 @@ export const UNITS = [
     gatingTechId: "carrier_hull",
     buildTurns: 4,
     buildCost: { ferrite_titanium: 1800, aetherium_crystal: 600, energy: 700, vrind: 1400 },
-    baseStats: { attack: 90, defense: 1, stealth: 1, exploration: 1, shielding: 1, hull_armor: 90, speed: 1, range: 1, efficiency: 1 },
+    baseStats: { attack: 25, defense: 45, stealth: 6, exploration: 15, shielding: 45, hull_armor: 60, speed: 25, range: 40, efficiency: 60 },
   },
   {
-  id: "light_explorer",                 // unique id, matches unlocks.units in techTree if you wire one
-  name: "Light Class Galactic Explorer",
-  description: "Ability to scan for and return resources!",
-  buildTurns: 1,                     // construction time in ticks
-  buildCost: { ferrite_titanium: 150, energy: 80, vrind: 100 },
-  baseStats: { attack: 1, defense: 1, stealth: 1, exploration: 100, shielding: 100, hull_armor: 100, speed: 20, range: 1, efficiency: 100 },
-},
-{
-  id: "heavy_explorer",                 // unique id, matches unlocks.units in techTree if you wire one
-  name: "Heavy  Galactic Explorer",
-  description: "Search the stars for Resourcees and Anchient Technology",
-  buildTurns: 1,                     // construction time in ticks
-  buildCost: { ferrite_titanium: 150, energy: 80, vrind: 100 },
-  baseStats: { attack: 1, defense: 1, stealth: 1, exploration: 1, shielding: 1, hull_armor: 1, speed: 1, range: 1, efficiency: 1 },
-},
-{
-  id: "light_scout",                 // unique id, matches unlocks.units in techTree if you wire one
-  name: "Light Scout",
-  description: "Scout your enemies and return some data reports",
-  buildTurns: 1,                     // construction time in ticks
-  buildCost: { ferrite_titanium: 150, energy: 80, vrind: 100 },
-  baseStats: { attack: 1, defense: 1, stealth: 1, exploration: 1, shielding: 1, hull_armor: 1, speed: 1, range: 1, efficiency: 1 },
-},
-{
-  id: "medium_scout",                 // unique id, matches unlocks.units in techTree if you wire one
-  name: "Medium Scout",
-  description: "Scout your enemies and return more detailed reports.",
-  buildTurns: 1,                     // construction time in ticks
-  buildCost: { ferrite_titanium: 150, energy: 80, vrind: 100 },
-  baseStats: { attack: 1, defense: 1, stealth: 1, exploration: 1, shielding: 1, hull_armor: 1, speed: 1, range: 1, efficiency: 1 },
-},
-{
-  id: "heavy_scout",                 // unique id, matches unlocks.units in techTree if you wire one
-  name: "Heavy Scout",
-  description: "Scout your enemies and return full complete reports.",
-  buildTurns: 1,                     // construction time in ticks
-  buildCost: { ferrite_titanium: 150, energy: 80, vrind: 100 },
-  baseStats: { attack: 1, defense: 1, stealth: 1, exploration: 1, shielding: 1, hull_armor: 1, speed: 1, range: 1, efficiency: 1 },
-},
-{
-  id: "stealth_boat",                 // unique id, matches unlocks.units in techTree if you wire one
-  name: "Stealth boat",
-  description: "Ability to sneal past enemy defenses. Can only be detected by Anti Stealth Tech",
-  buildTurns: 1,                     // construction time in ticks
-  buildCost: { ferrite_titanium: 150, energy: 80, vrind: 100 },
-  baseStats: { attack: 1, defense: 1, stealth: 1, exploration: 1, shielding: 1, hull_armor: 1, speed: 1, range: 1, efficiency: 1 },
-},
-{
-  id: "light_frigate",                 // unique id, matches unlocks.units in techTree if you wire one
-  name: "Light Defensive Frigate",
-  description: "Protect the Empire with patrols",
-  buildTurns: 1,                     // construction time in ticks
-  buildCost: { ferrite_titanium: 150, energy: 80, vrind: 100 },
-  baseStats: { attack: 1, defense: 1, stealth: 1, exploration: 1, shielding: 1, hull_armor: 1, speed: 1, range: 1, efficiency: 1 },
-},
-{
-  id: "medium_frigate",                 // unique id, matches unlocks.units in techTree if you wire one
-  name: "Medium Missle Frigate",
-  description: "Plays both Attack and Defender roles",
-  buildTurns: 1,                     // construction time in ticks
-  buildCost: { ferrite_titanium: 150, energy: 80, vrind: 100 },
-  baseStats: { attack: 1, defense: 1, stealth: 1, exploration: 1, shielding: 1, hull_armor: 1, speed: 1, range: 1, efficiency: 1 },
-},
-{
-  id: "heavy_frigate",                 // unique id, matches unlocks.units in techTree if you wire one
-  name: "Heavy Frigate",
-  description: "Top of the Class in Defensive rolls.",
-  buildTurns: 1,                     // construction time in ticks
-  buildCost: { ferrite_titanium: 150, energy: 80, vrind: 100 },
-  baseStats: { attack: 1, defense: 1, stealth: 1, exploration: 1, shielding: 1, hull_armor: 1, speed: 1, range: 1, efficiency: 1 },
-},
-{
-  id: "light_destroyer",                 // unique id, matches unlocks.units in techTree if you wire one
-  name: "Light Defense Destroyer",
-  description: "Defender Class Destroyer",
-  buildTurns: 1,                     // construction time in ticks
-  buildCost: { ferrite_titanium: 150, energy: 80, vrind: 100 },
-  baseStats: { attack: 1, defense: 1, stealth: 1, exploration: 1, shielding: 1, hull_armor: 1, speed: 1, range: 1, efficiency: 1 },
-},
-{
-  id: "heavy_destroyer",                 // unique id, matches unlocks.units in techTree if you wire one
-  name: "Heavy Destroyer",
-  description: "Designed for Frigate and Cruiser Hunters",
-  buildTurns: 1,                     // construction time in ticks
-  buildCost: { ferrite_titanium: 150, energy: 80, vrind: 100 },
-  baseStats: { attack: 1, defense: 1, stealth: 1, exploration: 1, shielding: 1, hull_armor: 1, speed: 1, range: 1, efficiency: 1 },
-},
-{
-  id: "phalanx_destroyer",                 // unique id, matches unlocks.units in techTree if you wire one
-  name: "Phalanx Detroyer",
-  description: "A Destroyer Killer. Hunter Killer of the first class",
-  buildTurns: 1,                     // construction time in ticks
-  buildCost: { ferrite_titanium: 150, energy: 80, vrind: 100 },
-  baseStats: { attack: 1, defense: 1, stealth: 1, exploration: 1, shielding: 1, hull_armor: 1, speed: 1, range: 1, efficiency: 1 },
-},
-{
-  id: "light_cruiser",                 // unique id, matches unlocks.units in techTree if you wire one
-  name: "Light Cruiser",
-  description: "First Entry into Captial Ship class. Spearhead of an offensive fleet",
-  buildTurns: 1,                     // construction time in ticks
-  buildCost: { ferrite_titanium: 150, energy: 80, vrind: 100 },
-  baseStats: { attack: 1, defense: 1, stealth: 1, exploration: 1, shielding: 1, hull_armor: 1, speed: 1, range: 1, efficiency: 1 },
-},
-{
-  id: "battle_cruiser",                 // unique id, matches unlocks.units in techTree if you wire one
-  name: "Battle Cruiser",
-  description: "Designed to Attack or Defend Enemy Captial Ships",
-  buildTurns: 1,                     // construction time in ticks
-  buildCost: { ferrite_titanium: 150, energy: 80, vrind: 100 },
-  baseStats: { attack: 1, defense: 1, stealth: 1, exploration: 1, shielding: 1, hull_armor: 1, speed: 1, range: 1, efficiency: 1 },
-},
-{
-  id: "drone_carrier",                 // unique id, matches unlocks.units in techTree if you wire one
-  name: "Drone Carrier",
-  description: "Send swarms of offeenive drones against Enemy Light Craft",
-  buildTurns: 1,                     // construction time in ticks
-  buildCost: { ferrite_titanium: 150, energy: 80, vrind: 100 },
-  baseStats: { attack: 1, defense: 1, stealth: 1, exploration: 1, shielding: 1, hull_armor: 1, speed: 1, range: 1, efficiency: 1 },
-},
-{
-  id: "Dreadnaught",                 // unique id, matches unlocks.units in techTree if you wire one
-  name: "Dreadnaught",
-  description: "Largest Ship in the Fleet. Used as Flag Ships.",
-  buildTurns: 1,                     // construction time in ticks
-  buildCost: { ferrite_titanium: 150, energy: 80, vrind: 100 },
-  baseStats: { attack: 1, defense: 1, stealth: 1, exploration: 1, shielding: 1, hull_armor: 1, speed: 1, range: 1, efficiency: 1 },
-},
-{
-  id: "void_siphon",                 // unique id, matches unlocks.units in techTree if you wire one
-  name: "Void Siphon",
-  description: "Draws energy from the universe transfering it to the fleet to increase shileding",
-  buildTurns: 1,                     // construction time in ticks
-  buildCost: { ferrite_titanium: 150, energy: 80, vrind: 100 },
-  baseStats: { attack: 1, defense: 1, stealth: 1, exploration: 1, shielding: 1, hull_armor: 1, speed: 1, range: 1, efficiency: 1 },
-},
-{
-  id: "quantum_jumpcarrier",                 // unique id, matches unlocks.units in techTree if you wire one
-  name: "Jump Carrier",
-  description: "USed to deploy wings of interceptors for defense or antiship duties.",
-  buildTurns: 1,                     // construction time in ticks
-  buildCost: { ferrite_titanium: 150, energy: 80, vrind: 100 },
-  baseStats: { attack: 1, defense: 1, stealth: 1, exploration: 1, shielding: 1, hull_armor: 1, speed: 1, range: 1, efficiency: 1 },
-},
-{
-  id: "vampiric_shieldship",                 // unique id, matches unlocks.units in techTree if you wire one
-  name: "Vampiric Shield Ship",
-  description: "used to break through heavy shielding and weakening enemy ships.",
-  buildTurns: 1,                     // construction time in ticks
-  buildCost: { ferrite_titanium: 150, energy: 80, vrind: 100 },
-  baseStats: { attack: 1, defense: 1, stealth: 1, exploration: 1, shielding: 1, hull_armor: 1, speed: 1, range: 1, efficiency: 1 },
-},
-{
-  id: "phase_scout",                 // unique id, matches unlocks.units in techTree if you wire one
-  name: "Phase Scout",
-  description: "Top of Class Scout. Used to bypass enemy defense detection.",
-  buildTurns: 1,                     // construction time in ticks
-  buildCost: { ferrite_titanium: 150, energy: 80, vrind: 100 },
-  baseStats: { attack: 1, defense: 1, stealth: 1, exploration: 5, shielding: 1, hull_armor: 1, speed: 1, range: 1, efficiency: 10 },
-},
-{
-  id: "bullk_frieghter",                 // unique id, matches unlocks.units in techTree if you wire one
-  name: "Bulk Freighter",
-  description: "Carry more spoils of war home to the empire",
-  buildTurns: 1,                     // construction time in ticks
-  buildCost: { ferrite_titanium: 150, energy: 80, vrind: 100 },
-  baseStats: { attack: 1, defense: 1, stealth: 1, exploration: 1, shielding: 1, hull_armor: 100, speed: 1, range: 1, efficiency: 100 },
-},
-{
-  id: "living_frigate",                 // unique id, matches unlocks.units in techTree if you wire one
-  name: "The Living Frigater",
-  description: "Achient Tech creating a ship that cannot be killed by energy weapons.",
-  buildTurns: 1,                     // construction time in ticks
-  buildCost: { ferrite_titanium: 150, energy: 80, vrind: 100 },
-  baseStats: { attack: 1, defense: 1, stealth: 1, exploration: 1, shielding: 100, hull_armor: 100, speed: 1, range: 1, efficiency: 100 },
-},
+    id: "light_explorer",
+    name: "Light Class Galactic Explorer",
+    description: "Ability to scan for and return resources!",
+    buildTurns: 1,
+    buildCost: { ferrite_titanium: 150, energy: 80, vrind: 100 },
+    baseStats: { attack: 5, defense: 8, stealth: 35, exploration: 85, shielding: 6, hull_armor: 8, speed: 55, range: 30, efficiency: 75 },
+  },
+  {
+    id: "heavy_explorer",
+    name: "Heavy Galactic Explorer",
+    description: "Search the stars for Resources and Ancient Technology",
+    buildTurns: 1,
+    buildCost: { ferrite_titanium: 150, energy: 80, vrind: 100 },
+    baseStats: { attack: 6, defense: 10, stealth: 45, exploration: 95, shielding: 8, hull_armor: 12, speed: 60, range: 40, efficiency: 85 },
+  },
+  {
+    id: "light_scout",
+    name: "Light Scout",
+    description: "Scout your enemies and return some data reports",
+    buildTurns: 1,
+    buildCost: { ferrite_titanium: 150, energy: 80, vrind: 100 },
+    baseStats: { attack: 8, defense: 8, stealth: 60, exploration: 40, shielding: 6, hull_armor: 6, speed: 75, range: 25, efficiency: 55 },
+  },
+  {
+    id: "medium_scout",
+    name: "Medium Scout",
+    description: "Scout your enemies and return more detailed reports.",
+    buildTurns: 1,
+    buildCost: { ferrite_titanium: 150, energy: 80, vrind: 100 },
+    baseStats: { attack: 10, defense: 10, stealth: 68, exploration: 50, shielding: 8, hull_armor: 8, speed: 80, range: 30, efficiency: 60 },
+  },
+  {
+    id: "heavy_scout",
+    name: "Heavy Scout",
+    description: "Scout your enemies and return full complete reports.",
+    buildTurns: 1,
+    buildCost: { ferrite_titanium: 150, energy: 80, vrind: 100 },
+    baseStats: { attack: 12, defense: 12, stealth: 75, exploration: 60, shielding: 10, hull_armor: 10, speed: 82, range: 35, efficiency: 65 },
+  },
+  {
+    id: "stealth_boat",
+    name: "Stealth boat",
+    description: "Ability to sneak past enemy defenses. Can only be detected by Anti Stealth Tech",
+    buildTurns: 1,
+    buildCost: { ferrite_titanium: 150, energy: 80, vrind: 100 },
+    baseStats: { attack: 15, defense: 12, stealth: 92, exploration: 30, shielding: 10, hull_armor: 10, speed: 70, range: 30, efficiency: 60 },
+  },
+  {
+    id: "light_frigate",
+    name: "Light Defensive Frigate",
+    description: "Protect the Empire with patrols",
+    buildTurns: 1,
+    buildCost: { ferrite_titanium: 150, energy: 80, vrind: 100 },
+    baseStats: { attack: 30, defense: 38, stealth: 12, exploration: 12, shielding: 28, hull_armor: 38, speed: 38, range: 35, efficiency: 45 },
+  },
+  {
+    id: "medium_frigate",
+    name: "Medium Missile Frigate",
+    description: "Plays both Attack and Defender roles",
+    buildTurns: 1,
+    buildCost: { ferrite_titanium: 150, energy: 80, vrind: 100 },
+    baseStats: { attack: 38, defense: 42, stealth: 14, exploration: 14, shielding: 34, hull_armor: 42, speed: 40, range: 42, efficiency: 48 },
+  },
+  {
+    id: "heavy_frigate",
+    name: "Heavy Frigate",
+    description: "Top of the Class in Defensive roles.",
+    buildTurns: 1,
+    buildCost: { ferrite_titanium: 150, energy: 80, vrind: 100 },
+    baseStats: { attack: 42, defense: 48, stealth: 12, exploration: 12, shielding: 40, hull_armor: 50, speed: 38, range: 45, efficiency: 50 },
+  },
+  {
+    id: "light_destroyer",
+    name: "Light Defense Destroyer",
+    description: "Defender Class Destroyer",
+    buildTurns: 1,
+    buildCost: { ferrite_titanium: 150, energy: 80, vrind: 100 },
+    baseStats: { attack: 50, defense: 30, stealth: 12, exploration: 8, shielding: 22, hull_armor: 28, speed: 42, range: 50, efficiency: 38 },
+  },
+  {
+    id: "heavy_destroyer",
+    name: "Heavy Destroyer",
+    description: "Designed for Frigate and Cruiser Hunters",
+    buildTurns: 1,
+    buildCost: { ferrite_titanium: 150, energy: 80, vrind: 100 },
+    baseStats: { attack: 60, defense: 35, stealth: 14, exploration: 8, shielding: 28, hull_armor: 34, speed: 45, range: 58, efficiency: 42 },
+  },
+  {
+    id: "phalanx_destroyer",
+    name: "Phalanx Destroyer",
+    description: "A Destroyer Killer. Hunter Killer of the first class",
+    buildTurns: 1,
+    buildCost: { ferrite_titanium: 150, energy: 80, vrind: 100 },
+    baseStats: { attack: 70, defense: 38, stealth: 10, exploration: 6, shielding: 30, hull_armor: 36, speed: 44, range: 65, efficiency: 40 },
+  },
+  {
+    id: "light_cruiser",
+    name: "Light Cruiser",
+    description: "First Entry into Capital Ship class. Spearhead of an offensive fleet",
+    buildTurns: 1,
+    buildCost: { ferrite_titanium: 150, energy: 80, vrind: 100 },
+    baseStats: { attack: 62, defense: 45, stealth: 8, exploration: 8, shielding: 42, hull_armor: 55, speed: 30, range: 48, efficiency: 40 },
+  },
+  {
+    id: "battle_cruiser",
+    name: "Battle Cruiser",
+    description: "Designed to Attack or Defend Enemy Capital Ships",
+    buildTurns: 1,
+    buildCost: { ferrite_titanium: 150, energy: 80, vrind: 100 },
+    baseStats: { attack: 78, defense: 42, stealth: 6, exploration: 6, shielding: 48, hull_armor: 58, speed: 32, range: 58, efficiency: 42 },
+  },
+  {
+    id: "drone_carrier",
+    name: "Drone Carrier",
+    description: "Send swarms of offensive drones against Enemy Light Craft",
+    buildTurns: 1,
+    buildCost: { ferrite_titanium: 150, energy: 80, vrind: 100 },
+    baseStats: { attack: 40, defense: 40, stealth: 8, exploration: 12, shielding: 40, hull_armor: 50, speed: 28, range: 45, efficiency: 55 },
+  },
+  {
+    id: "Dreadnaught",
+    name: "Dreadnaught",
+    description: "Largest Ship in the Fleet. Used as Flag Ships.",
+    buildTurns: 1,
+    buildCost: { ferrite_titanium: 150, energy: 80, vrind: 100 },
+    baseStats: { attack: 90, defense: 80, stealth: 6, exploration: 8, shielding: 78, hull_armor: 92, speed: 18, range: 72, efficiency: 38 },
+  },
+  {
+    id: "void_siphon",
+    name: "Void Siphon",
+    description: "Draws energy from the universe transferring it to the fleet to increase shielding",
+    buildTurns: 1,
+    buildCost: { ferrite_titanium: 150, energy: 80, vrind: 100 },
+    baseStats: { attack: 20, defense: 40, stealth: 20, exploration: 15, shielding: 85, hull_armor: 35, speed: 30, range: 40, efficiency: 70 },
+  },
+  {
+    id: "quantum_jumpcarrier",
+    name: "Jump Carrier",
+    description: "Used to deploy wings of interceptors for defense or antiship duties.",
+    buildTurns: 1,
+    buildCost: { ferrite_titanium: 150, energy: 80, vrind: 100 },
+    baseStats: { attack: 30, defense: 48, stealth: 10, exploration: 14, shielding: 48, hull_armor: 55, speed: 30, range: 50, efficiency: 58 },
+  },
+  {
+    id: "vampiric_shieldship",
+    name: "Vampiric Shield Ship",
+    description: "Used to break through heavy shielding and weakening enemy ships.",
+    buildTurns: 1,
+    buildCost: { ferrite_titanium: 150, energy: 80, vrind: 100 },
+    baseStats: { attack: 65, defense: 30, stealth: 15, exploration: 10, shielding: 25, hull_armor: 30, speed: 35, range: 50, efficiency: 45 },
+  },
+  {
+    id: "phase_scout",
+    name: "Phase Scout",
+    description: "Top of Class Scout. Used to bypass enemy defense detection.",
+    buildTurns: 1,
+    buildCost: { ferrite_titanium: 150, energy: 80, vrind: 100 },
+    baseStats: { attack: 10, defense: 10, stealth: 85, exploration: 70, shielding: 8, hull_armor: 8, speed: 88, range: 35, efficiency: 75 },
+  },
+  {
+    id: "bullk_frieghter",
+    name: "Bulk Freighter",
+    description: "Carry more spoils of war home to the empire",
+    buildTurns: 1,
+    buildCost: { ferrite_titanium: 150, energy: 80, vrind: 100 },
+    baseStats: { attack: 8, defense: 25, stealth: 8, exploration: 12, shielding: 20, hull_armor: 70, speed: 35, range: 30, efficiency: 80 },
+  },
+  {
+    id: "living_frigate",
+    name: "The Living Frigate",
+    description: "Ancient Tech creating a ship that cannot be killed by energy weapons.",
+    buildTurns: 1,
+    buildCost: { ferrite_titanium: 150, energy: 80, vrind: 100 },
+    baseStats: { attack: 88, defense: 90, stealth: 85, exploration: 85, shielding: 90, hull_armor: 92, speed: 85, range: 85, efficiency: 90 },
+  },
 ];
 
 const unitById = new Map(UNITS.map((u) => [u.id, u]));
