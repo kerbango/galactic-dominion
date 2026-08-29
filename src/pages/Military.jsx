@@ -9,6 +9,8 @@ import ClassFilter from '@/components/military/ClassFilter';
 import { unitClass, UNIT_CLASSES } from '@/lib/unitClasses';
 import { Loader2, Sword } from 'lucide-react';
 
+const MILITARY_BG = "https://media.base44.com/images/public/6a8dedaa90af486a558f758e/d4a4244f4_ChatGPTImageAug28202609_39_29PM.png";
+
 // Military — fleet command console. A master-detail layout: a class filter
 // + scrollable roster rail on the left, a single detail panel (stats, build
 // cost, build/timer, upgrades) on the right. One screen holds the whole
@@ -104,7 +106,12 @@ export default function Military() {
   const totalBuilding = Object.values(units).filter((u) => u.construction_start_date).length;
 
   return (
-    <div className="max-w-6xl mx-auto px-4 md:px-8 py-8">
+    <>
+    <div className="fixed inset-0 -z-10 overflow-hidden bg-[#050810] pointer-events-none">
+      <img src={MILITARY_BG} alt="" aria-hidden="true" className="absolute inset-0 w-full h-full object-cover opacity-60" />
+      <div className="absolute inset-0" style={{ background: 'linear-gradient(180deg, rgba(5,8,16,0.45) 0%, rgba(5,8,16,0.7) 60%, rgba(5,8,16,0.9) 100%)' }} />
+    </div>
+    <div className="max-w-6xl mx-auto px-4 md:px-8 py-8 relative z-10">
       <div className="flex flex-col items-center text-center mb-6">
         <Sword className="w-7 h-7 text-cyan-300 mb-2" />
         <h1 className="font-heading text-2xl md:text-3xl tracking-wide text-white neon-text uppercase">Military</h1>
@@ -164,5 +171,6 @@ export default function Military() {
         </div>
       </div>
     </div>
+    </>
   );
 }
