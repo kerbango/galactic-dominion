@@ -60,6 +60,182 @@ export const UNITS = [
     buildCost: { ferrite_titanium: 12000, aetherium_crystal: 6000, berentium: 2000, energy: 5000, vrind: 10000 },
     baseStats: { attack: 1, defense: 1, stealth: 1, exploration: 1, shielding: 1, hull_armor: 1, speed: 1, range: 1, efficiency: 1 },
   },
+  {
+  id: "light_explorer",                 // unique id, matches unlocks.units in techTree if you wire one
+  name: "Light Defense Destroyer",
+  description: "Defender Class Destroyer",
+  buildTurns: 1,                     // construction time in ticks
+  buildCost: { ferrite_titanium: 150, energy: 80, vrind: 100 },
+  baseStats: { attack: 1, defense: 1, stealth: 1, exploration: 1, shielding: 1, hull_armor: 1, speed: 1, range: 1, efficiency: 1 },
+},
+{
+  id: "heavy_explorer",                 // unique id, matches unlocks.units in techTree if you wire one
+  name: "Light Defense Destroyer",
+  description: "Defender Class Destroyer",
+  buildTurns: 1,                     // construction time in ticks
+  buildCost: { ferrite_titanium: 150, energy: 80, vrind: 100 },
+  baseStats: { attack: 1, defense: 1, stealth: 1, exploration: 1, shielding: 1, hull_armor: 1, speed: 1, range: 1, efficiency: 1 },
+},
+{
+  id: "light_scout",                 // unique id, matches unlocks.units in techTree if you wire one
+  name: "Light Defense Destroyer",
+  description: "Defender Class Destroyer",
+  buildTurns: 1,                     // construction time in ticks
+  buildCost: { ferrite_titanium: 150, energy: 80, vrind: 100 },
+  baseStats: { attack: 1, defense: 1, stealth: 1, exploration: 1, shielding: 1, hull_armor: 1, speed: 1, range: 1, efficiency: 1 },
+},
+{
+  id: "medium_scout",                 // unique id, matches unlocks.units in techTree if you wire one
+  name: "Light Defense Destroyer",
+  description: "Defender Class Destroyer",
+  buildTurns: 1,                     // construction time in ticks
+  buildCost: { ferrite_titanium: 150, energy: 80, vrind: 100 },
+  baseStats: { attack: 1, defense: 1, stealth: 1, exploration: 1, shielding: 1, hull_armor: 1, speed: 1, range: 1, efficiency: 1 },
+},
+{
+  id: "heavy_scout",                 // unique id, matches unlocks.units in techTree if you wire one
+  name: "Light Defense Destroyer",
+  description: "Defender Class Destroyer",
+  buildTurns: 1,                     // construction time in ticks
+  buildCost: { ferrite_titanium: 150, energy: 80, vrind: 100 },
+  baseStats: { attack: 1, defense: 1, stealth: 1, exploration: 1, shielding: 1, hull_armor: 1, speed: 1, range: 1, efficiency: 1 },
+},
+{
+  id: "stealth_boat",                 // unique id, matches unlocks.units in techTree if you wire one
+  name: "Light Defense Destroyer",
+  description: "Defender Class Destroyer",
+  buildTurns: 1,                     // construction time in ticks
+  buildCost: { ferrite_titanium: 150, energy: 80, vrind: 100 },
+  baseStats: { attack: 1, defense: 1, stealth: 1, exploration: 1, shielding: 1, hull_armor: 1, speed: 1, range: 1, efficiency: 1 },
+},
+{
+  id: "light_frigate",                 // unique id, matches unlocks.units in techTree if you wire one
+  name: "Light Defense Destroyer",
+  description: "Defender Class Destroyer",
+  buildTurns: 1,                     // construction time in ticks
+  buildCost: { ferrite_titanium: 150, energy: 80, vrind: 100 },
+  baseStats: { attack: 1, defense: 1, stealth: 1, exploration: 1, shielding: 1, hull_armor: 1, speed: 1, range: 1, efficiency: 1 },
+},
+{
+  id: "medium_frigate",                 // unique id, matches unlocks.units in techTree if you wire one
+  name: "Light Defense Destroyer",
+  description: "Defender Class Destroyer",
+  buildTurns: 1,                     // construction time in ticks
+  buildCost: { ferrite_titanium: 150, energy: 80, vrind: 100 },
+  baseStats: { attack: 1, defense: 1, stealth: 1, exploration: 1, shielding: 1, hull_armor: 1, speed: 1, range: 1, efficiency: 1 },
+},
+{
+  id: "heavy_frigate",                 // unique id, matches unlocks.units in techTree if you wire one
+  name: "Light Defense Destroyer",
+  description: "Defender Class Destroyer",
+  buildTurns: 1,                     // construction time in ticks
+  buildCost: { ferrite_titanium: 150, energy: 80, vrind: 100 },
+  baseStats: { attack: 1, defense: 1, stealth: 1, exploration: 1, shielding: 1, hull_armor: 1, speed: 1, range: 1, efficiency: 1 },
+},
+{
+  id: "light_destroyer",                 // unique id, matches unlocks.units in techTree if you wire one
+  name: "Light Defense Destroyer",
+  description: "Defender Class Destroyer",
+  buildTurns: 1,                     // construction time in ticks
+  buildCost: { ferrite_titanium: 150, energy: 80, vrind: 100 },
+  baseStats: { attack: 1, defense: 1, stealth: 1, exploration: 1, shielding: 1, hull_armor: 1, speed: 1, range: 1, efficiency: 1 },
+},
+{
+  id: "heavy_destroyer",                 // unique id, matches unlocks.units in techTree if you wire one
+  name: "Light Defense Destroyer",
+  description: "Defender Class Destroyer",
+  buildTurns: 1,                     // construction time in ticks
+  buildCost: { ferrite_titanium: 150, energy: 80, vrind: 100 },
+  baseStats: { attack: 1, defense: 1, stealth: 1, exploration: 1, shielding: 1, hull_armor: 1, speed: 1, range: 1, efficiency: 1 },
+},
+{
+  id: "phalanx_destroyer",                 // unique id, matches unlocks.units in techTree if you wire one
+  name: "Light Defense Destroyer",
+  description: "Defender Class Destroyer",
+  buildTurns: 1,                     // construction time in ticks
+  buildCost: { ferrite_titanium: 150, energy: 80, vrind: 100 },
+  baseStats: { attack: 1, defense: 1, stealth: 1, exploration: 1, shielding: 1, hull_armor: 1, speed: 1, range: 1, efficiency: 1 },
+},
+{
+  id: "light_cruiser",                 // unique id, matches unlocks.units in techTree if you wire one
+  name: "Light Defense Destroyer",
+  description: "Defender Class Destroyer",
+  buildTurns: 1,                     // construction time in ticks
+  buildCost: { ferrite_titanium: 150, energy: 80, vrind: 100 },
+  baseStats: { attack: 1, defense: 1, stealth: 1, exploration: 1, shielding: 1, hull_armor: 1, speed: 1, range: 1, efficiency: 1 },
+},
+{
+  id: "battle_cruiser",                 // unique id, matches unlocks.units in techTree if you wire one
+  name: "Light Defense Destroyer",
+  description: "Defender Class Destroyer",
+  buildTurns: 1,                     // construction time in ticks
+  buildCost: { ferrite_titanium: 150, energy: 80, vrind: 100 },
+  baseStats: { attack: 1, defense: 1, stealth: 1, exploration: 1, shielding: 1, hull_armor: 1, speed: 1, range: 1, efficiency: 1 },
+},
+{
+  id: "drop_carrier",                 // unique id, matches unlocks.units in techTree if you wire one
+  name: "Light Defense Destroyer",
+  description: "Defender Class Destroyer",
+  buildTurns: 1,                     // construction time in ticks
+  buildCost: { ferrite_titanium: 150, energy: 80, vrind: 100 },
+  baseStats: { attack: 1, defense: 1, stealth: 1, exploration: 1, shielding: 1, hull_armor: 1, speed: 1, range: 1, efficiency: 1 },
+},
+{
+  id: "Dreadnaught",                 // unique id, matches unlocks.units in techTree if you wire one
+  name: "Light Defense Destroyer",
+  description: "Defender Class Destroyer",
+  buildTurns: 1,                     // construction time in ticks
+  buildCost: { ferrite_titanium: 150, energy: 80, vrind: 100 },
+  baseStats: { attack: 1, defense: 1, stealth: 1, exploration: 1, shielding: 1, hull_armor: 1, speed: 1, range: 1, efficiency: 1 },
+},
+{
+  id: "void_siphon",                 // unique id, matches unlocks.units in techTree if you wire one
+  name: "Light Defense Destroyer",
+  description: "Defender Class Destroyer",
+  buildTurns: 1,                     // construction time in ticks
+  buildCost: { ferrite_titanium: 150, energy: 80, vrind: 100 },
+  baseStats: { attack: 1, defense: 1, stealth: 1, exploration: 1, shielding: 1, hull_armor: 1, speed: 1, range: 1, efficiency: 1 },
+},
+{
+  id: "quantum_jumpcarrier",                 // unique id, matches unlocks.units in techTree if you wire one
+  name: "Light Defense Destroyer",
+  description: "Defender Class Destroyer",
+  buildTurns: 1,                     // construction time in ticks
+  buildCost: { ferrite_titanium: 150, energy: 80, vrind: 100 },
+  baseStats: { attack: 1, defense: 1, stealth: 1, exploration: 1, shielding: 1, hull_armor: 1, speed: 1, range: 1, efficiency: 1 },
+},
+{
+  id: "vampiric_shieldship",                 // unique id, matches unlocks.units in techTree if you wire one
+  name: "Light Defense Destroyer",
+  description: "Defender Class Destroyer",
+  buildTurns: 1,                     // construction time in ticks
+  buildCost: { ferrite_titanium: 150, energy: 80, vrind: 100 },
+  baseStats: { attack: 1, defense: 1, stealth: 1, exploration: 1, shielding: 1, hull_armor: 1, speed: 1, range: 1, efficiency: 1 },
+},
+{
+  id: "phase_scout",                 // unique id, matches unlocks.units in techTree if you wire one
+  name: "Light Defense Destroyer",
+  description: "Defender Class Destroyer",
+  buildTurns: 1,                     // construction time in ticks
+  buildCost: { ferrite_titanium: 150, energy: 80, vrind: 100 },
+  baseStats: { attack: 1, defense: 1, stealth: 1, exploration: 1, shielding: 1, hull_armor: 1, speed: 1, range: 1, efficiency: 1 },
+},
+{
+  id: "bullk_frieghter",                 // unique id, matches unlocks.units in techTree if you wire one
+  name: "Light Defense Destroyer",
+  description: "Defender Class Destroyer",
+  buildTurns: 1,                     // construction time in ticks
+  buildCost: { ferrite_titanium: 150, energy: 80, vrind: 100 },
+  baseStats: { attack: 1, defense: 1, stealth: 1, exploration: 1, shielding: 1, hull_armor: 1, speed: 1, range: 1, efficiency: 1 },
+},
+{
+  id: "living_frigate",                 // unique id, matches unlocks.units in techTree if you wire one
+  name: "Light Defense Destroyer",
+  description: "Defender Class Destroyer",
+  buildTurns: 1,                     // construction time in ticks
+  buildCost: { ferrite_titanium: 150, energy: 80, vrind: 100 },
+  baseStats: { attack: 1, defense: 1, stealth: 1, exploration: 1, shielding: 1, hull_armor: 1, speed: 1, range: 1, efficiency: 1 },
+},
 ];
 
 const unitById = new Map(UNITS.map((u) => [u.id, u]));
