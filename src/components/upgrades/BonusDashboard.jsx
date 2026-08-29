@@ -1,14 +1,21 @@
 import React, { useMemo } from 'react';
 import { useEmpire } from '@/lib/EmpireContext';
-import { totalResearchSpeedBonus, researchPointsPerCycle } from '@/data/techTree';
+import {
+  totalResearchSpeedBonus,
+  researchPointsPerCycle,
+  RESEARCH_SPEED_TECH_BONUS,
+  upgradeBonusFromLevel,
+} from '@/data/techTree';
 import { getEmpireUpgrade } from '@/data/empireUpgrades';
 import { FlaskConical, Sparkles, Sword, Shield } from 'lucide-react';
 
 // Bonus Dashboard — a summary-first panel showing the player's current
 // active empire bonuses as circular gauges: Research Speed, Research Points
 // per cycle, Fleet Attack, and Fleet Defense. Values are computed live from
-// the empire's upgrade levels and completed tech set, so purchasing an
-// upgrade immediately updates the gauges.
+// the empire's upgrade levels AND the completed tech set, so completing a
+// tech (e.g. Quantum Computing) or purchasing an upgrade immediately
+// updates the gauges. Each gauge also shows a small badge indicating which
+// tech-tree contribution is active.
 
 function bonusAtLevel(upgrade, level) {
   if (!level || level <= 0) return 0;
@@ -16,14 +23,14 @@ function bonusAtLevel(upgrade, level) {
   return tier ? tier.bonus : 0;
 }
 
-function Gauge({ value, max, display, label, color, icon: Icon }) {
+function Gauge({ value, max, display, label, color, icon: Icon, techBadge }) {
   const radius = 30;
   const circumference = 2 * Math.PI * radius;
   const pct = Math.min(1, max > 0 ? value / max : 0);
   const dashOffset = circumference * (1 - pct);
 
   return (
-    <div className="flex flex-col items-center gap-2">
+    <div className="flex flex-col items-center gap-1.5">
       <div className="relative w-[72px] h-[72px]">
         <svg className="w-full h-full -rotate-90" viewBox="0 0 72 72">
           <circle cx="36" cy="36" r={radius} fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="3" />
@@ -49,15 +56,30 @@ function Gauge({ value, max, display, label, color, icon: Icon }) {
         <Icon className="w-3 h-3" style={{ color }} />
         <p className="text-[9px] font-mono uppercase tracking-widest text-slate-400">{label}</p>
       </div>
+      {techBadge ? (
+        <span className="text-[8px] font-mono px-1.5 py-0.5 rounded bg-cyan-400/10 border border-cyan-400/25 text-cyan-200/90 uppercase tracking-wide whitespace-nowrap">
+          {techBadge}
+        </span>
+      ) : (
+        <span className="text-[8px] font-mono px-1.5 py-0.5 rounded bg-white/5 border border-slate-500/20 text-slate-500 uppercase tracking-wide whitespace-nowrap">
+          Tech locked
+        </span>
+      )}
     </div>
   );
 }
 
 export default function BonusDashboard({ completedIds }) {
   const { empire } = useEmpire();
+  const completed = useMemo(
+    () => completedIds instanceof Set ? completedIds : new Set(completedIds || []),
+    [completedIds]
+  );
 
   const stats = useMemo(() => {
-    const speedBonus = totalResearchSpeedBonus(completedIds, empire?.research_speed_level || 0);
+    const techSpeed = completed.has('quantum_computing') ? RESEARCH_SPEED_TECH_BONUS : 0;
+    const upgradeSpeed = upgradeBonusFromLevel(empire?.research_speed_level || 0);
+    const speedBonus = techSpeed + upgradeSpeed;
     const rpCycle = researchPointsPerCycle(empire?.research_points_production_level || 0);
     const levels = empire?.empire_upgrade_levels || {};
     const plasma = getEmpireUpgrade('plasma_efficiency');
@@ -67,8 +89,19 @@ export default function BonusDashboard({ completedIds }) {
     const fleetDefense =
       (hull2 ? bonusAtLevel(hull2, levels.reinforced_hull_ii) : 0) +
       (heavyArmor ? bonusAtLevel(heavyArmor, levels.heavy_armor) : 0);
-    return { speedBonus, rpCycle, fleetAttack, fleetDefense };
-  }, [empire, completedIds]);
+    return { speedBonus, techSpeed, upgradeSpeed, rpCycle, fleetAttack, fleetDefense };
+  }, [empire, completed]);
+
+  // Tech-tree contribution badges — show which techs are actively
+  // contributing to each gauge. When the gating tech isn't completed yet,
+  // the gauge shows "Tech locked" instead.
+  const speedBadge = completed.has('quantum_computing')
+    ? `QC +${Math.round(RESEARCH_SPEED_TECH_BONUS * 100)}%`
+    : null;
+  const attackBadge = completed.has('plasma_weapons') ? 'Plasma Focusing ✓' : null;
+  const defenseBadge = completed.has('battleship_hull') || completed.has('titan_hull')
+    ? [completed.has('battleship_hull') ? 'BH ✓' : null, completed.has('titan_hull') ? 'TH ✓' : null].filter(Boolean).join(' · ')
+    : null;
 
   return (
     <div className="glass-panel-strong rounded-2xl p-4 md:p-5 mb-4">
@@ -85,6 +118,7 @@ export default function BonusDashboard({ completedIds }) {
           label="Research Speed"
           color="#22d3ee"
           icon={FlaskConical}
+          techBadge={speedBadge}
         />
         <Gauge
           value={stats.rpCycle}
@@ -93,6 +127,7 @@ export default function BonusDashboard({ completedIds }) {
           label="Research Points"
           color="#e879f9"
           icon={Sparkles}
+          techBadge="Base 1/cyc"
         />
         <Gauge
           value={stats.fleetAttack * 100}
@@ -101,6 +136,7 @@ export default function BonusDashboard({ completedIds }) {
           label="Fleet Attack"
           color="#fbbf24"
           icon={Sword}
+          techBadge={attackBadge}
         />
         <Gauge
           value={stats.fleetDefense * 100}
@@ -109,6 +145,7 @@ export default function BonusDashboard({ completedIds }) {
           label="Fleet Defense"
           color="#34d399"
           icon={Shield}
+          techBadge={defenseBadge}
         />
       </div>
     </div>

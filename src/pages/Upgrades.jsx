@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { base44 } from '@/api/base44Client';
+import { useEmpire } from '@/lib/EmpireContext';
+import { useCycleRefresh } from '@/hooks/useCycleRefresh';
 import ResearchSpeedUpgrade from '@/components/upgrades/ResearchSpeedUpgrade';
 import ResearchPointsProduction from '@/components/upgrades/ResearchPointsProduction';
 import EmpireUpgradeCard from '@/components/upgrades/EmpireUpgradeCard';
@@ -18,6 +20,7 @@ const UPGRADES_BG = "https://media.base44.com/images/public/6a8dedaa90af486a558f
 // through the existing backend functions and refresh the empire on
 // completion.
 export default function Upgrades() {
+  const { empire } = useEmpire();
   const [progress, setProgress] = useState(null);
 
   const loadProgress = useCallback(async () => {
@@ -36,6 +39,11 @@ export default function Upgrades() {
     const unsub = base44.entities.TechProgress.subscribe(() => { loadProgress(); });
     return unsub;
   }, [loadProgress]);
+  // Server-side ticks (tickResources) complete research as a service-role
+  // write, which realtime subscriptions don't catch. useCycleRefresh polls
+  // when the empire's last_tick_date changes, so completed techs propagate
+  // to the dashboard gauges on the next cycle rollover.
+  useCycleRefresh(empire?.last_tick_date, loadProgress);
 
   const completedIds = useMemo(
     () => new Set(Object.entries(progress || {}).filter(([, r]) => r?.status === 'completed').map(([id]) => id)),
