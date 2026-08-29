@@ -14,7 +14,7 @@ const CLASS_MAP = {
   troop_transport: 'Transport',
   infantry: 'Ground Forces', heavy_infantry: 'Ground Forces', assault_infantry: 'Ground Forces',
   mechanized_infantry: 'Ground Forces', mecha: 'Ground Forces',
-  bunker: 'Defense', ground_ion_cannon: 'Defense', orbit_defense_platform: 'Defense',
+  bunker: 'Defense', pdg: 'Defense', ground_ion_cannon: 'Defense', orbit_defense_platform: 'Defense', heavy_battery: 'Defense',
 };
 
 export const UNIT_CLASSES = [

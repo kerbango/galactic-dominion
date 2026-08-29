@@ -48,8 +48,10 @@ const BASE_COSTS = {
   mechanized_infantry: { ferrite_titanium: 300, vrind: 250 },
   mecha: { aetherium_crystal: 200, ferrite_titanium: 600, vrind: 500 },
   bunker: { ferrite_titanium: 350, vrind: 250 },
+  pdg: { ferrite_titanium: 350, vrind: 250 },
   ground_ion_cannon: { aetherium_crystal: 120, ferrite_titanium: 400, vrind: 350 },
   orbit_defense_platform: { aetherium_crystal: 250, ferrite_titanium: 600, vrind: 600 },
+  heavy_battery: { ferrite_titanium: 350, vrind: 250 },
 };
 
 function makeUpgrades(unitType, stats) {
@@ -75,8 +77,10 @@ export const UNIT_UPGRADES = [
   ...makeUpgrades("mechanized_infantry", GROUND_STATS),
   ...makeUpgrades("mecha", GROUND_STATS),
   ...makeUpgrades("bunker", DEFENSE_STATS),
+  ...makeUpgrades("pdg", DEFENSE_STATS),
   ...makeUpgrades("ground_ion_cannon", DEFENSE_STATS),
   ...makeUpgrades("orbit_defense_platform", DEFENSE_STATS),
+  ...makeUpgrades("heavy_battery", DEFENSE_STATS),
 ];
 
 const upgradeById = new Map(UNIT_UPGRADES.map((u) => [u.id, u]));
