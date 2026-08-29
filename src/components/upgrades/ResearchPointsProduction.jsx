@@ -37,13 +37,13 @@ export default function ResearchPointsProduction() {
   };
 
   return (
-    <div className="pcb-panel rounded-2xl p-5 flex flex-col">
+    <div className="glass-panel rounded-2xl p-5 flex flex-col">
       <div className="flex items-center gap-3 mb-4">
-        <div className="pcb-chip rounded-lg w-12 h-12 flex items-center justify-center shrink-0">
+        <div className="shrink-0 w-12 h-12 rounded-lg flex items-center justify-center border border-fuchsia-400/25 bg-fuchsia-400/5">
           <FlaskConical className="w-5 h-5 text-fuchsia-300" />
         </div>
         <div className="min-w-0">
-          <h2 className="pcb-silkscreen text-base text-[#e0e0e0]">Research Point Synthesis</h2>
+          <h2 className="font-heading text-base text-white tracking-wide uppercase">Research Point Synthesis</h2>
           <p className="text-[11px] text-slate-400 font-body leading-snug">
             Boost Research Points produced each cycle. Current output: <span className="text-fuchsia-300 font-semibold">{currentRate}/cycle</span>.
           </p>
@@ -67,7 +67,7 @@ export default function ResearchPointsProduction() {
 
       <div className="mt-auto">
         {maxed ? (
-          <div className="pcb-maxed rounded-lg py-2.5 text-center pcb-silkscreen text-xs">Maximum Synthesis</div>
+          <div className="rounded-lg py-2.5 text-center font-heading text-xs uppercase tracking-wide bg-white/5 border border-slate-500/30 text-slate-400">Maximum Synthesis</div>
         ) : (
           <>
             <div className="flex flex-wrap gap-1.5 mb-3 justify-center">
@@ -78,7 +78,7 @@ export default function ResearchPointsProduction() {
             <button
               onClick={buy}
               disabled={busy}
-              className="pcb-btn w-full rounded-lg py-2.5 pcb-silkscreen text-xs disabled:opacity-60 inline-flex items-center justify-center gap-2"
+              className="pcb-btn w-full rounded-lg py-2.5 font-heading text-xs uppercase tracking-wide disabled:opacity-60 inline-flex items-center justify-center gap-2"
             >
               {busy && <Loader2 className="w-4 h-4 animate-spin" />}
               {busy ? 'Purchasing…' : `Purchase Level ${next.level} · +${next.bonus}/cycle`}

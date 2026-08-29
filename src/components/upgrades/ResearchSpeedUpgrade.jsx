@@ -37,13 +37,13 @@ export default function ResearchSpeedUpgrade() {
   };
 
   return (
-    <div className="pcb-panel rounded-2xl p-5 flex flex-col">
+    <div className="glass-panel rounded-2xl p-5 flex flex-col">
       <div className="flex items-center gap-3 mb-4">
-        <div className="pcb-chip rounded-lg w-12 h-12 flex items-center justify-center shrink-0">
+        <div className="shrink-0 w-12 h-12 rounded-lg flex items-center justify-center border border-cyan-400/25 bg-cyan-400/5">
           <FlaskConical className="w-5 h-5 text-cyan-300" />
         </div>
         <div className="min-w-0">
-          <h2 className="pcb-silkscreen text-base text-[#e0e0e0]">Research Accelerator</h2>
+          <h2 className="font-heading text-base text-white tracking-wide uppercase">Research Accelerator</h2>
           <p className="text-[11px] text-slate-400 font-body leading-snug">Shorten every research project. Stacks with the Quantum Computing bonus.</p>
         </div>
       </div>
@@ -61,7 +61,7 @@ export default function ResearchSpeedUpgrade() {
 
       <div className="mt-auto">
         {maxed ? (
-          <div className="pcb-maxed rounded-lg py-2.5 text-center pcb-silkscreen text-xs">Maximum Acceleration</div>
+          <div className="rounded-lg py-2.5 text-center font-heading text-xs uppercase tracking-wide bg-white/5 border border-slate-500/30 text-slate-400">Maximum Acceleration</div>
         ) : (
           <>
             <div className="flex flex-wrap gap-1.5 mb-3 justify-center">
@@ -72,7 +72,7 @@ export default function ResearchSpeedUpgrade() {
             <button
               onClick={buy}
               disabled={busy}
-              className="pcb-btn w-full rounded-lg py-2.5 pcb-silkscreen text-xs disabled:opacity-60 inline-flex items-center justify-center gap-2"
+              className="pcb-btn w-full rounded-lg py-2.5 font-heading text-xs uppercase tracking-wide disabled:opacity-60 inline-flex items-center justify-center gap-2"
             >
               {busy && <Loader2 className="w-4 h-4 animate-spin" />}
               {busy ? 'Purchasing…' : `Purchase Level ${next.level} · +${Math.round(next.bonus * 100)}%`}

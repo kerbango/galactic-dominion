@@ -9,15 +9,15 @@ const RES_ICONS = {
   berentium: { Icon: Pickaxe, color: 'text-emerald-300' },
 };
 
-// A single resource cost chip: small lucide resource icon + value, in the
-// copper-bordered pcb-cost pill. Replaces the old text-label chips.
+// A single resource cost chip: small lucide resource icon + value, in a
+// glass-morphism pill with a subtle cyan border.
 export default function CostChip({ resourceKey, value }) {
   const cfg = RES_ICONS[resourceKey] || { Icon: Coins, color: 'text-slate-300' };
   const Icon = cfg.Icon;
   return (
-    <span className="pcb-cost text-[10px] font-mono px-2 py-1 rounded inline-flex items-center gap-1">
+    <span className="text-[10px] font-mono px-2 py-1 rounded inline-flex items-center gap-1 bg-white/5 border border-cyan-400/15">
       <Icon className={`w-3 h-3 ${cfg.color}`} />
-      <span className="text-cyan-300">{Math.floor(value).toLocaleString()}</span>
+      <span className="text-cyan-200">{Math.floor(value).toLocaleString()}</span>
     </span>
   );
 }

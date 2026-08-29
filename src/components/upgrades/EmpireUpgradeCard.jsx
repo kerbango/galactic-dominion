@@ -12,7 +12,9 @@ import { purchaseErrorMessage } from '@/lib/upgradeError';
 // the Empire's empire_upgrade_levels map. When the gating tech isn't
 // completed the card shows a lock and the required tech name. Effects are
 // combat-oriented and stored for later combat integration.
-export default function EmpireUpgradeCard({ upgrade, unlocked }) {
+// The `wide` prop switches the tier rows to a 3-column grid for the wider
+// bottom-row layout on the Upgrades page.
+export default function EmpireUpgradeCard({ upgrade, unlocked, wide }) {
   const { empire, refresh } = useEmpire();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
@@ -38,26 +40,26 @@ export default function EmpireUpgradeCard({ upgrade, unlocked }) {
   };
 
   return (
-    <div className={`pcb-panel rounded-2xl p-5 flex flex-col ${unlocked ? '' : 'pcb-panel-locked'}`}>
+    <div className={`glass-panel rounded-2xl p-5 flex flex-col ${unlocked ? '' : 'opacity-75'}`}>
       <div className="flex items-center gap-3 mb-4">
-        <div className={`pcb-chip rounded-lg w-12 h-12 flex items-center justify-center shrink-0 ${unlocked ? '' : 'opacity-70'}`}>
+        <div className={`shrink-0 w-12 h-12 rounded-lg flex items-center justify-center border ${unlocked ? 'border-amber-400/25 bg-amber-400/5' : 'border-cyan-400/20 bg-cyan-400/5'}`}>
           {unlocked ? <Zap className="w-5 h-5 text-amber-300" /> : <Lock className="w-5 h-5 text-cyan-300" />}
         </div>
         <div className="min-w-0">
-          <h2 className="pcb-silkscreen text-base text-[#e0e0e0]">{upgrade.name}</h2>
+          <h2 className="font-heading text-base text-white tracking-wide uppercase">{upgrade.name}</h2>
           <p className="text-[11px] text-slate-400 font-body leading-snug">{upgrade.description}</p>
         </div>
       </div>
 
       {!unlocked ? (
         <div className="mt-2 text-center">
-          <p className="pcb-silkscreen text-[10px] text-cyan-300/80 inline-flex items-center gap-1.5">
+          <p className="font-heading text-[10px] text-cyan-300/80 inline-flex items-center gap-1.5 uppercase tracking-wide">
             <Lock className="w-3.5 h-3.5" /> Requires {gatingTech?.name || upgrade.gatingTechId}
           </p>
         </div>
       ) : (
         <>
-          <div className="space-y-2 mb-4">
+          <div className={`mb-4 space-y-2 ${wide ? 'md:grid md:grid-cols-3 md:gap-2 md:space-y-0' : ''}`}>
             {upgrade.tiers.map((tier) => {
               const owned = level >= tier.level;
               const isNext = next?.level === tier.level;
@@ -73,7 +75,7 @@ export default function EmpireUpgradeCard({ upgrade, unlocked }) {
           </div>
           <div className="mt-auto">
             {maxed ? (
-              <div className="pcb-maxed rounded-lg py-2.5 text-center pcb-silkscreen text-xs">Maximum</div>
+              <div className="rounded-lg py-2.5 text-center font-heading text-xs uppercase tracking-wide bg-white/5 border border-slate-500/30 text-slate-400">Maximum</div>
             ) : (
               <>
                 <div className="flex flex-wrap gap-1.5 mb-3 justify-center">
@@ -84,7 +86,7 @@ export default function EmpireUpgradeCard({ upgrade, unlocked }) {
                 <button
                   onClick={buy}
                   disabled={busy}
-                  className="pcb-btn w-full rounded-lg py-2.5 pcb-silkscreen text-xs disabled:opacity-60 inline-flex items-center justify-center gap-2"
+                  className="pcb-btn w-full rounded-lg py-2.5 font-heading text-xs uppercase tracking-wide disabled:opacity-60 inline-flex items-center justify-center gap-2"
                 >
                   {busy && <Loader2 className="w-4 h-4 animate-spin" />}
                   {busy ? 'Purchasing…' : `Purchase Tier ${next.level} · +${Math.round(next.bonus * 100)}% ${upgrade.effectLabel}`}
