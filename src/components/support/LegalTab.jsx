@@ -43,7 +43,7 @@ const SECTIONS = [
 
 export default function LegalTab() {
   return (
-    <div className="space-y-5">
+    <div className="space-y-5 selectable-text">
       {SECTIONS.map((s) => {
         const Icon = s.icon;
         return (
@@ -60,7 +60,7 @@ export default function LegalTab() {
           </section>
         );
       })}
-      <p className="text-center text-[10px] font-mono uppercase tracking-widest text-slate-400/40 pt-2">
+      <p className="text-center text-xs font-mono uppercase tracking-widest text-slate-400/40 pt-2">
         Last updated: August 2026 · Mimics Den Games
       </p>
     </div>

@@ -182,7 +182,7 @@ export default function RadarShooter({ onClose, remainingPlays = 5, onSubmitScor
   const accuracy = hits + misses > 0 ? Math.round((hits / (hits + misses)) * 100) : 100;
 
   return (
-    <div className="glass-panel-strong rounded-2xl p-4 md:p-6 relative overflow-hidden">
+    <div className="glass-panel-strong rounded-2xl p-4 md:p-6 relative overflow-hidden minigame-zone">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">

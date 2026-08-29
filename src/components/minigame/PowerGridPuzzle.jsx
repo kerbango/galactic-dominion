@@ -233,7 +233,7 @@ export default function PowerGridPuzzle({ onClose, remainingPlays = 5, onSubmitS
   const progress = Math.min(100, Math.round((score / TARGET_SCORE) * 100));
 
   return (
-    <div className="glass-panel-strong rounded-2xl p-4 md:p-6 relative overflow-hidden">
+    <div className="glass-panel-strong rounded-2xl p-4 md:p-6 relative overflow-hidden minigame-zone">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">

@@ -189,19 +189,19 @@ export default function ZoomableGalaxyMap({ empires, myEmpire, fleets, now, myUs
 
         {/* Zoom controls */}
         <div className="absolute top-3 right-3 flex flex-col gap-2">
-          <button onClick={() => zoomCenter(1.6)} className="w-9 h-9 rounded-lg glass-panel-strong flex items-center justify-center text-cyan-200 hover:text-white transition-colors" title="Zoom in">
+          <button onClick={() => zoomCenter(1.6)} className="w-11 h-11 rounded-lg glass-panel-strong flex items-center justify-center text-cyan-200 hover:text-white transition-colors" title="Zoom in">
             <ZoomIn className="w-4 h-4" />
           </button>
-          <button onClick={() => zoomCenter(1 / 1.6)} className="w-9 h-9 rounded-lg glass-panel-strong flex items-center justify-center text-cyan-200 hover:text-white transition-colors" title="Zoom out">
+          <button onClick={() => zoomCenter(1 / 1.6)} className="w-11 h-11 rounded-lg glass-panel-strong flex items-center justify-center text-cyan-200 hover:text-white transition-colors" title="Zoom out">
             <ZoomOut className="w-4 h-4" />
           </button>
-          <button onClick={reset} className="w-9 h-9 rounded-lg glass-panel-strong flex items-center justify-center text-cyan-200 hover:text-white transition-colors" title="Reset view">
+          <button onClick={reset} className="w-11 h-11 rounded-lg glass-panel-strong flex items-center justify-center text-cyan-200 hover:text-white transition-colors" title="Reset view">
             <Maximize className="w-4 h-4" />
           </button>
         </div>
 
         {/* Zoom level indicator */}
-        <div className="absolute bottom-3 left-3 glass-panel rounded-md px-2 py-1 text-[10px] font-mono uppercase tracking-widest text-cyan-200/80">
+        <div className="absolute bottom-3 left-3 glass-panel rounded-md px-2 py-1 text-xs font-mono uppercase tracking-widest text-cyan-200/80">
           {zoom.toFixed(1)}× · {Math.round(view.w)} units
         </div>
       </div>

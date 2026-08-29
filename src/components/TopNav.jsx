@@ -20,14 +20,14 @@ export default function TopNav() {
   const SHOW_TREASURY_ON = ['/profile', '/research', '/military', '/upgrades', '/market'];
   const showTreasury = SHOW_TREASURY_ON.includes(location.pathname);
   const linkClass = ({ isActive }) =>
-    `flex items-center gap-1 px-2 py-1 rounded-md text-[0.65rem] font-heading uppercase tracking-wider whitespace-nowrap transition-colors ${
+    `flex items-center gap-1 px-2 py-1 rounded-md text-xs font-heading uppercase tracking-wider whitespace-nowrap transition-colors ${
       isActive ? 'text-cyan-200 bg-cyan-400/10' : 'text-muted-foreground hover:text-cyan-100'
     }`;
 
   return (
     <header className="sticky top-0 z-30 w-full">
       <div
-        className="flex items-center justify-between gap-4 px-4 md:px-8 py-3 border-b border-cyan-400/15"
+        className="flex items-center justify-between gap-4 px-4 md:px-8 py-3 pt-[calc(0.75rem+env(safe-area-inset-top))] border-b border-cyan-400/15"
         style={{
           background: 'linear-gradient(180deg, rgba(5,8,16,0.85), rgba(5,8,16,0.55))',
           backdropFilter: 'blur(10px)',
@@ -51,7 +51,7 @@ export default function TopNav() {
               await base44.auth.logout();
               window.location.href = '/login';
             }}
-            className="flex items-center gap-1 px-2 py-1 rounded-md text-[0.65rem] font-heading uppercase tracking-wider text-muted-foreground hover:text-rose-300 transition-colors shrink-0"
+            className="flex items-center gap-1 px-2 py-1 rounded-md text-xs font-heading uppercase tracking-wider text-muted-foreground hover:text-rose-300 transition-colors shrink-0"
           >
             <LogOut className="w-3.5 h-3.5" /> Logout
           </button>
@@ -77,7 +77,7 @@ export default function TopNav() {
             <Link
               to="/admin"
               title="Admin panel"
-              className="flex items-center justify-center w-7 h-7 rounded-full overflow-hidden border border-cyan-400/20 hover:border-cyan-300/70 transition-colors"
+              className="flex items-center justify-center w-11 h-11 rounded-full overflow-hidden border border-cyan-400/20 hover:border-cyan-300/70 transition-colors"
             >
               <Image
                 src={ADMIN_ICON_URL}

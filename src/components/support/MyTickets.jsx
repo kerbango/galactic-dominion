@@ -188,7 +188,7 @@ export default function MyTickets() {
                             <p className="text-[9px] uppercase tracking-widest text-muted-foreground mb-0.5">
                               {m.author_role === 'player' ? 'You' : m.author_name} · {fmtDate(m.date)}
                             </p>
-                            <p className="text-sm text-foreground font-body whitespace-pre-wrap">{m.body}</p>
+                            <p className="text-sm text-foreground font-body whitespace-pre-wrap selectable-text">{m.body}</p>
                           </div>
                         </div>
                       ))}

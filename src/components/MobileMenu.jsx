@@ -32,7 +32,7 @@ export default function MobileMenu() {
   }, [open]);
 
   const linkClass = ({ isActive }) =>
-    `flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-heading uppercase tracking-widest transition-colors ${
+    `flex items-center gap-3 px-3 py-3 rounded-md text-sm font-heading uppercase tracking-widest transition-colors ${
       isActive ? 'text-cyan-200 bg-cyan-400/10' : 'text-muted-foreground hover:text-cyan-100'
     }`;
 
@@ -43,7 +43,7 @@ export default function MobileMenu() {
         onClick={() => setOpen((v) => !v)}
         aria-label="Menu"
         aria-expanded={open}
-        className="flex items-center justify-center w-9 h-9 rounded-md text-muted-foreground hover:text-cyan-100 hover:bg-cyan-400/10 transition-colors"
+        className="flex items-center justify-center w-11 h-11 rounded-md text-muted-foreground hover:text-cyan-100 hover:bg-cyan-400/10 transition-colors"
       >
         {open ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
       </button>
@@ -63,7 +63,7 @@ export default function MobileMenu() {
               await base44.auth.logout();
               window.location.href = '/login';
             }}
-            className="flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-heading uppercase tracking-widest text-muted-foreground hover:text-rose-300 hover:bg-rose-400/5 transition-colors"
+            className="flex items-center gap-3 px-3 py-3 rounded-md text-sm font-heading uppercase tracking-widest text-muted-foreground hover:text-rose-300 hover:bg-rose-400/5 transition-colors"
           >
             <LogOut className="w-4 h-4" /> Logout
           </button>

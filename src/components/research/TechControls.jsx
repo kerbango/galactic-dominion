@@ -1,6 +1,7 @@
 import React from 'react';
 import { Search, Filter } from 'lucide-react';
 import { CATEGORY_ORDER } from '@/data/techTree';
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 
 // Search, category filter, and show-only toggle. Pure controls — all
 // filtering is applied by the parent via the visibleIds set passed to the
@@ -19,16 +20,17 @@ export default function TechControls({ search, setSearch, categoryFilter, setCat
       </div>
       <div className="flex items-center gap-2">
         <Filter className="w-4 h-4 text-slate-500" />
-        <select
-          value={categoryFilter}
-          onChange={(e) => setCategoryFilter(e.target.value)}
-          className="rounded-lg bg-slate-900/60 border border-slate-700/50 text-sm text-slate-100 px-2 py-2 focus:outline-none focus:border-cyan-400/50"
-        >
-          <option value="All">All Categories</option>
-          {CATEGORY_ORDER.map((c) => (
-            <option key={c} value={c}>{c}</option>
-          ))}
-        </select>
+        <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+          <SelectTrigger className="w-[160px] h-11 rounded-lg bg-slate-900/60 border-slate-700/50 text-sm text-slate-100 focus:ring-cyan-400/50">
+            <SelectValue placeholder="All Categories" />
+          </SelectTrigger>
+          <SelectContent className="bg-slate-900/95 border-slate-700/50 text-slate-100">
+            <SelectItem value="All" className="text-sm text-slate-100 h-11">All Categories</SelectItem>
+            {CATEGORY_ORDER.map((c) => (
+              <SelectItem key={c} value={c} className="text-sm text-slate-100 h-11">{c}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
       <div className="flex items-center gap-1 rounded-lg bg-slate-900/60 border border-slate-700/50 p-0.5">
         {[['all', 'All'], ['available', 'Available'], ['researched', 'Done']].map(([v, l]) => (
