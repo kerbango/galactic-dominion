@@ -268,6 +268,16 @@ export const UNITS = [
     buildCost: { ferrite_titanium: 300, energy: 100, vrind: 200 },
     baseStats: { defense_rating: 40, armor: 70, range: 20 },
   },
+    {
+    id: "pdg",
+    name: "Planetary Defense Grid",
+    description: "Automated Defense Grid places in low orbit.",
+    category: "defense",
+    gatingTechId: "planetary_fortifications",
+    buildTurns: 2,
+    buildCost: { ferrite_titanium: 300, energy: 100, vrind: 200 },
+    baseStats: { defense_rating: 40, armor: 70, range: 20 },
+  },
   {
     id: "ground_ion_cannon",
     name: "Ground-Based Ion Cannon",
@@ -286,7 +296,17 @@ export const UNITS = [
     gatingTechId: "planetary_fortifications",
     buildTurns: 3,
     buildCost: { ferrite_titanium: 500, aetherium_crystal: 200, energy: 300, vrind: 500 },
-    baseStats: { defense_rating: 90, armor: 50, range: 85 },
+    baseStats: { defense_rating: 60, armor: 50, range: 85 },
+  },
+    {
+    id: "heavy_battery",
+    name: "Heavy Defense Platforms",
+    description: "Reinforced ground Cannons that significantly boosts planetary defense rating.",
+    category: "defense",
+    gatingTechId: "planetary_fortifications",
+    buildTurns: 2,
+    buildCost: { ferrite_titanium: 300, energy: 100, vrind: 200 },
+    baseStats: { defense_rating: 60, armor: 70, range: 20 },
   },
 ];
 
