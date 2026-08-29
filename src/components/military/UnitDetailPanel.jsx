@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useEmpire } from '@/lib/EmpireContext';
 import { getTech } from '@/lib/techLayout';
-import { unitStatMultipliers } from '@/data/unitUpgrades';
+import { unitStatMultipliers, upgradesForUnit } from '@/data/unitUpgrades';
 import { Ship, Lock, Loader2, Sword, Shield, Gauge, Eye, Compass, ShieldHalf, Layers, Ruler, Zap } from 'lucide-react';
 import StatBar from './StatBar';
 import ConstructionTimer from './ConstructionTimer';
@@ -34,6 +34,9 @@ export default function UnitDetailPanel({ unit, unitRecord, unlocked, onBuilt })
   const building = !!unitRecord?.construction_start_date;
   const gatingTech = getTech(unit.gatingTechId);
   const multipliers = unitStatMultipliers(unit.id, unitRecord?.upgrade_levels || {});
+  const upgrades = upgradesForUnit(unit.id);
+  const maxMul = {};
+  for (const up of upgrades) maxMul[up.stat] = 1 + up.perLevel * up.maxLevel;
 
   const build = async () => {
     setError('');
@@ -71,9 +74,13 @@ export default function UnitDetailPanel({ unit, unitRecord, unlocked, onBuilt })
       {unlocked ? (
         <>
           <div className="space-y-1.5 mb-4">
-            {STAT_DISPLAY.map(({ key, icon, label }) => (
-              <StatBar key={key} stat={key} icon={icon} label={label} value={(unit.baseStats[key] ?? 0) * (multipliers[key] || 1)} />
-            ))}
+            {STAT_DISPLAY.map(({ key, icon, label }) => {
+              const base = unit.baseStats[key] ?? 0;
+              const mul = multipliers[key] || 1;
+              return (
+                <StatBar key={key} stat={key} icon={icon} label={label} value={base * mul} base={base} multiplier={mul} maxMultiplier={maxMul[key] || 1} />
+              );
+            })}
           </div>
 
           <div className="mb-4">
