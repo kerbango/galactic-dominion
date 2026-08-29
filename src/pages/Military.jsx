@@ -8,6 +8,7 @@ import UnitDetailPanel from '@/components/military/UnitDetailPanel';
 import ClassFilter from '@/components/military/ClassFilter';
 import { unitClass, UNIT_CLASSES } from '@/lib/unitClasses';
 import { computePlanetDefenseRating } from '@/data/planetDefense';
+import DefenseDashboard from '@/components/military/DefenseDashboard';
 import { Loader2, Sword, Shield } from 'lucide-react';
 
 const MILITARY_BG = "https://media.base44.com/images/public/6a8dedaa90af486a558f758e/d4a4244f4_ChatGPTImageAug28202609_39_29PM.png";
@@ -139,6 +140,8 @@ export default function Military() {
           Finalize Builds
         </button>
       </div>
+
+      <DefenseDashboard empire={empire} unitRecords={Object.values(units)} />
 
       <div className="grid grid-cols-1 lg:grid-cols-[260px_1fr] gap-4">
         {/* Left rail */}

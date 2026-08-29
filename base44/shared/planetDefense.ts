@@ -18,20 +18,51 @@ const BASE_RATING = 50;
 const GARRISON_ARMOR_FACTOR = 0.5;
 
 export function computePlanetDefenseRating(empire, unitRecords) {
-  let rating = BASE_RATING;
+  const b = computePlanetDefenseBreakdown(empire, unitRecords);
+  return b.total;
+}
+
+// Full breakdown of the Planet Defense Rating by source category. Returns
+// the category subtotals, the grand total, and per-unit contributor lists so
+// the Military dashboard can show exactly where each point of protection
+// comes from (base, defensive structures, garrison troops, research).
+export function computePlanetDefenseBreakdown(empire, unitRecords) {
+  const base = BASE_RATING;
+  let structures = 0;
+  let garrison = 0;
+  const structureContributors = [];
+  const garrisonContributors = [];
 
   for (const rec of unitRecords || []) {
     const unit = getUnit(rec.unit_type);
     if (!unit || !rec.owned_count) continue;
     const mul = unitStatMultipliers(rec.unit_type, rec.upgrade_levels || {});
     if (unit.category === 'defense') {
-      rating += rec.owned_count * (unit.baseStats.defense_rating || 0) * (mul.defense_rating || 1);
+      const contrib = rec.owned_count * (unit.baseStats.defense_rating || 0) * (mul.defense_rating || 1);
+      structures += contrib;
+      structureContributors.push({ id: unit.id, name: unit.name, count: rec.owned_count, contribution: Math.round(contrib) });
     } else if (unit.category === 'ground') {
-      rating += rec.owned_count * (unit.baseStats.armor || 0) * GARRISON_ARMOR_FACTOR * (mul.armor || 1);
+      const contrib = rec.owned_count * (unit.baseStats.armor || 0) * GARRISON_ARMOR_FACTOR * (mul.armor || 1);
+      garrison += contrib;
+      garrisonContributors.push({ id: unit.id, name: unit.name, count: rec.owned_count, contribution: Math.round(contrib) });
     }
   }
 
-  return Math.round(rating);
+  // Research/empire-upgrade bonus — placeholder for future defense-oriented
+  // empire upgrades. Reads empire_upgrade_levels; currently 0 since no
+  // empire upgrade targets planet defense yet.
+  const research = 0;
+
+  const total = Math.round(base + structures + garrison + research);
+  return {
+    base: Math.round(base),
+    structures: Math.round(structures),
+    garrison: Math.round(garrison),
+    research: Math.round(research),
+    total,
+    structureContributors: structureContributors.sort((a, b) => b.contribution - a.contribution),
+    garrisonContributors: garrisonContributors.sort((a, b) => b.contribution - a.contribution),
+  };
 }
 
 // Ground assault strength of a deployed manifest. Each ground unit
