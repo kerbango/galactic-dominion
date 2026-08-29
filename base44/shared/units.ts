@@ -17,48 +17,48 @@ export const UNITS = [
   },
   {
   id: "light_explorer",                 // unique id, matches unlocks.units in techTree if you wire one
-  name: "Light Defense Destroyer",
-  description: "Defender Class Destroyer",
+  name: "Light Class Galactic Explorer",
+  description: "Ability to scan for and return resources!",
   buildTurns: 1,                     // construction time in ticks
   buildCost: { ferrite_titanium: 150, energy: 80, vrind: 100 },
   baseStats: { attack: 1, defense: 1, stealth: 1, exploration: 1, shielding: 1, hull_armor: 1, speed: 1, range: 1, efficiency: 1 },
 },
 {
   id: "heavy_explorer",                 // unique id, matches unlocks.units in techTree if you wire one
-  name: "Light Defense Destroyer",
-  description: "Defender Class Destroyer",
+  name: "Heavy  Galactic Explorer",
+  description: "Search the stars for Resourcees and Anchient Technology",
   buildTurns: 1,                     // construction time in ticks
   buildCost: { ferrite_titanium: 150, energy: 80, vrind: 100 },
   baseStats: { attack: 1, defense: 1, stealth: 1, exploration: 1, shielding: 1, hull_armor: 1, speed: 1, range: 1, efficiency: 1 },
 },
 {
   id: "light_scout",                 // unique id, matches unlocks.units in techTree if you wire one
-  name: "Light Defense Destroyer",
-  description: "Defender Class Destroyer",
+  name: "Light Scout",
+  description: "Scout your enemies and return some data reports",
   buildTurns: 1,                     // construction time in ticks
   buildCost: { ferrite_titanium: 150, energy: 80, vrind: 100 },
   baseStats: { attack: 1, defense: 1, stealth: 1, exploration: 1, shielding: 1, hull_armor: 1, speed: 1, range: 1, efficiency: 1 },
 },
 {
   id: "medium_scout",                 // unique id, matches unlocks.units in techTree if you wire one
-  name: "Light Defense Destroyer",
-  description: "Defender Class Destroyer",
+  name: "Medium Scout",
+  description: "Scout your enemies and return more detailed reports.",
   buildTurns: 1,                     // construction time in ticks
   buildCost: { ferrite_titanium: 150, energy: 80, vrind: 100 },
   baseStats: { attack: 1, defense: 1, stealth: 1, exploration: 1, shielding: 1, hull_armor: 1, speed: 1, range: 1, efficiency: 1 },
 },
 {
   id: "heavy_scout",                 // unique id, matches unlocks.units in techTree if you wire one
-  name: "Light Defense Destroyer",
-  description: "Defender Class Destroyer",
+  name: "Heavy Scout",
+  description: "Scout your enemies and return full complete reports.",
   buildTurns: 1,                     // construction time in ticks
   buildCost: { ferrite_titanium: 150, energy: 80, vrind: 100 },
   baseStats: { attack: 1, defense: 1, stealth: 1, exploration: 1, shielding: 1, hull_armor: 1, speed: 1, range: 1, efficiency: 1 },
 },
 {
   id: "stealth_boat",                 // unique id, matches unlocks.units in techTree if you wire one
-  name: "Light Defense Destroyer",
-  description: "Defender Class Destroyer",
+  name: "Stealth boat",
+  description: "Ability to sneal past enemy defenses. Can only be detected by Anti Stealth Tech",
   buildTurns: 1,                     // construction time in ticks
   buildCost: { ferrite_titanium: 150, energy: 80, vrind: 100 },
   baseStats: { attack: 1, defense: 1, stealth: 1, exploration: 1, shielding: 1, hull_armor: 1, speed: 1, range: 1, efficiency: 1 },
