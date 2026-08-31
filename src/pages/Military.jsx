@@ -9,7 +9,7 @@ import ClassFilter from '@/components/military/ClassFilter';
 import { unitClass, UNIT_CLASSES } from '@/lib/unitClasses';
 import { computePlanetDefenseRating } from '@/data/planetDefense';
 import DefenseDashboard from '@/components/military/DefenseDashboard';
-import { Loader2, Sword, Shield } from 'lucide-react';
+import { Loader2, Sword, Shield, Radio, Factory, Crosshair, Activity } from 'lucide-react';
 
 const MILITARY_BG = "https://media.base44.com/images/public/6a8dedaa90af486a558f758e/d4a4244f4_ChatGPTImageAug28202609_39_29PM.png";
 
@@ -114,24 +114,30 @@ export default function Military() {
       <img src={MILITARY_BG} alt="" aria-hidden="true" className="absolute inset-0 w-full h-full object-cover opacity-60" />
       <div className="absolute inset-0" style={{ background: 'linear-gradient(180deg, rgba(5,8,16,0.45) 0%, rgba(5,8,16,0.7) 60%, rgba(5,8,16,0.9) 100%)' }} />
     </div>
-    <div className="max-w-6xl mx-auto px-4 md:px-8 py-8 relative z-10">
-      <div className="flex flex-col items-center text-center mb-6">
-        <Sword className="w-7 h-7 text-cyan-300 mb-2" />
-        <h1 className="font-heading text-2xl md:text-3xl tracking-wide text-white neon-text uppercase">Military</h1>
-        <p className="text-xs md:text-sm text-muted-foreground font-body mt-1">
-          Fleet command — construct, deploy, and upgrade each ship class.
-        </p>
+    <div className="max-w-6xl mx-auto px-4 md:px-8 py-5 md:py-7 relative z-10">
+      <div className="glass-panel-strong rounded-2xl p-4 md:p-5 mb-4">
+        <div className="flex flex-col md:flex-row md:items-center gap-4">
+          <div className="flex items-center gap-3 flex-1 min-w-0">
+            <div className="w-11 h-11 shrink-0 rounded-xl border border-cyan-400/30 bg-cyan-400/10 flex items-center justify-center">
+              <Sword className="w-5 h-5 text-cyan-300" />
+            </div>
+            <div className="min-w-0">
+              <p className="command-label">Imperial Fleet Command · Live</p>
+              <h1 className="font-heading text-xl md:text-2xl tracking-[0.08em] text-white uppercase">Military Operations</h1>
+              <p className="text-[10px] font-mono uppercase tracking-widest text-cyan-200/55">Construct · Upgrade · Organize · Deploy</p>
+            </div>
+          </div>
+          <span className="command-status">Shipyard network online</span>
+        </div>
       </div>
 
       {/* Sticky command bar */}
-      <div className="sticky top-2 z-10 glass-panel rounded-xl px-4 py-2.5 mb-4 flex items-center gap-4">
+      <div className="sticky top-2 z-10 glass-panel-strong rounded-xl px-4 py-2.5 mb-4 flex items-center gap-4">
         <div className="flex items-center gap-4 text-[11px] font-mono uppercase tracking-widest">
-          <span className="text-slate-400">Fleet <span className="text-cyan-200">{totalOwned}</span></span>
-          <span className="text-slate-400">Building <span className="text-amber-300">{totalBuilding}</span></span>
-          <span className="flex items-center gap-1 text-slate-400">
-            <Shield className="w-3 h-3 text-emerald-300" />
-            Defense <span className="text-emerald-200">{defenseRating.toLocaleString()}</span>
-          </span>
+          <span className="flex items-center gap-1.5 text-slate-400"><Crosshair className="w-3 h-3 text-cyan-300" /> Fleet <span className="text-cyan-200">{totalOwned}</span></span>
+          <span className="flex items-center gap-1.5 text-slate-400"><Factory className="w-3 h-3 text-amber-300" /> Building <span className="text-amber-300">{totalBuilding}</span></span>
+          <span className="flex items-center gap-1.5 text-slate-400"><Shield className="w-3 h-3 text-emerald-300" /> Defense <span className="text-emerald-200">{defenseRating.toLocaleString()}</span></span>
+          <span className="hidden md:flex items-center gap-1.5 text-slate-400"><Activity className="w-3 h-3 text-violet-300" /> Classes <span className="text-violet-200">{UNITS.length}</span></span>
         </div>
         <button
           onClick={finalizeBuilds}
@@ -143,9 +149,13 @@ export default function Military() {
 
       <DefenseDashboard empire={empire} unitRecords={Object.values(units)} />
 
+      <div className="flex items-center gap-2 mb-2 px-1">
+        <Radio className="w-3.5 h-3.5 text-cyan-300/60" />
+        <p className="command-label">Fleet Registry · Select a hull to access tactical specifications</p>
+      </div>
       <div className="grid grid-cols-1 lg:grid-cols-[260px_1fr] gap-4">
         {/* Left rail */}
-        <div className="glass-panel rounded-2xl p-3 flex flex-col">
+        <div className="glass-panel-strong rounded-2xl p-3 flex flex-col">
           <ClassFilter active={activeClass} onActive={setActiveClass} query={query} onQuery={setQuery} counts={counts} />
           <div className="mt-3 space-y-1 overflow-y-auto max-h-[60vh] pr-1">
             {filtered.length === 0 ? (
