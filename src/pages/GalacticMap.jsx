@@ -144,7 +144,8 @@ export default function GalacticMap() {
         />
 
         {/* Side panel */}
-        <div className="glass-panel-strong rounded-2xl p-4 flex flex-col relative overflow-hidden"><div className="scanline-overlay" />
+        <div className="glass-panel-strong rounded-2xl p-4 flex flex-col relative overflow-hidden">
+          <div className="scanline-overlay" />
           <div className="flex items-center justify-between gap-3 mb-4">
             <div className="flex items-center gap-2">
               <Target className="w-4 h-4 text-cyan-300" />

@@ -173,7 +173,7 @@ export default function ZoomableGalaxyMap({ empires, myEmpire, fleets, now, myUs
             return (
               <g key={e.id} onClick={() => onSelectId(e.id)} className="cursor-pointer">
                 {sel && (
-                  <circle cx={e.map_x} cy={e.map_y} r={34} fill="none" stroke="rgba(255,255,255,0.55)" strokeWidth={1.5} strokeDasharray="6 5" className="animate-spin-slow" />
+                  <circle cx={e.map_x} cy={e.map_y} r={34} fill="none" stroke="rgba(255,255,255,0.55)" strokeWidth={1.5} strokeDasharray="6 5" className="animate-pulse-glow" />
                 )}
                 {mine && (
                   <circle cx={e.map_x} cy={e.map_y} r={30} fill="none" stroke="rgba(56,189,248,0.5)" strokeWidth={2} className="animate-pulse-glow" />
