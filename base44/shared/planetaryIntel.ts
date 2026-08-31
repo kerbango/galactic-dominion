@@ -55,12 +55,12 @@ export async function collectSystemIntel(svc, target, level) {
 export async function resolveScoutRecon(svc, fleet, target, now, nowIso) {
   if (!target || !INTEL_RANK[fleet.scout_class]) return;
   const report = await collectSystemIntel(svc, target, fleet.scout_class);
-  const found = await svc.entities.PlanetaryIntelligence.filter({ created_by_id: fleet.created_by_id, target_empire_id: target.id });
+  const found = await svc.entities.PlanetaryIntelligence.filter({ owner_id: fleet.created_by_id, target_empire_id: target.id });
   const existing = found[0];
   const level = existing && INTEL_RANK[existing.intelligence_level] > INTEL_RANK[fleet.scout_class] ? existing.intelligence_level : fleet.scout_class;
-  const intelData = { target_empire_id: target.id, target_empire_name: target.empire_name, intelligence_level: level, last_scouted_date: nowIso, ...report };
+  const intelData = { owner_id: fleet.created_by_id, target_empire_id: target.id, target_empire_name: target.empire_name, intelligence_level: level, last_scouted_date: nowIso, ...report };
   if (existing) await svc.entities.PlanetaryIntelligence.update(existing.id, intelData);
-  else await svc.entities.PlanetaryIntelligence.create({ ...intelData, created_by_id: fleet.created_by_id });
+  else await svc.entities.PlanetaryIntelligence.create(intelData);
   const travelMs = Math.round(dist(fleet.origin_x, fleet.origin_y, fleet.target_x, fleet.target_y) * SCOUT_TRAVEL_SECONDS_PER_UNIT) * 1000;
   await svc.entities.Fleet.update(fleet.id, { status: 'in_transit', leg: 'return', survivors: 1, return_departure_date: nowIso, return_arrival_date: new Date(now + travelMs).toISOString() });
 }

@@ -17,7 +17,7 @@ export default async function(req) {
       const report = await collectSystemIntel(svc, target, 'heavy');
       return Response.json({ system_name: target.empire_name, owner_name: target.empire_name, intelligence_level: 'heavy', confirmed: true, mine: true, ...report });
     }
-    const records = await svc.entities.PlanetaryIntelligence.filter({ created_by_id: user.id, target_empire_id: targetId });
+    const records = await svc.entities.PlanetaryIntelligence.filter({ owner_id: user.id, target_empire_id: targetId });
     const intel = records[0];
     if (!intel) return Response.json({ system_name: target.empire_name, owner_name: target.empire_name, intelligence_level: 'none', confirmed: false, mine: false });
     const result = { system_name: target.empire_name, owner_name: target.empire_name, intelligence_level: intel.intelligence_level, confirmed: true, mine: false, last_scouted_date: intel.last_scouted_date };

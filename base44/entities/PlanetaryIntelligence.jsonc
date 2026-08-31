@@ -2,6 +2,11 @@
   "name": "PlanetaryIntelligence",
   "type": "object",
   "properties": {
+    "owner_id": {
+      "type": "string",
+      "title": "Owner ID",
+      "description": "The user id of the player who owns this intelligence record. Set explicitly by the service role because service-role writes stamp created_by_id with the service account, not the player."
+    },
     "target_empire_id": {
       "type": "string",
       "title": "Target System"
@@ -100,6 +105,7 @@
     }
   },
   "required": [
+    "owner_id",
     "target_empire_id",
     "target_empire_name",
     "intelligence_level",
@@ -107,16 +113,16 @@
   ],
   "rls": {
     "read": {
-      "created_by_id": "{{user.id}}"
+      "data.owner_id": "{{user.id}}"
     },
     "create": {
-      "created_by_id": "{{user.id}}"
+      "data.owner_id": "{{user.id}}"
     },
     "update": {
-      "created_by_id": "{{user.id}}"
+      "data.owner_id": "{{user.id}}"
     },
     "delete": {
-      "created_by_id": "{{user.id}}"
+      "data.owner_id": "{{user.id}}"
     }
   }
 }
