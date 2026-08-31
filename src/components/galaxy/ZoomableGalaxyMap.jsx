@@ -49,11 +49,6 @@ export default function ZoomableGalaxyMap({ empires, myEmpire, fleets, now, myUs
     zoomAt(rect.left + rect.width / 2, rect.top + rect.height / 2, factor);
   };
 
-  const onWheel = (e) => {
-    e.preventDefault();
-    const factor = Math.max(0.76, Math.min(1.32, Math.exp(-e.deltaY * 0.0018)));
-    zoomAt(e.clientX, e.clientY, factor);
-  };
 
   const onPointerDown = (e) => {
     e.currentTarget.setPointerCapture?.(e.pointerId);
@@ -152,7 +147,7 @@ export default function ZoomableGalaxyMap({ empires, myEmpire, fleets, now, myUs
           viewBox={`${view.x} ${view.y} ${view.w} ${view.h}`}
           className="w-full h-full touch-none select-none cursor-grab active:cursor-grabbing"
           preserveAspectRatio="xMidYMid meet"
-          onWheel={onWheel}
+
           onPointerDown={onPointerDown}
           onPointerMove={onPointerMove}
           onPointerUp={endDrag}
@@ -231,7 +226,7 @@ export default function ZoomableGalaxyMap({ empires, myEmpire, fleets, now, myUs
           GRID {Math.round(view.x)}:{Math.round(view.y)} · {Math.round(view.w)} UNITS
         </div>
         <div className="absolute bottom-3 right-3 glass-panel rounded-md px-2.5 py-1.5 text-[9px] font-mono uppercase tracking-widest text-cyan-200/55">
-          DRAG TO PAN · WHEEL TO ZOOM
+          DRAG TO PAN · USE BUTTONS TO ZOOM
         </div>
       </div>
     </div>
