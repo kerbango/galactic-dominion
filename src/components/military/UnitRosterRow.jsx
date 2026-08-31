@@ -33,9 +33,10 @@ export default function UnitRosterRow({ unit, unitRecord, unlocked, selected, on
         <span className="block font-heading text-[11px] tracking-wide text-white uppercase truncate">{unit.name}</span>
         <span className="block text-[9px] font-mono uppercase tracking-widest text-slate-500">{unitClass(unit)}</span>
       </span>
-      <span className="text-right shrink-0">
-        <span className="block font-mono text-sm font-bold text-cyan-200 tabular-nums leading-none">{unlocked ? owned : '—'}</span>
-        <span className={`block text-[8px] uppercase tracking-widest ${s.text}`}>{s.label}</span>
+      <span className="text-right shrink-0 flex items-center gap-1.5">
+        <span><span className="block font-mono text-sm font-bold text-cyan-200 tabular-nums leading-none">{unlocked ? owned : '—'}</span>
+        <span className={`block text-[8px] uppercase tracking-widest ${s.text}`}>{s.label}</span></span>
+        <ChevronRight className={`w-3 h-3 transition-transform ${selected ? 'text-cyan-300 translate-x-0.5' : 'text-slate-700 group-hover:text-cyan-300'}`} />
       </span>
     </button>
   );
