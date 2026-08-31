@@ -25,3 +25,26 @@ export const UNIT_CLASSES = [
 export function unitClass(unit) {
   return CLASS_MAP[unit.id] || 'Support';
 }
+
+// Display-only labels for the shipyard UI. Not used by any game logic.
+const CLASS_DISPLAY = {
+  Scouts: 'Scout-Class', Explorers: 'Explorer-Class', Frigates: 'Frigate-Class',
+  Destroyers: 'Destroyer-Class', Cruisers: 'Cruiser-Class', Carriers: 'Carrier-Class',
+  Capital: 'Capital-Class', Support: 'Support-Class', 'Ground Forces': 'Ground Forces',
+  Transport: 'Transport-Class', Defense: 'Planetary Defense',
+};
+
+const ROLE_MAP = {
+  Scouts: 'Reconnaissance', Explorers: 'Deep Space Exploration', Frigates: 'Escort Patrol',
+  Destroyers: 'Hunter-Killer', Cruisers: 'Capital Screen', Carriers: 'Strike Craft Operations',
+  Capital: 'Capital Warship', Support: 'Fleet Support', 'Ground Forces': 'Planetary Assault',
+  Transport: 'Troop Transport', Defense: 'Planetary Defense',
+};
+
+export function unitClassLabel(unit) {
+  return CLASS_DISPLAY[unitClass(unit)] || 'Support-Class';
+}
+
+export function unitRole(unit) {
+  return ROLE_MAP[unitClass(unit)] || 'Fleet Support';
+}
