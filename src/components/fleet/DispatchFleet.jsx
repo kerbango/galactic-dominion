@@ -3,6 +3,7 @@ import { Rocket, Loader2, Package, Footprints, ChevronDown, ChevronUp } from 'lu
 import { base44 } from '@/api/base44Client';
 import { UNITS, isUnitUnlocked } from '@/data/units';
 import ShipManifestSelector from './ShipManifestSelector';
+import DeploymentSummary from './DeploymentSummary';
 
 // Inline dispatch control shown for a rival empire. Creates a fleet record
 // via the dispatchFleet backend function. The player selects actual built
@@ -164,16 +165,22 @@ export default function DispatchFleet({ target, myEmpire, onDispatched }) {
         </div>
       )}
 
+      <DeploymentSummary
+        target={target}
+        myEmpire={myEmpire}
+        manifest={manifest}
+        unitRecords={unitRecords}
+      />
       {error && <p className="text-xs text-destructive">{error}</p>}
       <button
         type="button"
         onClick={handle}
         disabled={!canDispatch}
-        className="command-btn w-full h-10 rounded-lg inline-flex items-center justify-center gap-2 disabled:opacity-50"
+        className="command-btn w-full h-11 rounded-lg inline-flex items-center justify-center gap-2 disabled:opacity-50"
       >
         {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Rocket className="w-4 h-4" />}
         <span className="font-heading text-sm tracking-widest text-white uppercase">
-          {loading ? 'Dispatching...' : 'Dispatch Fleet'}
+          {loading ? 'Deploying...' : 'Deploy Fleet'}
         </span>
       </button>
     </div>
