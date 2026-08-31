@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
-import { Loader2, Radar, Crosshair, Flag, Crown, Navigation, AlertTriangle } from 'lucide-react';
+import { Loader2, Radar, Crosshair, Flag, Crown, Navigation, AlertTriangle, Shield, Radio, Target, Activity } from 'lucide-react';
 import { GRID_SIZE, distance, travelSeconds, formatDuration, lightYears } from '@/lib/galaxy';
 import ZoomableGalaxyMap from '@/components/galaxy/ZoomableGalaxyMap';
 import EmpireSearchSelect from '@/components/galaxy/EmpireSearchSelect';
@@ -94,15 +94,31 @@ export default function GalacticMap() {
   });
 
   return (
-    <div className="max-w-7xl mx-auto px-4 md:px-8 py-8">
-      <div className="flex flex-col items-center text-center gap-1 mb-6">
-        <Radar className="w-7 h-7 text-cyan-300" />
-        <h1 className="font-heading text-2xl md:text-3xl tracking-wide text-white neon-text uppercase">
-          Galactic Map
-        </h1>
-        <p className="text-xs font-mono uppercase tracking-widest text-cyan-200/60">
-          {empireCountLabel(empires.length)} · Sector grid {GRID_SIZE}×{GRID_SIZE}
-        </p>
+    <div className="max-w-7xl mx-auto px-4 md:px-8 py-5 md:py-7">
+      <div className="glass-panel-strong rounded-2xl p-4 md:p-5 mb-4">
+        <div className="flex flex-col md:flex-row md:items-center gap-4">
+          <div className="flex items-center gap-3 flex-1 min-w-0">
+            <div className="w-11 h-11 shrink-0 rounded-xl border border-cyan-400/30 bg-cyan-400/10 flex items-center justify-center">
+              <Radar className="w-5 h-5 text-cyan-300" />
+            </div>
+            <div className="min-w-0">
+              <p className="command-label">Strategic Command Network · Live</p>
+              <h1 className="font-heading text-xl md:text-2xl tracking-[0.08em] text-white uppercase">Galactic Tactical Grid</h1>
+              <p className="text-[10px] font-mono uppercase tracking-widest text-cyan-200/55">{empireCountLabel(empires.length)} · {GRID_SIZE}×{GRID_SIZE} sector theater</p>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 sm:flex items-center gap-2 md:border-l md:border-cyan-400/10 md:pl-5">
+            <div className="rounded-lg border border-cyan-400/10 bg-slate-950/25 px-3 py-2">
+              <p className="command-label">Tracked</p>
+              <p className="font-mono text-sm font-bold tabular-nums">{empires.length}</p>
+            </div>
+            <div className="rounded-lg border border-cyan-400/10 bg-slate-950/25 px-3 py-2">
+              <p className="command-label">Operations</p>
+              <p className="font-mono text-sm font-bold tabular-nums">{inTransit.length}</p>
+            </div>
+            <span className="command-status">Sensors online</span>
+          </div>
+        </div>
       </div>
 
       {!myEmpire &&
@@ -115,7 +131,7 @@ export default function GalacticMap() {
         </div>
       }
 
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_340px] gap-4 lg:gap-5">
         {/* Map */}
         <ZoomableGalaxyMap
           empires={empires}
@@ -128,10 +144,16 @@ export default function GalacticMap() {
         />
 
         {/* Side panel */}
-        <div className="glass-panel rounded-2xl p-4 flex flex-col">
-          <div className="flex items-center gap-2 mb-4">
-            <Crosshair className="w-4 h-4 text-cyan-300" />
-            <h2 className="font-heading text-sm tracking-[0.25em] text-cyan-100 uppercase">Empires</h2>
+        <div className="glass-panel-strong rounded-2xl p-4 flex flex-col">
+          <div className="flex items-center justify-between gap-3 mb-4">
+            <div className="flex items-center gap-2">
+              <Target className="w-4 h-4 text-cyan-300" />
+              <div>
+                <p className="command-label">Tactical Intelligence</p>
+                <h2 className="font-heading text-sm tracking-[0.18em] text-cyan-100 uppercase">Sector Operations</h2>
+              </div>
+            </div>
+            <span className="text-[9px] font-mono uppercase tracking-widest text-muted-foreground">{empires.length} contacts</span>
           </div>
 
           {selected ?
@@ -153,19 +175,28 @@ empires.length === 0 ? (
           <div className="mt-4 pt-4 border-t border-cyan-400/10">
               <div className="flex items-center gap-2 mb-3">
                 <Navigation className="w-4 h-4 text-cyan-300" />
-                <h2 className="font-heading text-sm tracking-[0.25em] text-cyan-100 uppercase">oPERATIONS</h2>
+                <div>
+                  <p className="command-label">Fleet Control</p>
+                  <h2 className="font-heading text-sm tracking-[0.18em] text-cyan-100 uppercase">Active Operations</h2>
+                </div>
               </div>
               <ActiveFleets fleets={visibleFleets} now={now} myUserId={user?.id} />
             </div>
           }
 
-          <div className="mt-4 pt-4 border-t border-cyan-400/10 text-xs font-mono uppercase tracking-widest text-muted-foreground flex items-center gap-4 flex-wrap">
+          <div className="mt-4 pt-4 border-t border-cyan-400/10">
+            <div className="flex items-center gap-2 mb-2">
+              <Radio className="w-3.5 h-3.5 text-cyan-300/60" />
+              <p className="command-label">Contact Classification</p>
+            </div>
+            <div className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground flex items-center gap-x-4 gap-y-2 flex-wrap">
             <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-cyan-400 inline-block" /> You</span>
             <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-violet-400 inline-block" /> Rival</span>
             <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-purple-400 inline-block" /> Sent</span>
             <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-blue-400 inline-block" /> Returning</span>
             <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-rose-500 inline-block animate-flash-red" /> Attacking you</span>
-            <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-orange-400 inline-block animate-pulse-glow" /> In Battle</span>
+              <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-orange-400 inline-block animate-pulse-glow" /> In Battle</span>
+            </div>
           </div>
         </div>
       </div>
