@@ -16,6 +16,8 @@ export default function GalacticMap() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [selectedId, setSelectedId] = useState(null);
+  const [selectedFleetId, setSelectedFleetId] = useState(null);
+  const handleSelectFleet = (id) => setSelectedFleetId((prev) => (prev === id ? null : id));
 
   useEffect(() => {
     let active = true;
@@ -141,6 +143,8 @@ export default function GalacticMap() {
           myUserId={user?.id}
           selectedId={selectedId}
           onSelectId={setSelectedId}
+          selectedFleetId={selectedFleetId}
+          onSelectFleetId={handleSelectFleet}
         />
 
         {/* Side panel */}

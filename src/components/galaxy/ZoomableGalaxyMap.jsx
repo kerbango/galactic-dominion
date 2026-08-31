@@ -16,7 +16,7 @@ const clampView = ({ x, y, w, h }) => {
 // Zoomable, pannable SVG galactic map. Wheel zooms toward the cursor; drag
 // pans; buttons zoom about the centre. Empire markers stay clickable and
 // keep their original sizes regardless of zoom level.
-export default function ZoomableGalaxyMap({ empires, myEmpire, fleets, now, myUserId, selectedId, onSelectId }) {
+export default function ZoomableGalaxyMap({ empires, myEmpire, fleets, now, myUserId, selectedId, onSelectId, selectedFleetId, onSelectFleetId }) {
   const svgRef = useRef(null);
   const [view, setView] = useState({ x: 0, y: 0, w: GRID_SIZE, h: GRID_SIZE });
   const viewRef = useRef(view);
@@ -164,7 +164,7 @@ export default function ZoomableGalaxyMap({ empires, myEmpire, fleets, now, myUs
           <rect x={0} y={0} width={GRID_SIZE} height={GRID_SIZE} fill="none" stroke="rgba(103,232,249,0.28)" strokeWidth={2} rx={8} />
 
           {/* In-transit fleets (rendered under empire markers) */}
-          <FleetMarkers fleets={fleets} now={now} myUserId={myUserId} myEmpireId={myEmpire?.id} />
+          <FleetMarkers fleets={fleets} now={now} myUserId={myUserId} myEmpireId={myEmpire?.id} selectedFleetId={selectedFleetId} onSelectFleetId={onSelectFleetId} />
 
           {/* Empire markers */}
           {empires.map((e) => {
