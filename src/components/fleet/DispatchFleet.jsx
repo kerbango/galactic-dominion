@@ -2,14 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { Rocket, Loader2, Package, Footprints, ChevronDown, ChevronUp } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { UNITS, isUnitUnlocked } from '@/data/units';
+import ShipManifestSelector from './ShipManifestSelector';
 
 // Inline dispatch control shown for a rival empire. Creates a fleet record
-// via the dispatchFleet backend function. In addition to the ship count, the
-// player can expand a ground-forces section to load ground units into Troop
-// Transports (up to total transport capacity). Loaded units are subtracted
-// from the planet's garrison/defense pool server-side.
+// via the dispatchFleet backend function. The player selects actual built
+// warships from their Military inventory (subtracted server-side and restored
+// from survivors on return). Optionally, ground units can be loaded into
+// Troop Transports (up to total transport capacity); loaded units are also
+// subtracted from the planet's garrison/defense pool server-side.
 export default function DispatchFleet({ target, myEmpire, onDispatched }) {
-  const [size, setSize] = useState(10);
+  const [manifest, setManifest] = useState({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [unitRecords, setUnitRecords] = useState({});
@@ -44,6 +46,7 @@ export default function DispatchFleet({ target, myEmpire, onDispatched }) {
   const overCapacity = totalLoaded > totalCapacity;
   const hasGround = totalLoaded > 0;
   const noTransports = hasGround && transportOwned < 1;
+  const totalShips = Object.values(manifest).reduce((s, n) => s + (n || 0), 0);
 
   const handleGroundChange = (unitType, value) => {
     const v = Math.max(0, Math.floor(Number(value) || 0));
@@ -55,13 +58,17 @@ export default function DispatchFleet({ target, myEmpire, onDispatched }) {
     setError('');
     setLoading(true);
     try {
+      const ship_manifest = {};
+      for (const [k, v] of Object.entries(manifest)) {
+        if (v > 0) ship_manifest[k] = v;
+      }
       const ground_forces = {};
       for (const [k, v] of Object.entries(groundSelection)) {
         if (v > 0) ground_forces[k] = v;
       }
       await base44.functions.invoke('dispatchFleet', {
         target_empire_id: target.id,
-        fleet_size: size,
+        ship_manifest,
         ground_forces,
       });
       onDispatched?.();
@@ -72,25 +79,22 @@ export default function DispatchFleet({ target, myEmpire, onDispatched }) {
     }
   };
 
-  const canDispatch = !loading && !overCapacity && !noTransports;
+  const canDispatch = !loading && !overCapacity && !noTransports && totalShips > 0;
 
   return (
     <div className="pt-3 border-t border-cyan-400/10 space-y-3">
       <div className="flex items-center gap-2 mb-1">
         <span className="led led-green" />
-        <label className="command-label">Fleet Size</label>
+        <span className="command-label">Available Forces · Home Garrison</span>
       </div>
-      <div className="flex items-center gap-2">
-        <input
-          type="number"
-          min={1}
-          max={9999}
-          value={size}
-          onChange={(e) => setSize(Math.max(1, Number(e.target.value) || 1))}
-          className="w-20 h-9 rounded-md bg-background/60 border border-cyan-400/20 px-2 font-mono text-sm text-foreground focus:border-cyan-400/60 focus:outline-none"
-        />
-        <span className="text-[10px] font-mono uppercase tracking-widest text-slate-500">ships to deploy</span>
-      </div>
+      <ShipManifestSelector
+        unitRecords={unitRecords}
+        completedTechs={completedTechs}
+        myEmpire={myEmpire}
+        target={target}
+        manifest={manifest}
+        onChange={setManifest}
+      />
 
       {/* Ground forces collapsible */}
       {transportUnlocked && groundUnits.length > 0 && (

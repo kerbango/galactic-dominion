@@ -280,6 +280,26 @@ export default async function(req) {
             }
           }
         }
+        // Return surviving warships to the attacker's inventory. Deployed
+        // ships were subtracted at dispatch; a proportional share of the
+        // survivor total returns home and rejoins the fleet roster.
+        const shipManifest = f.ship_manifest || {};
+        if (attacker && Object.keys(shipManifest).length > 0) {
+          const attackerUnits = await base44.asServiceRole.entities.Unit.filter({ created_by_id: f.created_by_id });
+          const unitMap = {};
+          for (const u of attackerUnits) unitMap[u.unit_type] = u;
+          const manifestTotal = Object.values(shipManifest).reduce((s, n) => s + (n || 0), 0);
+          const survTotal = f.survivors ?? manifestTotal;
+          const rate = manifestTotal > 0 ? survTotal / manifestTotal : 0;
+          for (const [type, count] of Object.entries(shipManifest)) {
+            const rec = unitMap[type];
+            if (!rec) continue;
+            const back = Math.max(0, Math.floor(count * rate));
+            if (back > 0) {
+              await base44.asServiceRole.entities.Unit.update(rec.id, { owned_count: (rec.owned_count || 0) + back });
+            }
+          }
+        }
         await base44.asServiceRole.entities.Fleet.update(f.id, { status: 'arrived' });
         returned += 1;
       }

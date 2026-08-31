@@ -152,6 +152,16 @@
         "minimum": 0
       }
     },
+    "ship_manifest": {
+      "type": "object",
+      "title": "Ship Manifest",
+      "description": "Map of deployed warship unit_type to count for attack fleets. Built ships are subtracted from the Unit inventory at dispatch and partially restored from survivors on return.",
+      "default": {},
+      "additionalProperties": {
+        "type": "number",
+        "minimum": 0
+      }
+    },
     "ground_outcome": {
       "type": "string",
       "enum": [

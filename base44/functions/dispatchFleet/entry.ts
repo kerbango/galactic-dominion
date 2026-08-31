@@ -19,11 +19,9 @@ export default async function(req) {
 
     const body = await req.json().catch(() => ({}));
     const targetEmpireId = body?.target_empire_id;
-    const fleetSize = Number(body?.fleet_size);
     const missionType = body?.mission_type === 'scout' ? 'scout' : 'attack';
     const scoutUnitType = body?.scout_unit_type;
     if (!targetEmpireId) return Response.json({ error: 'target_empire_id is required' }, { status: 400 });
-    if (!Number.isFinite(fleetSize) || fleetSize < 1) return Response.json({ error: 'fleet_size must be a positive number' }, { status: 400 });
 
     // Ground forces manifest: map of ground unit_type → count to deploy.
     const groundForces = body?.ground_forces || {};
@@ -49,6 +47,46 @@ export default async function(req) {
       const scout = records[0];
       if (!scout || (scout.owned_count || 0) < 1) return Response.json({ error: `No available ${getUnit(scoutUnitType)?.name || 'scout'}.` }, { status: 400 });
       await base44.asServiceRole.entities.Unit.update(scout.id, { owned_count: scout.owned_count - 1 });
+    }
+
+    // ── Attack ship manifest: the player's actual constructed ships ──
+    // Deployment must use real built ships. We validate each selected type
+    // against the player's Unit inventory (owned_count already excludes
+    // ships under construction or currently deployed) and subtract the
+    // deployed counts so they cannot be double-deployed. fleet_size is
+    // derived as the total ships in the manifest, preserving the existing
+    // combat calculation which keys off fleet_size.
+    let shipManifest = {};
+    let fleetSize = 1;
+    if (missionType === 'attack') {
+      const raw = body?.ship_manifest || {};
+      const svc = base44.asServiceRole;
+      const myUnits = await svc.entities.Unit.filter({ created_by_id: user.id });
+      const unitMap = {};
+      for (const u of myUnits) unitMap[u.unit_type] = u;
+      const validated = {};
+      let total = 0;
+      for (const [type, rawCount] of Object.entries(raw)) {
+        const count = Math.floor(Number(rawCount) || 0);
+        if (count <= 0) continue;
+        const unit = getUnit(type);
+        if (!unit || unit.category === 'ground' || unit.category === 'defense') {
+          return Response.json({ error: `${type} is not a deployable warship.` }, { status: 400 });
+        }
+        const owned = unitMap[type]?.owned_count || 0;
+        if (count > owned) {
+          return Response.json({ error: `Not enough ${unit.name} available (${owned} owned, ${count} requested).` }, { status: 400 });
+        }
+        validated[type] = count;
+        total += count;
+      }
+      if (total < 1) return Response.json({ error: 'Select at least one warship to deploy.' }, { status: 400 });
+      for (const [type, count] of Object.entries(validated)) {
+        const rec = unitMap[type];
+        await svc.entities.Unit.update(rec.id, { owned_count: (rec.owned_count || 0) - count });
+      }
+      shipManifest = validated;
+      fleetSize = total;
     }
 
     // ── Ground forces validation & depletion ──────────────────────────
@@ -121,6 +159,7 @@ export default async function(req) {
       target_x: target.map_x,
       target_y: target.map_y,
       fleet_size: missionType === 'scout' ? 1 : Math.floor(fleetSize),
+      ship_manifest: missionType === 'scout' ? null : shipManifest,
       mission_type: missionType,
       scout_class: scoutClass,
       scout_unit_type: missionType === 'scout' ? scoutUnitType : null,
