@@ -121,8 +121,15 @@ export default function ZoomableGalaxyMap({ empires, myEmpire, fleets, now, myUs
   const zoom = GRID_SIZE / view.w;
 
   return (
-    <div className="glass-panel-strong rounded-2xl p-3 md:p-4">
-      <div className="relative w-full" style={{ aspectRatio: '1 / 1' }}>
+    <div className="glass-panel-strong rounded-2xl p-2 md:p-3">
+      <div className="flex items-center justify-between gap-3 px-2 py-2 mb-2 border-b border-cyan-400/10">
+        <div className="flex items-center gap-2">
+          <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 shadow-[0_0_8px_rgba(56,189,248,0.8)]" />
+          <p className="command-label">Deep Space Tactical Display</p>
+        </div>
+        <span className="text-[9px] font-mono uppercase tracking-widest text-cyan-200/45">N-S · E-W Grid</span>
+      </div>
+      <div className="relative w-full overflow-hidden rounded-xl border border-cyan-400/15 bg-slate-950/35" style={{ aspectRatio: '1 / 1' }}>
         <svg
           ref={svgRef}
           viewBox={`${view.x} ${view.y} ${view.w} ${view.h}`}
@@ -134,15 +141,27 @@ export default function ZoomableGalaxyMap({ empires, myEmpire, fleets, now, myUs
           onPointerUp={endDrag}
           onPointerLeave={endDrag}
         >
-          {/* Grid lines */}
+          {/* Tactical grid */}
+          <defs>
+            <radialGradient id="spaceGlow" cx="50%" cy="50%" r="70%">
+              <stop offset="0%" stopColor="rgba(14,116,144,0.10)" />
+              <stop offset="100%" stopColor="rgba(2,6,23,0)" />
+            </radialGradient>
+          </defs>
+          <rect x={0} y={0} width={GRID_SIZE} height={GRID_SIZE} fill="url(#spaceGlow)" />
           {Array.from({ length: GRID_SIZE / 100 + 1 }, (_, i) => i * 100).map((c) => (
             <g key={`g-${c}`}>
-              <line x1={c} y1={0} x2={c} y2={GRID_SIZE} stroke="rgba(120,200,230,0.08)" strokeWidth={1} />
-              <line x1={0} y1={c} x2={GRID_SIZE} y2={c} stroke="rgba(120,200,230,0.08)" strokeWidth={1} />
+              <line x1={c} y1={0} x2={c} y2={GRID_SIZE} stroke="rgba(120,200,230,0.075)" strokeWidth={1} />
+              <line x1={0} y1={c} x2={GRID_SIZE} y2={c} stroke="rgba(120,200,230,0.075)" strokeWidth={1} />
             </g>
           ))}
-          {/* Frame */}
-          <rect x={0} y={0} width={GRID_SIZE} height={GRID_SIZE} fill="none" stroke="rgba(120,200,230,0.25)" strokeWidth={2} rx={8} />
+          {Array.from({ length: GRID_SIZE / 500 + 1 }, (_, i) => i * 500).map((c) => (
+            <g key={`m-${c}`}>
+              <line x1={c} y1={0} x2={c} y2={GRID_SIZE} stroke="rgba(56,189,248,0.12)" strokeWidth={1.5} />
+              <line x1={0} y1={c} x2={GRID_SIZE} y2={c} stroke="rgba(56,189,248,0.12)" strokeWidth={1.5} />
+            </g>
+          ))}
+          <rect x={0} y={0} width={GRID_SIZE} height={GRID_SIZE} fill="none" stroke="rgba(103,232,249,0.28)" strokeWidth={2} rx={8} />
 
           {/* In-transit fleets (rendered under empire markers) */}
           <FleetMarkers fleets={fleets} now={now} myUserId={myUserId} myEmpireId={myEmpire?.id} />
@@ -153,17 +172,14 @@ export default function ZoomableGalaxyMap({ empires, myEmpire, fleets, now, myUs
             const sel = selectedId && e.id === selectedId;
             return (
               <g key={e.id} onClick={() => onSelectId(e.id)} className="cursor-pointer">
-                {mine && (
-                  <circle cx={e.map_x} cy={e.map_y} r={26} fill="none" stroke="rgba(56,189,248,0.5)" strokeWidth={2} className="animate-pulse-glow" />
+                {sel && (
+                  <circle cx={e.map_x} cy={e.map_y} r={34} fill="none" stroke="rgba(255,255,255,0.55)" strokeWidth={1.5} strokeDasharray="6 5" className="animate-spin-slow" />
                 )}
-                <circle
-                  cx={e.map_x}
-                  cy={e.map_y}
-                  r={mine ? 9 : 6}
-                  fill={mine ? 'rgba(56,189,248,0.95)' : 'rgba(167,139,250,0.85)'}
-                  stroke={sel ? '#ffffff' : 'rgba(255,255,255,0.4)'}
-                  strokeWidth={sel ? 3 : 1.5}
-                />
+                {mine && (
+                  <circle cx={e.map_x} cy={e.map_y} r={30} fill="none" stroke="rgba(56,189,248,0.5)" strokeWidth={2} className="animate-pulse-glow" />
+                )}
+                <circle cx={e.map_x} cy={e.map_y} r={mine ? 10 : 7} fill={mine ? 'rgba(56,189,248,0.95)' : 'rgba(167,139,250,0.9)'} stroke={sel ? '#ffffff' : 'rgba(255,255,255,0.45)'} strokeWidth={sel ? 3 : 1.5} />
+                <circle cx={e.map_x} cy={e.map_y} r={mine ? 3 : 2} fill="rgba(224,247,255,0.95)" />
                 <text
                   x={e.map_x}
                   y={e.map_y - 14}
@@ -188,21 +204,28 @@ export default function ZoomableGalaxyMap({ empires, myEmpire, fleets, now, myUs
         </svg>
 
         {/* Zoom controls */}
-        <div className="absolute top-3 right-3 flex flex-col gap-2">
-          <button onClick={() => zoomCenter(1.6)} className="w-11 h-11 rounded-lg glass-panel-strong flex items-center justify-center text-cyan-200 hover:text-white transition-colors" title="Zoom in">
+        <div className="absolute top-3 right-3 flex flex-col gap-1.5">
+          <div className="glass-panel-strong rounded-lg px-2 py-1.5 text-center">
+            <p className="text-[8px] font-mono uppercase tracking-widest text-cyan-200/50">Scale</p>
+            <p className="font-mono text-[10px] text-cyan-200">{zoom.toFixed(1)}×</p>
+          </div>
+          <button onClick={() => zoomCenter(1.6)} className="command-btn w-10 h-10 rounded-lg flex items-center justify-center" title="Zoom in">
             <ZoomIn className="w-4 h-4" />
           </button>
-          <button onClick={() => zoomCenter(1 / 1.6)} className="w-11 h-11 rounded-lg glass-panel-strong flex items-center justify-center text-cyan-200 hover:text-white transition-colors" title="Zoom out">
+          <button onClick={() => zoomCenter(1 / 1.6)} className="command-btn w-10 h-10 rounded-lg flex items-center justify-center" title="Zoom out">
             <ZoomOut className="w-4 h-4" />
           </button>
-          <button onClick={reset} className="w-11 h-11 rounded-lg glass-panel-strong flex items-center justify-center text-cyan-200 hover:text-white transition-colors" title="Reset view">
+          <button onClick={reset} className="command-btn w-10 h-10 rounded-lg flex items-center justify-center" title="Reset tactical view">
             <Maximize className="w-4 h-4" />
           </button>
         </div>
 
         {/* Zoom level indicator */}
-        <div className="absolute bottom-3 left-3 glass-panel rounded-md px-2 py-1 text-xs font-mono uppercase tracking-widest text-cyan-200/80">
-          {zoom.toFixed(1)}× · {Math.round(view.w)} units
+        <div className="absolute bottom-3 left-3 glass-panel rounded-md px-2.5 py-1.5 text-[9px] font-mono uppercase tracking-widest text-cyan-200/75">
+          GRID {Math.round(view.x)}:{Math.round(view.y)} · {Math.round(view.w)} UNITS
+        </div>
+        <div className="absolute bottom-3 right-3 glass-panel rounded-md px-2.5 py-1.5 text-[9px] font-mono uppercase tracking-widest text-cyan-200/55">
+          DRAG TO PAN · WHEEL TO ZOOM
         </div>
       </div>
     </div>
