@@ -3,6 +3,13 @@ import { authorizeTick } from '../../shared/authGuard.ts';
 import { getUnit } from '../../shared/units.ts';
 import { computePlanetDefenseRating, computeGroundStrength, computeGarrisonStrength } from '../../shared/planetDefense.ts';
 import { collectSystemIntel, INTEL_RANK, resolveScoutRecon } from '../../shared/planetaryIntel.ts';
+import {
+  computeAttackerSpaceStrength,
+  computeDefenderSpaceStrength,
+  attackerFleetDefenseBonus,
+  allocateFleetSurvivors,
+  computeFleetLosses,
+} from '../../shared/spaceCombat.ts';
 
 // Processes every active fleet whose current phase has elapsed:
 //   • outbound arrival  → enter a visible "In Battle" window (status=in_battle)
@@ -37,29 +44,66 @@ const BATTLE_CAP_MS = 15 * 60 * 1000;
 const battleDurationMs = (fleetSize) =>
   Math.min(BATTLE_BASE_MS + Math.floor((fleetSize || 0) / 1000) * BATTLE_PER_1000_MS, BATTLE_CAP_MS);
 
-// --- Placeholder combat tuning -------------------------------------------
-const DEFENDER_STRENGTH = 50;        // fixed defender strength until real math
-const ATTACKER_POWER_PER_SHIP = 10;  // attacker strength = fleet_size * this
-const SURVIVOR_RATE_WIN = 0.7;       // fraction of ships that survive a win
-const SURVIVOR_RATE_LOSS = 0.3;      // fraction that survive a loss
+// --- Combat tuning -------------------------------------------------------
+// Legacy fallback for fleets without a ship_manifest (created before the
+// manifest system). New fleets always use the real ship-manifest formula.
+const LEGACY_ATTACKER_POWER_PER_SHIP = 10;
+const SURVIVOR_RATE_WIN = 0.7;       // base fraction of ships that survive a win
+const SURVIVOR_RATE_LOSS = 0.3;      // base fraction that survive a loss
+const SURVIVOR_RATE_CAP = 0.95;      // fleet-defense upgrades cannot make a fleet near-invincible
 const LOOT_RATE = 0.2;               // on a win, steal this fraction of each resource
 const GROUND_LOOT_RATE = 0.15;       // additional plunder when ground forces win
 const RES_KEYS = ['aetherium_crystal', 'ferrite_titanium', 'energy', 'vrind'];
 
-// Resolves combat for a fleet whose battle has ended: computes the space
-// combat win/loss, steals loot from the defender on a win, then — if ground
-// forces are present and the space battle was won — resolves the sequential
-// two-phase ground assault (Planet Defense Rating, then garrison troops),
-// and starts the return leg home.
-async function resolveCombatAndReturn(base44, f, byId, now, nowIso) {
+// Resolves combat for a fleet whose battle has ended: computes real space
+// combat win/loss from the ship_manifest and the defender's planetary
+// defenses + stationed warships, steals loot from the defender on a win,
+// then — if ground forces are present and the space battle was won —
+// resolves the sequential two-phase ground assault (Planet Defense Rating,
+// then garrison troops), and starts the return leg home.
+async function resolveCombatAndReturn(base44, f, byId, byOwnerId, now, nowIso) {
   const svc = base44.asServiceRole;
   const defender = byId.get(f.target_empire_id);
-  const attackerStrength = (f.fleet_size || 0) * ATTACKER_POWER_PER_SHIP;
-  const win = attackerStrength > DEFENDER_STRENGTH;
-  const survivors = Math.max(
-    1,
-    Math.ceil((f.fleet_size || 1) * (win ? SURVIVOR_RATE_WIN : SURVIVOR_RATE_LOSS))
-  );
+  const attackerEmpire = byOwnerId.get(f.created_by_id);
+
+  // Read attacker + defender Unit records once — used for both space-combat
+  // strength (per-type upgrade multipliers) and the ground phase.
+  const attackerUnits = await svc.entities.Unit.filter({ created_by_id: f.created_by_id });
+  const attackerUpgrades = {};
+  for (const u of attackerUnits) attackerUpgrades[u.unit_type] = u.upgrade_levels || {};
+  const defenderUnits = defender
+    ? await svc.entities.Unit.filter({ created_by_id: defender.created_by_id })
+    : [];
+
+  const manifest = f.ship_manifest || {};
+  const hasManifest = Object.values(manifest).some((n) => n > 0);
+
+  let win;
+  let survivors;               // total survivor count (stored for CombatLog)
+  let shipLosses = null;      // per-type losses (stored for return + CombatLog)
+
+  if (hasManifest) {
+    const attackerStrength = computeAttackerSpaceStrength(manifest, attackerUpgrades, attackerEmpire);
+    const defenderStrength = computeDefenderSpaceStrength(defender, defenderUnits);
+    win = attackerStrength > defenderStrength;
+    const totalShips = Object.values(manifest).reduce((s, n) => s + (n || 0), 0);
+    const defenseBonus = attackerFleetDefenseBonus(attackerEmpire);
+    const rate = Math.min(SURVIVOR_RATE_CAP, (win ? SURVIVOR_RATE_WIN : SURVIVOR_RATE_LOSS) + defenseBonus);
+    // At least one ship always returns to report the outcome.
+    const survivorCount = Math.max(1, Math.round(totalShips * rate));
+    const survivorMap = allocateFleetSurvivors(manifest, attackerUpgrades, survivorCount);
+    survivors = Object.values(survivorMap).reduce((s, n) => s + n, 0);
+    shipLosses = computeFleetLosses(manifest, survivorMap);
+  } else {
+    // Legacy fleet (no ship_manifest): preserve the original fallback math.
+    const attackerStrength = (f.fleet_size || 0) * LEGACY_ATTACKER_POWER_PER_SHIP;
+    const defenderStrength = defender ? 50 : 0;
+    win = attackerStrength > defenderStrength;
+    survivors = Math.max(
+      1,
+      Math.ceil((f.fleet_size || 1) * (win ? SURVIVOR_RATE_WIN : SURVIVOR_RATE_LOSS))
+    );
+  }
 
   let loot = null;
   if (win && defender) {
@@ -79,14 +123,6 @@ async function resolveCombatAndReturn(base44, f, byId, now, nowIso) {
   let groundSurvivors = {};
   const groundForces = f.ground_forces || {};
   if (win && defender && Object.keys(groundForces).length > 0) {
-    // Read attacker's Unit records for per-type upgrade levels.
-    const attackerUnits = await svc.entities.Unit.filter({ created_by_id: f.created_by_id });
-    const attackerUpgrades = {};
-    for (const u of attackerUnits) attackerUpgrades[u.unit_type] = u.upgrade_levels || {};
-
-    // Read defender's Unit records for PDR + garrison strength.
-    const defenderUnits = await svc.entities.Unit.filter({ created_by_id: defender.created_by_id });
-
     // Phase 1 — attacker ground strength vs Planet Defense Rating.
     const attackerGroundStr = computeGroundStrength(groundForces, attackerUpgrades);
     const pdr = computePlanetDefenseRating(defender, defenderUnits);
@@ -163,7 +199,7 @@ async function resolveCombatAndReturn(base44, f, byId, now, nowIso) {
   const returnTravelMs = Math.round(d * TRAVEL_SECONDS_PER_UNIT) * 1000;
   const returnArrival = new Date(now + returnTravelMs).toISOString();
 
-  await svc.entities.Fleet.update(f.id, {
+  const update = {
     status: 'in_transit',
     leg: 'return',
     outcome: win ? 'win' : 'loss',
@@ -173,7 +209,9 @@ async function resolveCombatAndReturn(base44, f, byId, now, nowIso) {
     ground_survivors: groundSurvivors,
     return_departure_date: nowIso,
     return_arrival_date: returnArrival,
-  });
+  };
+  if (shipLosses) update.ship_losses = shipLosses;
+  await svc.entities.Fleet.update(f.id, update);
 }
 
 async function completeScoutAndReturn(base44, fleet, target, now, nowIso) {
@@ -219,7 +257,7 @@ export default async function(req) {
         // --- Battle window elapsed: resolve combat, begin the return leg ---
         const battleEndMs = new Date(f.battle_end_date).getTime();
         if (!battleEndMs || battleEndMs > now) continue; // still fighting
-        await resolveCombatAndReturn(base44, f, byId, now, nowIso);
+        await resolveCombatAndReturn(base44, f, byId, byOwnerId, now, nowIso);
         resolved += 1;
         continue;
       }
@@ -245,7 +283,7 @@ export default async function(req) {
           });
           enteredBattle += 1;
         } else {
-          await resolveCombatAndReturn(base44, f, byId, now, nowIso);
+          await resolveCombatAndReturn(base44, f, byId, byOwnerId, now, nowIso);
           resolved += 1;
         }
       } else {
@@ -281,20 +319,21 @@ export default async function(req) {
           }
         }
         // Return surviving warships to the attacker's inventory. Deployed
-        // ships were subtracted at dispatch; a proportional share of the
-        // survivor total returns home and rejoins the fleet roster.
+        // ships were subtracted at dispatch; the exact per-type survivor
+        // counts (derived from ship_losses at resolution time) are restored
+        // — no proportional rounding, so a rare capital ship is never
+        // silently lost to floor().
         const shipManifest = f.ship_manifest || {};
+        const shipLosses = f.ship_losses || {};
         if (attacker && Object.keys(shipManifest).length > 0) {
           const attackerUnits = await base44.asServiceRole.entities.Unit.filter({ created_by_id: f.created_by_id });
           const unitMap = {};
           for (const u of attackerUnits) unitMap[u.unit_type] = u;
-          const manifestTotal = Object.values(shipManifest).reduce((s, n) => s + (n || 0), 0);
-          const survTotal = f.survivors ?? manifestTotal;
-          const rate = manifestTotal > 0 ? survTotal / manifestTotal : 0;
           for (const [type, count] of Object.entries(shipManifest)) {
             const rec = unitMap[type];
             if (!rec) continue;
-            const back = Math.max(0, Math.floor(count * rate));
+            const lost = shipLosses[type] || 0;
+            const back = Math.max(0, (count || 0) - lost);
             if (back > 0) {
               await base44.asServiceRole.entities.Unit.update(rec.id, { owned_count: (rec.owned_count || 0) + back });
             }

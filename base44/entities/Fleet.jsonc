@@ -162,6 +162,16 @@
         "minimum": 0
       }
     },
+    "ship_losses": {
+      "type": "object",
+      "title": "Ship Losses",
+      "description": "Map of deployed warship unit_type to count lost in the space battle. Set at combat resolution; the return leg restores (manifest - losses) per type exactly, with no proportional rounding.",
+      "default": {},
+      "additionalProperties": {
+        "type": "number",
+        "minimum": 0
+      }
+    },
     "ground_outcome": {
       "type": "string",
       "enum": [
