@@ -12,6 +12,24 @@ import CommandSection from './CommandSection';
 const LEVEL = { none: 'UNKNOWN / UNCONFIRMED', light: 'LIGHT SCOUT', medium: 'MEDIUM SCOUT', heavy: 'HEAVY SCOUT' };
 const LEVEL_COLOR = { none: 'text-slate-400', light: 'text-cyan-300', medium: 'text-cyan-200', heavy: 'text-emerald-300' };
 
+// Relative time for staleness indication: "14m ago", "3h ago", "2d ago".
+// Falls back to a locale date for older entries. Uses the existing
+// last_scouted_date on the PlanetaryIntelligence record — no new database
+// field or expiration system.
+function formatStale(dateStr) {
+  const then = new Date(dateStr).getTime();
+  if (!then) return 'Never';
+  const diffMs = Date.now() - then;
+  const mins = Math.floor(diffMs / 60000);
+  if (mins < 1) return 'Just now';
+  if (mins < 60) return `${mins}m ago`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours}h ${mins % 60}m ago`;
+  const days = Math.floor(hours / 24);
+  if (days < 7) return `${days}d ago`;
+  return new Date(dateStr).toLocaleDateString();
+}
+
 // Operation button with clear AVAILABLE / UNAVAILABLE visual states.
 function OpButton({ active, available, label, Icon, onClick, primary }) {
   return (
@@ -115,7 +133,7 @@ export default function PlanetaryCommand({ target, myEmpire, relationship, scout
           </div>
           <div className="rounded-lg border border-cyan-400/15 bg-slate-950/35 p-2.5">
             <p className="command-label">Last Scouted</p>
-            <p className="mt-1 font-mono text-xs text-cyan-100">{intel.last_scouted_date ? new Date(intel.last_scouted_date).toLocaleDateString() : 'Never'}</p>
+            <p className="mt-1 font-mono text-xs text-cyan-100">{intel.last_scouted_date ? formatStale(intel.last_scouted_date) : 'Never'}</p>
           </div>
         </div>
         <div className="mt-2 flex items-center justify-between rounded-lg border border-cyan-400/15 bg-slate-950/35 p-2.5">
@@ -173,7 +191,7 @@ export default function PlanetaryCommand({ target, myEmpire, relationship, scout
           </div>
 
           {mode === 'forces' && <DispatchFleet target={target} myEmpire={myEmpire} onDispatched={() => setMode(null)} />}
-          {mode === 'scout' && <ScoutDispatch target={target} onDispatched={() => setMode(null)} />}
+          {mode === 'scout' && <ScoutDispatch target={target} myEmpire={myEmpire} onDispatched={() => setMode(null)} />}
           {mode === 'spy' && <ComingSoonPanel title="Spy Network" description="No operational spy network is deployed in this sector. Intelligence must be gathered via scout reconnaissance." onClose={() => setMode(null)} />}
           {mode === 'talks' && <ComingSoonPanel title="Diplomatic Channels" description="Diplomatic relations are not yet established with this system. Subspace negotiations are unavailable." onClose={() => setMode(null)} />}
         </CommandSection>

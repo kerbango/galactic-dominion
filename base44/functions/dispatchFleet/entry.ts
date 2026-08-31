@@ -1,14 +1,11 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
 import { getUnit } from '../../shared/units.ts';
+import { scoutSecondsPerUnit } from '../../shared/planetaryIntel.ts';
 
 // Must match src/lib/galaxy.js TRAVEL_SECONDS_PER_UNIT — travel time is
 // computed server-side from the grid distance so the arrival timestamp the
 // client stores is authoritative and can't be tampered with from the UI.
 const TRAVEL_SECONDS_PER_UNIT = 8;
-// TEMPORARY TESTING OVERRIDE: scout missions use a much shorter travel speed so
-// reconnaissance round-trips resolve in seconds during QA. Attack fleets keep
-// the normal pacing. Revert to TRAVEL_SECONDS_PER_UNIT when testing is done.
-const SCOUT_TRAVEL_SECONDS_PER_UNIT = 0.5;
 const dist = (ax, ay, bx, by) => Math.hypot(ax - bx, ay - by);
 
 export default async function(req) {
@@ -43,6 +40,17 @@ export default async function(req) {
       const scoutTypes = { light_scout: 'light', medium_scout: 'medium', heavy_scout: 'heavy' };
       scoutClass = scoutTypes[scoutUnitType];
       if (!scoutClass) return Response.json({ error: 'Select a valid Light, Medium, or Heavy Scout.' }, { status: 400 });
+
+      // Prevent duplicate scout missions to the same target. A returning
+      // scout (in_transit + leg=return) does not block a new dispatch, but
+      // an outbound or at-target scout does.
+      const existingScouts = await base44.asServiceRole.entities.Fleet.filter({ created_by_id: user.id, target_empire_id: targetEmpireId, mission_type: 'scout' });
+      const hasActiveScout = existingScouts.some((f) => {
+        if (f.status === 'in_transit' && f.leg === 'return') return false;
+        return ['in_transit', 'awaiting_recon', 'scouting'].includes(f.status);
+      });
+      if (hasActiveScout) return Response.json({ error: 'You already have a scout assigned to this target.' }, { status: 400 });
+
       const records = await base44.asServiceRole.entities.Unit.filter({ created_by_id: user.id, unit_type: scoutUnitType });
       const scout = records[0];
       if (!scout || (scout.owned_count || 0) < 1) return Response.json({ error: `No available ${getUnit(scoutUnitType)?.name || 'scout'}.` }, { status: 400 });
@@ -144,7 +152,7 @@ export default async function(req) {
     }
 
     const d = dist(origin.map_x, origin.map_y, target.map_x, target.map_y);
-    const speed = missionType === 'scout' ? SCOUT_TRAVEL_SECONDS_PER_UNIT : TRAVEL_SECONDS_PER_UNIT;
+    const speed = missionType === 'scout' ? scoutSecondsPerUnit(scoutUnitType) : TRAVEL_SECONDS_PER_UNIT;
     const travelSeconds = Math.round(d * speed);
     const now = new Date();
     const arrival = new Date(now.getTime() + travelSeconds * 1000);

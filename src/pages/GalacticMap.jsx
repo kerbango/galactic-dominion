@@ -19,6 +19,7 @@ export default function GalacticMap() {
   const [selectedId, setSelectedId] = useState(null);
   const [selectedFleetId, setSelectedFleetId] = useState(null);
   const [centerOn, setCenterOn] = useState(null);
+  const [intelMap, setIntelMap] = useState({});
   const handleSelectFleet = (id) => setSelectedFleetId((prev) => (prev === id ? null : id));
   const focusFleet = (fleet) => {
     setSelectedFleetId(fleet.id);
@@ -55,7 +56,19 @@ export default function GalacticMap() {
     const poll = setInterval(() => {
       base44.entities.Fleet.list('-created_date', 200).then((f) => setFleets(f)).catch(() => {});
     }, 30000);
-    return () => {active = false;unsubscribe();clearInterval(poll);};
+    // Fetch the player's PlanetaryIntelligence records so system markers
+    // can show intel-level badges. Re-fetches whenever a scout returns or
+    // a recon completes (caught by the fleet poll above) so badges update.
+    const loadIntel = () => {
+      base44.entities.PlanetaryIntelligence.list('-created_date', 500).then((rows) => {
+        const map = {};
+        for (const r of rows) map[r.target_empire_id] = r.intelligence_level;
+        setIntelMap(map);
+      }).catch(() => {});
+    };
+    loadIntel();
+    const intelPoll = setInterval(loadIntel, 30000);
+    return () => {active = false;unsubscribe();clearInterval(poll);clearInterval(intelPoll);};
   }, []);
 
   // Per-second tick drives the live countdowns and fleet position animation.
@@ -188,6 +201,7 @@ export default function GalacticMap() {
           selectedFleetId={selectedFleetId}
           onSelectFleetId={handleSelectFleet}
           centerOn={centerOn}
+          intelMap={intelMap}
         />
 
         {/* Side panel */}

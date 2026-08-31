@@ -21,7 +21,7 @@ const stableIndex = (value) => {
   return Math.abs(hash) % PLANETS.length;
 };
 
-export default function SystemMarker({ empire, mine, selected, hostile, contested, zoom, inView, onSelect }) {
+export default function SystemMarker({ empire, mine, selected, hostile, contested, intelLevel, zoom, inView, onSelect }) {
   const x = empire.map_x;
   const y = empire.map_y;
   const ownership = mine ? OWNERSHIP.player : hostile ? OWNERSHIP.hostile : OWNERSHIP.neutral;
@@ -106,6 +106,20 @@ export default function SystemMarker({ empire, mine, selected, hostile, conteste
         )}
 
         <circle cx="0" cy="0" r={markerRadius + 14} fill="transparent" />
+
+        {/* Intelligence-level badge — subtle indicator of known intel for
+            this system. L = light, M = medium, H = heavy. Only shown for
+            rival systems the player has scouted; own systems and unknowns
+            show nothing (own systems are fully visible). Positioned at the
+            bottom-right of the marker ring so it never obscures the planet. */}
+        {!mine && intelLevel && intelLevel !== 'none' && (
+          <g transform={`translate(${markerRadius - 2} ${markerRadius - 2})`} style={{ pointerEvents: 'none' }}>
+            <circle r={detailed ? 7 : 5.5} fill="#050810" stroke={intelLevel === 'heavy' ? '#34d399' : intelLevel === 'medium' ? '#67e8f9' : '#7dd3fc'} strokeWidth="1" />
+            <text textAnchor="middle" dominantBaseline="central" fontSize={detailed ? 7 : 5.5} fontFamily="Orbitron, sans-serif" fontWeight="700" fill={intelLevel === 'heavy' ? '#34d399' : intelLevel === 'medium' ? '#67e8f9' : '#7dd3fc'}>
+              {intelLevel === 'heavy' ? 'H' : intelLevel === 'medium' ? 'M' : 'L'}
+            </text>
+          </g>
+        )}
       </g>
     </g>
   );

@@ -1,3 +1,5 @@
+import { getUnit } from '@/data/units';
+
 // Galaxy coordinate-space constants shared by the map view and travel UI.
 export const GRID_SIZE = 3000;
 export const MIN_DISTANCE = 200;
@@ -5,10 +7,23 @@ export const MIN_DISTANCE = 200;
 // (1000 units) takes ~133 minutes; the minimum spawn gap of 200 units is ~27
 // minutes — meaningful enough to matter strategically.
 export const TRAVEL_SECONDS_PER_UNIT = 8;
-// TEMPORARY TESTING OVERRIDE: scout missions travel much faster so
-// reconnaissance round-trips resolve in seconds during QA. Revert to
-// TRAVEL_SECONDS_PER_UNIT when testing is done.
-export const SCOUT_TRAVEL_SECONDS_PER_UNIT = 0.5;
+
+// Reference speed for travel-time scaling. A ship with this speed stat
+// travels at the base rate (TRAVEL_SECONDS_PER_UNIT). Faster ships
+// proportionally reduce travel time; slower ships increase it. Combat fleets
+// use the flat base rate; scouts derive their speed from the unit's speed stat.
+const BASE_SPEED = 40;
+
+// Scout travel speed derived from the scout's ship speed stat. Scouts are
+// purpose-built for reconnaissance: a Light Scout (speed 75) travels roughly
+// 2× faster than a combat fleet, Medium (80) and Heavy (82) progressively
+// faster, and the Phase Scout (88) is the fastest reconnaissance vessel.
+export function scoutSecondsPerUnit(scoutUnitType) {
+  const unit = getUnit(scoutUnitType);
+  const speed = unit?.baseStats?.speed;
+  if (!speed || speed <= 0) return TRAVEL_SECONDS_PER_UNIT;
+  return TRAVEL_SECONDS_PER_UNIT * (BASE_SPEED / speed);
+}
 
 export function distance(a, b) {
   if (a.map_x == null || a.map_y == null || b.map_x == null || b.map_y == null) return null;
@@ -22,10 +37,12 @@ export function lightYears(units) {
   return units / 5;
 }
 
-export function travelSeconds(units, missionType) {
+export function travelSeconds(units, missionType, scoutUnitType) {
   if (units == null) return null;
-  const speed = missionType === 'scout' ? SCOUT_TRAVEL_SECONDS_PER_UNIT : TRAVEL_SECONDS_PER_UNIT;
-  return Math.round(units * speed);
+  if (missionType === 'scout' && scoutUnitType) {
+    return Math.round(units * scoutSecondsPerUnit(scoutUnitType));
+  }
+  return Math.round(units * TRAVEL_SECONDS_PER_UNIT);
 }
 
 export function formatDuration(totalSeconds) {

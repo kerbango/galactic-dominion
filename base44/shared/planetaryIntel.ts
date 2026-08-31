@@ -4,8 +4,23 @@ import { computePlanetDefenseRating } from './planetDefense.ts';
 export const INTEL_RANK = { light: 1, medium: 2, heavy: 3 };
 export const SCOUT_UNITS = { light_scout: 'light', medium_scout: 'medium', heavy_scout: 'heavy' };
 
-// TEMPORARY TESTING OVERRIDE: scout travel speed (matches dispatchFleet/processFleets).
-export const SCOUT_TRAVEL_SECONDS_PER_UNIT = 0.5;
+// Reference speed for travel-time scaling. A ship with this speed stat
+// travels at the base rate (TRAVEL_SECONDS_PER_UNIT). Scouts derive their
+// travel speed from the unit's speed stat, making them meaningfully faster
+// than combat fleets while preserving the class progression:
+// Light (75) < Medium (80) < Heavy (82) < Phase (88).
+const BASE_SPEED = 40;
+const TRAVEL_SECONDS_PER_UNIT = 8;
+
+// Scout travel speed derived from the scout's ship speed stat. Must match
+// src/lib/galaxy.js scoutSecondsPerUnit so client ETA and server arrival
+// timestamp agree.
+export function scoutSecondsPerUnit(scoutUnitType) {
+  const unit = getUnit(scoutUnitType);
+  const speed = unit?.baseStats?.speed;
+  if (!speed || speed <= 0) return TRAVEL_SECONDS_PER_UNIT;
+  return TRAVEL_SECONDS_PER_UNIT * (BASE_SPEED / speed);
+}
 
 // Recon scan duration per scout class (seconds). The scout must remain at the
 // target for this duration before intelligence is collected.
@@ -61,6 +76,6 @@ export async function resolveScoutRecon(svc, fleet, target, now, nowIso) {
   const intelData = { owner_id: fleet.created_by_id, target_empire_id: target.id, target_empire_name: target.empire_name, intelligence_level: level, last_scouted_date: nowIso, ...report };
   if (existing) await svc.entities.PlanetaryIntelligence.update(existing.id, intelData);
   else await svc.entities.PlanetaryIntelligence.create(intelData);
-  const travelMs = Math.round(dist(fleet.origin_x, fleet.origin_y, fleet.target_x, fleet.target_y) * SCOUT_TRAVEL_SECONDS_PER_UNIT) * 1000;
+  const travelMs = Math.round(dist(fleet.origin_x, fleet.origin_y, fleet.target_x, fleet.target_y) * scoutSecondsPerUnit(fleet.scout_unit_type)) * 1000;
   await svc.entities.Fleet.update(fleet.id, { status: 'in_transit', leg: 'return', survivors: 1, return_departure_date: nowIso, return_arrival_date: new Date(now + travelMs).toISOString() });
 }
