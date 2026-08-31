@@ -1,5 +1,5 @@
 import React from 'react';
-import { Ship, Lock, Package, Footprints, Building2 } from 'lucide-react';
+import { Ship, Lock, Package, Footprints, Building2, ChevronRight } from 'lucide-react';
 import { unitClass } from '@/lib/unitClasses';
 
 // A single slim row in the left roster rail. Status is encoded as an LED pip
@@ -23,7 +23,7 @@ export default function UnitRosterRow({ unit, unitRecord, unlocked, selected, on
   return (
     <button
       onClick={onClick}
-      className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-left transition-colors border ${selected ? 'border-cyan-400/60 bg-cyan-400/10' : 'border-transparent hover:bg-slate-800/40'}`}
+      className={`group w-full flex items-center gap-2.5 px-2.5 py-2.5 rounded-xl text-left transition-all border ${selected ? 'border-cyan-400/60 bg-cyan-400/10 shadow-[inset_2px_0_0_rgba(56,189,248,0.75),0_0_18px_rgba(56,189,248,0.06)]' : 'border-transparent hover:border-cyan-400/15 hover:bg-slate-800/40'}`}
     >
       <span className={`led ${s.led}`} />
       <span className={`shrink-0 inline-flex items-center justify-center w-7 h-7 rounded-md border ${unlocked ? 'border-cyan-400/25 bg-cyan-400/10' : 'border-slate-700/40 bg-slate-800/40'}`}>
