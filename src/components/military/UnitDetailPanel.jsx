@@ -3,7 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { useEmpire } from '@/lib/EmpireContext';
 import { getTech } from '@/lib/techLayout';
 import { unitStatMultipliers, upgradesForUnit } from '@/data/unitUpgrades';
-import { Ship, Lock, Loader2, Package, Footprints, Building2 } from 'lucide-react';
+import { Ship, Lock, Loader2, Package, Footprints, Building2, Crosshair, Factory, BarChart3 } from 'lucide-react';
 import StatBar from './StatBar';
 import ConstructionTimer from './ConstructionTimer';
 import UnitUpgradeList from './UnitUpgradeList';
@@ -50,6 +50,13 @@ export default function UnitDetailPanel({ unit, unitRecord, unlocked, onBuilt })
 
   return (
     <div className={`glass-panel-strong rounded-2xl p-5 flex flex-col ${unlocked ? '' : 'opacity-70'}`}>
+      <div className="flex items-center justify-between gap-3 pb-3 mb-4 border-b border-cyan-400/10">
+        <div className="flex items-center gap-2">
+          <Crosshair className="w-3.5 h-3.5 text-cyan-300/70" />
+          <p className="command-label">Hull Specification</p>
+        </div>
+        <span className="text-[9px] font-mono uppercase tracking-widest text-cyan-200/45">Tactical Data</span>
+      </div>
       <div className="flex items-start gap-3 mb-4">
         <div className={`shrink-0 inline-flex items-center justify-center w-12 h-12 rounded-xl border ${unlocked ? 'border-cyan-400/30 bg-cyan-400/10' : 'border-slate-600/40 bg-slate-700/30'}`}>
           {unlocked ? <CatIcon className="w-6 h-6 text-cyan-300" /> : <Lock className="w-6 h-6 text-slate-400" />}
@@ -68,6 +75,10 @@ export default function UnitDetailPanel({ unit, unitRecord, unlocked, onBuilt })
 
       {unlocked ? (
         <>
+          <div className="flex items-center gap-2 mb-2">
+            <BarChart3 className="w-3.5 h-3.5 text-cyan-300/60" />
+            <p className="command-label">Combat Performance</p>
+          </div>
           <div className="space-y-1.5 mb-4">
             {statDisplay.map(({ key, icon, label }) => {
               const base = unit.baseStats[key] ?? 0;
@@ -88,7 +99,11 @@ export default function UnitDetailPanel({ unit, unitRecord, unlocked, onBuilt })
             )}
           </div>
 
-          <div className="mb-4">
+          <div className="glass-panel rounded-xl p-3 mb-4">
+            <div className="flex items-center gap-2 mb-2">
+              <Factory className="w-3.5 h-3.5 text-amber-300/70" />
+              <span className="command-label">Shipyard Requirements</span>
+            </div>
             <span className="text-[9px] font-mono uppercase tracking-widest text-slate-500 block mb-1.5">Build Cost</span>
             <div className="flex flex-wrap gap-1.5">
               {Object.entries(unit.buildCost).filter(([, v]) => v > 0).map(([k, v]) => (
