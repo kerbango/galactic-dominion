@@ -1,0 +1,122 @@
+{
+  "name": "PlanetaryIntelligence",
+  "type": "object",
+  "properties": {
+    "target_empire_id": {
+      "type": "string",
+      "title": "Target System"
+    },
+    "target_empire_name": {
+      "type": "string",
+      "title": "Known System Name"
+    },
+    "intelligence_level": {
+      "type": "string",
+      "enum": [
+        "light",
+        "medium",
+        "heavy"
+      ],
+      "title": "Intelligence Level"
+    },
+    "last_scouted_date": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Last Scouted"
+    },
+    "resources": {
+      "type": "object",
+      "title": "Known Resources",
+      "additionalProperties": {
+        "type": "number"
+      }
+    },
+    "population": {
+      "type": "number",
+      "title": "Known Population",
+      "minimum": 0
+    },
+    "defense_strength": {
+      "type": "number",
+      "title": "Known Defense Strength",
+      "minimum": 0
+    },
+    "stationed_fleets": {
+      "type": "array",
+      "title": "Known Stationed Fleets",
+      "items": {
+        "type": "object",
+        "properties": {
+          "unit_type": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "count": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    "orbital_defenses": {
+      "type": "array",
+      "title": "Known Orbital Defenses",
+      "items": {
+        "type": "object",
+        "properties": {
+          "unit_type": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "count": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    "active_operations": {
+      "type": "array",
+      "title": "Known Active Operations",
+      "items": {
+        "type": "object",
+        "properties": {
+          "direction": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "fleet_size": {
+            "type": "number"
+          },
+          "system_name": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "required": [
+    "target_empire_id",
+    "target_empire_name",
+    "intelligence_level",
+    "last_scouted_date"
+  ],
+  "rls": {
+    "read": {
+      "created_by_id": "{{user.id}}"
+    },
+    "create": {
+      "created_by_id": "{{user.id}}"
+    },
+    "update": {
+      "created_by_id": "{{user.id}}"
+    },
+    "delete": {
+      "created_by_id": "{{user.id}}"
+    }
+  }
+}

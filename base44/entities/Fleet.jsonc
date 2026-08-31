@@ -4,54 +4,67 @@
   "properties": {
     "target_empire_id": {
       "type": "string",
-      "title": "Target Empire ID",
-      "description": "The empire this fleet is travelling toward."
+      "title": "Target Empire ID"
+    },
+    "target_owner_id": {
+      "type": "string",
+      "title": "Target Owner ID"
     },
     "target_empire_name": {
       "type": "string",
-      "title": "Target Empire Name",
-      "description": "Denormalized target empire name for map display."
+      "title": "Target Empire Name"
     },
     "origin_empire_name": {
       "type": "string",
-      "title": "Origin Empire Name",
-      "description": "Denormalized origin empire name for map display."
+      "title": "Origin Empire Name"
     },
     "origin_x": {
       "type": "number",
-      "title": "Origin X",
-      "description": "Grid X coordinate the fleet departed from.",
       "minimum": 0
     },
     "origin_y": {
       "type": "number",
-      "title": "Origin Y",
-      "description": "Grid Y coordinate the fleet departed from.",
       "minimum": 0
     },
     "target_x": {
       "type": "number",
-      "title": "Target X",
-      "description": "Grid X coordinate the fleet is heading to.",
       "minimum": 0
     },
     "target_y": {
       "type": "number",
-      "title": "Target Y",
-      "description": "Grid Y coordinate the fleet is heading to.",
       "minimum": 0
     },
     "fleet_size": {
       "type": "number",
-      "title": "Fleet Size",
-      "description": "Number of ships in the fleet.",
       "default": 1,
       "minimum": 1
     },
+    "mission_type": {
+      "type": "string",
+      "enum": [
+        "attack",
+        "scout"
+      ],
+      "default": "attack"
+    },
+    "scout_class": {
+      "type": "string",
+      "enum": [
+        "light",
+        "medium",
+        "heavy"
+      ]
+    },
+    "scout_unit_type": {
+      "type": "string",
+      "enum": [
+        "light_scout",
+        "medium_scout",
+        "heavy_scout"
+      ]
+    },
     "status": {
       "type": "string",
-      "title": "Status",
-      "description": "Movement status of the fleet. in_transit = travelling a leg; in_battle = fighting at the target during the battle window; arrived = home and resolved.",
       "enum": [
         "in_transit",
         "in_battle",
@@ -61,8 +74,6 @@
     },
     "leg": {
       "type": "string",
-      "title": "Leg",
-      "description": "Which leg of the round trip the fleet is on: outbound (home \u2192 target) or return (target \u2192 home).",
       "enum": [
         "outbound",
         "return"
@@ -71,38 +82,26 @@
     },
     "departure_date": {
       "type": "string",
-      "format": "date-time",
-      "title": "Departure Date",
-      "description": "When the fleet departed its origin."
+      "format": "date-time"
     },
     "arrival_date": {
       "type": "string",
-      "format": "date-time",
-      "title": "Arrival Date",
-      "description": "When the fleet is scheduled to arrive at its target."
+      "format": "date-time"
     },
     "battle_end_date": {
       "type": "string",
-      "format": "date-time",
-      "title": "Battle End Date",
-      "description": "When the in-battle window ends and combat resolves. Set when the fleet enters status=in_battle."
+      "format": "date-time"
     },
     "return_departure_date": {
       "type": "string",
-      "format": "date-time",
-      "title": "Return Departure Date",
-      "description": "When the return leg departed the target (set after combat resolves)."
+      "format": "date-time"
     },
     "return_arrival_date": {
       "type": "string",
-      "format": "date-time",
-      "title": "Return Arrival Date",
-      "description": "When the return leg is scheduled to arrive back home."
+      "format": "date-time"
     },
     "outcome": {
       "type": "string",
-      "title": "Outcome",
-      "description": "Space combat result at the target: win or loss. Null until resolved.",
       "enum": [
         "win",
         "loss"
@@ -110,14 +109,10 @@
     },
     "survivors": {
       "type": "number",
-      "title": "Survivors",
-      "description": "Ships that survived combat and are returning home.",
       "minimum": 0
     },
     "loot": {
       "type": "object",
-      "title": "Loot",
-      "description": "Resources stolen from the target on a winning attack, deposited home on return arrival. Null on a loss.",
       "properties": {
         "aetherium_crystal": {
           "type": "number",
@@ -139,8 +134,6 @@
     },
     "ground_forces": {
       "type": "object",
-      "title": "Ground Forces",
-      "description": "Map of ground unit_type \u2192 count deployed with this fleet. Empty when no ground forces are carried.",
       "default": {},
       "additionalProperties": {
         "type": "number",
@@ -149,8 +142,6 @@
     },
     "ground_outcome": {
       "type": "string",
-      "title": "Ground Outcome",
-      "description": "Ground combat result: win or loss. Null until the ground phase resolves.",
       "enum": [
         "win",
         "loss"
@@ -158,8 +149,6 @@
     },
     "ground_survivors": {
       "type": "object",
-      "title": "Ground Survivors",
-      "description": "Map of ground unit_type \u2192 count surviving the ground assault to return home. Empty when no ground forces survived.",
       "default": {},
       "additionalProperties": {
         "type": "number",
@@ -178,7 +167,21 @@
     "arrival_date"
   ],
   "rls": {
-    "read": {},
+    "read": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "data.target_owner_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
     "create": {
       "created_by_id": "{{user.id}}"
     },

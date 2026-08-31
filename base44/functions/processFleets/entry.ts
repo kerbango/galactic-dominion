@@ -2,6 +2,7 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
 import { authorizeTick } from '../../shared/authGuard.ts';
 import { getUnit } from '../../shared/units.ts';
 import { computePlanetDefenseRating, computeGroundStrength, computeGarrisonStrength } from '../../shared/planetDefense.ts';
+import { collectSystemIntel, INTEL_RANK } from '../../shared/planetaryIntel.ts';
 
 // Processes every active fleet whose current phase has elapsed:
 //   • outbound arrival  → enter a visible "In Battle" window (status=in_battle)
@@ -171,6 +172,20 @@ async function resolveCombatAndReturn(base44, f, byId, now, nowIso) {
   });
 }
 
+async function completeScoutAndReturn(base44, fleet, target, now, nowIso) {
+  const svc = base44.asServiceRole;
+  if (!target || !INTEL_RANK[fleet.scout_class]) return;
+  const report = await collectSystemIntel(svc, target, fleet.scout_class);
+  const found = await svc.entities.PlanetaryIntelligence.filter({ created_by_id: fleet.created_by_id, target_empire_id: target.id });
+  const existing = found[0];
+  const level = existing && INTEL_RANK[existing.intelligence_level] > INTEL_RANK[fleet.scout_class] ? existing.intelligence_level : fleet.scout_class;
+  const intelData = { target_empire_id: target.id, target_empire_name: target.empire_name, intelligence_level: level, last_scouted_date: nowIso, ...report };
+  if (existing) await svc.entities.PlanetaryIntelligence.update(existing.id, intelData);
+  else await svc.entities.PlanetaryIntelligence.create({ ...intelData, created_by_id: fleet.created_by_id });
+  const travelMs = Math.round(dist(fleet.origin_x, fleet.origin_y, fleet.target_x, fleet.target_y) * TRAVEL_SECONDS_PER_UNIT) * 1000;
+  await svc.entities.Fleet.update(fleet.id, { status: 'in_transit', leg: 'return', survivors: 1, return_departure_date: nowIso, return_arrival_date: new Date(now + travelMs).toISOString() });
+}
+
 export default async function(req) {
   try {
     const base44 = createClientFromRequest(req);
@@ -192,6 +207,7 @@ export default async function(req) {
     const byOwnerId = new Map(empires.map((e) => [e.created_by_id, e]));
 
     let enteredBattle = 0;  // outbound arrivals → entered the battle window
+    let scouted = 0;        // scout arrivals → intelligence stored + return started
     let resolved = 0;       // battle windows ended → combat resolved + return leg started
     let returned = 0;       // return arrivals → loot deposited, fleet home
 
@@ -211,6 +227,11 @@ export default async function(req) {
       if (!arrivalMs || arrivalMs > now) continue; // still travelling
 
       if (!returning) {
+        if (f.mission_type === 'scout') {
+          await completeScoutAndReturn(base44, f, byId.get(f.target_empire_id), now, nowIso);
+          scouted += 1;
+          continue;
+        }
         // --- Outbound arrival: enter the battle window (or resolve if it
         // already elapsed while waiting for a tick, e.g. a stuck fleet) ---
         const battleEnd = arrivalMs + battleDurationMs(f.fleet_size);
@@ -227,6 +248,13 @@ export default async function(req) {
       } else {
         // --- Return arrival: deposit carried loot, return ground survivors, mark fleet home ---
         const attacker = byOwnerId.get(f.created_by_id);
+        if (f.mission_type === 'scout' && f.scout_unit_type) {
+          const scouts = await base44.asServiceRole.entities.Unit.filter({ created_by_id: f.created_by_id, unit_type: f.scout_unit_type });
+          if (scouts[0]) await base44.asServiceRole.entities.Unit.update(scouts[0].id, { owned_count: (scouts[0].owned_count || 0) + 1 });
+          await base44.asServiceRole.entities.Fleet.update(f.id, { status: 'arrived' });
+          returned += 1;
+          continue;
+        }
         if (f.loot && attacker) {
           const inc = {};
           for (const k of RES_KEYS) inc[k] = f.loot[k] || 0;
@@ -254,7 +282,7 @@ export default async function(req) {
       }
     }
 
-    return Response.json({ ok: true, enteredBattle, resolved, returned, at: nowIso });
+    return Response.json({ ok: true, enteredBattle, scouted, resolved, returned, at: nowIso });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
   }

@@ -14,7 +14,6 @@ export default async function(req) {
     const empires = all.map((e) => ({
       id: e.id,
       empire_name: e.empire_name,
-      ruler_name: e.ruler_name,
       map_x: e.map_x,
       map_y: e.map_y,
       created_by_id: e.created_by_id,

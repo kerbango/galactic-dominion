@@ -16,6 +16,8 @@ export default async function(req) {
     const body = await req.json().catch(() => ({}));
     const targetEmpireId = body?.target_empire_id;
     const fleetSize = Number(body?.fleet_size);
+    const missionType = body?.mission_type === 'scout' ? 'scout' : 'attack';
+    const scoutUnitType = body?.scout_unit_type;
     if (!targetEmpireId) return Response.json({ error: 'target_empire_id is required' }, { status: 400 });
     if (!Number.isFinite(fleetSize) || fleetSize < 1) return Response.json({ error: 'fleet_size must be a positive number' }, { status: 400 });
 
@@ -33,6 +35,17 @@ export default async function(req) {
     if (!target) return Response.json({ error: 'Target empire not found.' }, { status: 404 });
     if (target.map_x == null || target.map_y == null) return Response.json({ error: 'Target empire has no coordinates.' }, { status: 400 });
     if (target.id === origin.id) return Response.json({ error: 'Cannot dispatch a fleet to your own empire.' }, { status: 400 });
+
+    let scoutClass = null;
+    if (missionType === 'scout') {
+      const scoutTypes = { light_scout: 'light', medium_scout: 'medium', heavy_scout: 'heavy' };
+      scoutClass = scoutTypes[scoutUnitType];
+      if (!scoutClass) return Response.json({ error: 'Select a valid Light, Medium, or Heavy Scout.' }, { status: 400 });
+      const records = await base44.asServiceRole.entities.Unit.filter({ created_by_id: user.id, unit_type: scoutUnitType });
+      const scout = records[0];
+      if (!scout || (scout.owned_count || 0) < 1) return Response.json({ error: `No available ${getUnit(scoutUnitType)?.name || 'scout'}.` }, { status: 400 });
+      await base44.asServiceRole.entities.Unit.update(scout.id, { owned_count: scout.owned_count - 1 });
+    }
 
     // ── Ground forces validation & depletion ──────────────────────────
     // Read the attacker's Unit records (service role — Unit RLS is owner-
@@ -95,13 +108,17 @@ export default async function(req) {
 
     const fleet = await base44.entities.Fleet.create({
       target_empire_id: target.id,
+      target_owner_id: target.created_by_id,
       target_empire_name: target.empire_name,
       origin_empire_name: origin.empire_name,
       origin_x: origin.map_x,
       origin_y: origin.map_y,
       target_x: target.map_x,
       target_y: target.map_y,
-      fleet_size: Math.floor(fleetSize),
+      fleet_size: missionType === 'scout' ? 1 : Math.floor(fleetSize),
+      mission_type: missionType,
+      scout_class: scoutClass,
+      scout_unit_type: missionType === 'scout' ? scoutUnitType : null,
       status: 'in_transit',
       leg: 'outbound',
       departure_date: now.toISOString(),
