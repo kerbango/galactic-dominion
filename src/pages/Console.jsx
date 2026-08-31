@@ -72,7 +72,6 @@ export default function Console() {
           <span className="flex items-center gap-1.5 text-slate-400"><FlaskConical className="w-3 h-3 text-fuchsia-300" /> RP <span className="text-fuchsia-300">{formatAmount(empire.research_points)}</span></span>
           <span className="hidden md:flex items-center gap-1.5 text-slate-400"><Users className="w-3 h-3 text-rose-300" /> Pop <span className="text-rose-300">{formatAmount(empire.population)}</span></span>
         </div>
-        <span className="ml-auto command-status">Systems nominal</span>
       </div>
 
       {/* Treasury */}
