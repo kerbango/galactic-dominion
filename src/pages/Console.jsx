@@ -3,6 +3,7 @@ import { Navigate, Link } from 'react-router-dom';
 import { Gem, Layers, Zap, Coins, Pickaxe, Users, Loader2, LayoutDashboard, FlaskConical, Shield, Factory, Radar, ArrowRight, Activity } from 'lucide-react';
 import { useEmpire } from '@/lib/EmpireContext';
 import ProductionBreakdown from '@/components/console/ProductionBreakdown';
+import CommandDirectives from '@/components/console/CommandDirectives';
 import LowResourceWarning from '@/components/console/LowResourceWarning';
 import PlanetDefenseRating from '@/components/console/PlanetDefenseRating';
 import ActiveResearchPanel from '@/components/research/ActiveResearchPanel';
@@ -63,6 +64,8 @@ export default function Console() {
         <div className="hud-divider mt-4" />
         <div className="scanline-overlay" />
       </div>
+
+      <CommandDirectives />
 
       {/* Treasury */}
       <div className="flex items-center justify-between mb-2 px-1">
