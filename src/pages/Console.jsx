@@ -1,6 +1,6 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
-import { Gem, Layers, Zap, Coins, Pickaxe, Users, Loader2, LayoutDashboard, FlaskConical } from 'lucide-react';
+import { Gem, Layers, Zap, Coins, Pickaxe, Users, Loader2, LayoutDashboard, FlaskConical, Shield, Factory, Radar, ArrowRight, Activity } from 'lucide-react';
 import { useEmpire } from '@/lib/EmpireContext';
 import ProductionBreakdown from '@/components/console/ProductionBreakdown';
 import LowResourceWarning from '@/components/console/LowResourceWarning';
@@ -39,20 +39,75 @@ export default function Console() {
     return <Navigate to="/setup" replace />;
   }
 
+  const primaryResources = RESOURCES.slice(0, 5);
+
   return (
-    <div className="max-w-5xl mx-auto px-4 md:px-8 py-10">
-      <div className="flex flex-col items-center text-center gap-1 mb-8">
-        <LayoutDashboard className="w-7 h-7 text-cyan-300" />
-        <h1 className="font-heading text-2xl md:text-3xl tracking-wide text-white neon-text uppercase">
-          Command Console
-        </h1>
-        <p className="text-xs font-mono uppercase tracking-widest text-cyan-200/60">
-          {empire.empire_name} · Ruler {empire.ruler_name}
-        </p>
+    <div className="max-w-6xl mx-auto px-4 md:px-8 py-6 md:py-8">
+      {/* Command header */}
+      <div className="glass-panel-strong rounded-2xl p-4 md:p-5 mb-4 overflow-hidden">
+        <div className="flex flex-col md:flex-row md:items-center gap-4">
+          <div className="flex items-center gap-3 flex-1 min-w-0">
+            <div className="shrink-0 w-11 h-11 rounded-xl border border-cyan-400/30 bg-cyan-400/10 flex items-center justify-center">
+              <LayoutDashboard className="w-5 h-5 text-cyan-300" />
+            </div>
+            <div className="min-w-0">
+              <p className="command-label">Imperial Command Network · Online</p>
+              <h1 className="font-heading text-xl md:text-2xl tracking-[0.08em] text-white uppercase truncate">{empire.empire_name}</h1>
+              <p className="text-[10px] font-mono uppercase tracking-widest text-cyan-200/55">Ruler {empire.ruler_name} · Strategic Command Console</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 md:border-l md:border-cyan-400/10 md:pl-5">
+            <span className="command-status">Systems nominal</span>
+          </div>
+        </div>
+        <div className="hud-divider mt-4" />
+      </div>
+
+      {/* Treasury */}
+      <div className="flex items-center justify-between mb-2 px-1">
+        <div>
+          <p className="command-label">Imperial Treasury</p>
+          <p className="text-[10px] text-muted-foreground font-mono uppercase tracking-widest">Available reserves</p>
+        </div>
+        <Activity className="w-4 h-4 text-cyan-300/50" />
+      </div>
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 mb-4">
+        {primaryResources.map((r) => {
+          const Icon = r.icon;
+          return (
+            <div key={r.key} className="glass-panel rounded-xl p-3 min-h-[82px]">
+              <div className="flex items-center justify-between gap-2">
+                <Icon className={`w-4 h-4 ${r.color}`} />
+                <span className="text-[9px] font-mono uppercase tracking-widest text-muted-foreground">Reserve</span>
+              </div>
+              <p className="font-mono text-lg font-bold text-foreground tabular-nums leading-none mt-3">{formatAmount(empire[r.key])}</p>
+              <p className="text-[9px] uppercase tracking-widest text-muted-foreground mt-1 truncate">{r.label}</p>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Secondary empire vitals */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-5">
+        {RESOURCES.slice(5).map((r) => {
+          const Icon = r.icon;
+          return (
+            <div key={r.key} className="glass-panel rounded-lg px-3 py-2 flex items-center gap-3">
+              <Icon className={`w-4 h-4 ${r.color}`} />
+              <div className="min-w-0">
+                <p className="text-[9px] uppercase tracking-widest text-muted-foreground truncate">{r.label}</p>
+                <p className="font-mono text-sm font-bold tabular-nums">{formatAmount(empire[r.key])}</p>
+              </div>
+            </div>
+          );
+        })}
       </div>
 
       {/* Accumulated resources */}
-      <h2 className="font-heading text-[0.65rem] tracking-[0.3em] text-cyan-200/80 uppercase mb-1 text-center">Accumulated Resources</h2>
+      <div className="flex items-center gap-2 mb-1 px-1">
+        <Factory className="w-3.5 h-3.5 text-cyan-300/60" />
+        <h2 className="command-label">Production Network</h2>
+      </div>
       <div className="grid grid-cols-2 md:grid-cols-7 gap-[5px] mb-2 md:w-4/5 md:mx-auto">
         {RESOURCES.map((r) => {
           const Icon = r.icon;
