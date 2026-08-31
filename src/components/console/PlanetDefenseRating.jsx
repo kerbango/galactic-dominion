@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Shield, Loader2 } from 'lucide-react';
+import { Shield, Loader2, LockKeyhole } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { computePlanetDefenseRating } from '@/data/planetDefense';
 import { useEmpire } from '@/lib/EmpireContext';
@@ -34,19 +34,30 @@ export default function PlanetDefenseRating() {
   if (rating == null) return null;
 
   return (
-    <div className="glass-panel rounded-lg p-4 flex items-center gap-4 md:w-3/5 md:mx-auto">
-      <div className="shrink-0 inline-flex items-center justify-center w-11 h-11 rounded-xl border border-emerald-400/30 bg-emerald-400/10">
-        <Shield className="w-6 h-6 text-emerald-300" />
+    <div className="glass-panel-strong rounded-xl p-4 h-full">
+      <div className="flex items-start gap-3">
+        <div className="shrink-0 inline-flex items-center justify-center w-10 h-10 rounded-lg border border-emerald-400/30 bg-emerald-400/10">
+          <Shield className="w-5 h-5 text-emerald-300" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center justify-between gap-2">
+            <p className="command-label">Planetary Security</p>
+            <span className="text-[9px] font-mono uppercase tracking-widest text-emerald-300/70">Secure</span>
+          </div>
+          <p className="text-[10px] text-muted-foreground font-mono uppercase tracking-widest mt-1">Defense rating</p>
+          <div className="flex items-end gap-2 mt-1">
+            <p className="font-mono text-3xl font-bold text-emerald-100 tabular-nums leading-none">{rating.toLocaleString()}</p>
+            <p className="text-[9px] font-mono text-muted-foreground pb-0.5 uppercase">Fortifications + Garrison</p>
+          </div>
+        </div>
       </div>
-      <div className="flex-1">
-        <p className="text-[10px] font-mono uppercase tracking-widest text-emerald-200/70">Planet Defense Rating</p>
-        <p className="font-mono text-2xl font-bold text-emerald-100 tabular-nums leading-none mt-0.5">
-          {rating.toLocaleString()}
-        </p>
+      <div className="mt-4 h-1.5 rounded-full bg-slate-900 overflow-hidden border border-emerald-400/10">
+        <div className="h-full bg-emerald-400/70" style={{ width: `${Math.min(100, Math.max(8, rating / 10))}%` }} />
       </div>
-      <p className="text-[9px] font-mono uppercase tracking-widest text-muted-foreground/60 text-right max-w-[8rem] leading-tight">
-        Fortifications + Garrison
-      </p>
+      <div className="flex items-center justify-between mt-2 text-[9px] font-mono uppercase tracking-widest text-muted-foreground">
+        <span>Homeworld defense grid</span>
+        <span className="flex items-center gap-1 text-emerald-300/70"><LockKeyhole className="w-3 h-3" /> Active</span>
+      </div>
     </div>
   );
 }
