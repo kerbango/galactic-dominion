@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useEmpire } from '@/lib/EmpireContext';
 import { getTech } from '@/lib/techLayout';
-import { Ship, Lock, Loader2, Package, Footprints, Building2 } from 'lucide-react';
+import { Ship, Lock, Loader2, Package, Footprints, Building2, Crosshair, Factory } from 'lucide-react';
 import ConstructionTimer from './ConstructionTimer';
 import UnitUpgradeList from './UnitUpgradeList';
 import { getStatDisplay, isTransport } from '@/lib/unitStats';
@@ -52,6 +52,10 @@ export default function UnitCard({ unit, unitRecord, unlocked, onBuilt }) {
 
   return (
     <div className={`glass-panel rounded-2xl p-4 flex flex-col ${unlocked ? '' : 'opacity-60'}`}>
+      <div className="flex items-center justify-between gap-2 mb-3">
+        <div className="flex items-center gap-2"><Crosshair className="w-3 h-3 text-cyan-300/60" /><span className="command-label">Hull Registry</span></div>
+        <span className="text-[8px] font-mono uppercase tracking-widest text-muted-foreground">{unit.category || 'ship'}</span>
+      </div>
       <div className="flex items-start gap-3">
         <div className={`shrink-0 inline-flex items-center justify-center w-11 h-11 rounded-xl border ${unlocked ? 'border-cyan-400/25 bg-cyan-400/10' : 'border-slate-600/30 bg-slate-700/20'}`}>
           {unlocked ? <CatIcon className="w-5 h-5 text-cyan-300" /> : <Lock className="w-5 h-5 text-slate-400" />}
@@ -70,7 +74,7 @@ export default function UnitCard({ unit, unitRecord, unlocked, onBuilt }) {
 
       {unlocked ? (
         <>
-          <div className="grid grid-cols-3 gap-x-2 gap-y-1.5 mt-3 text-[11px] font-mono">
+          <div className="grid grid-cols-3 gap-x-2 gap-y-1.5 mt-3 pt-3 border-t border-cyan-400/10 text-[11px] font-mono">
             {statDisplay.map(({ key, icon: Icon, label }) => {
               const color = STAT_COLORS[key] || 'text-cyan-300';
               return (
@@ -90,7 +94,8 @@ export default function UnitCard({ unit, unitRecord, unlocked, onBuilt }) {
             </div>
           )}
 
-          <div className="flex flex-wrap gap-1 mt-2">
+          <div className="flex items-center gap-1.5 mt-3 mb-1"><Factory className="w-3 h-3 text-amber-300/60" /><span className="command-label">Construction Cost</span></div>
+          <div className="flex flex-wrap gap-1">
             {Object.entries(unit.buildCost).filter(([, v]) => v > 0).map(([k, v]) => (
               <span key={k} className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-900/60 border border-slate-700/50 text-slate-200">
                 {RES_LABELS[k] || k}: <span className="text-cyan-200">{Math.floor(v).toLocaleString()}</span>
