@@ -217,7 +217,12 @@ function EmpireDetail({ empire, myEmpire, onClear }) {
         </div>
         <button onClick={onClear} className="text-xs text-muted-foreground hover:text-foreground">✕</button>
       </div>
-      <div className="glass-panel rounded-lg p-3 space-y-2 text-sm">
+      <div className="glass-panel rounded-xl p-3.5 space-y-2.5 text-sm border-cyan-400/15">
+        <div className="flex items-center gap-2 pb-2 border-b border-cyan-400/10">
+          {mine ? <Crown className="w-3.5 h-3.5 text-cyan-300" /> : <Flag className="w-3.5 h-3.5 text-violet-300" />}
+          <span className="command-label">Contact Profile</span>
+          <span className="ml-auto text-[9px] font-mono uppercase tracking-widest text-muted-foreground">{mine ? 'Home Sector' : 'Rival'}</span>
+        </div>
         <Row label="Ruler" value={empire.ruler_name} />
         <Row label="Sector" value={`${Math.round(empire.map_x)}, ${Math.round(empire.map_y)}`} mono />
         {!mine && d != null &&
@@ -225,14 +230,20 @@ function EmpireDetail({ empire, myEmpire, onClear }) {
             <Row label="Distance" value={`${Math.round(lightYears(d))} Ly`} mono />
             <div className="flex items-center gap-2 pt-2 border-t border-cyan-400/10 text-cyan-200">
               <Navigation className="w-4 h-4" />
-              <span className="font-mono text-sm">Est. travel {formatDuration(eta)}</span>
+              <span className="font-mono text-xs uppercase tracking-wider">Est. transit {formatDuration(eta)}</span>
             </div>
           </>
         }
-        {mine && <p className="text-xs text-cyan-300/70 pt-2 border-t border-cyan-400/10">This is your home sector.</p>}
+        {mine && <p className="text-[10px] font-mono uppercase tracking-widest text-cyan-300/70 pt-2 border-t border-cyan-400/10">Home sector · Command authority confirmed</p>}
       </div>
       {!mine && myEmpire && d != null &&
-      <DispatchFleet target={empire} myEmpire={myEmpire} onDispatched={onClear} />
+      <div>
+        <div className="flex items-center gap-2 mb-2 px-1">
+          <Shield className="w-3.5 h-3.5 text-rose-300/70" />
+          <p className="command-label">Fleet Deployment</p>
+        </div>
+        <DispatchFleet target={empire} myEmpire={myEmpire} onDispatched={onClear} />
+      </div>
       }
     </div>);
 
