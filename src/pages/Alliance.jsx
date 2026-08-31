@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { Navigate } from 'react-router-dom';
 import { Handshake, Plus, Loader2, Trash2, ShieldAlert } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
@@ -35,11 +34,8 @@ export default function Alliance() {
   };
 
   useEffect(() => {
-    if (isAdmin) load();
-  }, [isAdmin]);
-
-  // Hidden from non-admins for now.
-  if (!isAdmin) return <Navigate to="/console" replace />;
+    load();
+  }, []);
 
   const handleCreate = async () => {
     if (!name.trim()) return setMsg('Enter an alliance name.');
@@ -86,7 +82,8 @@ export default function Alliance() {
         <p>RESTRICTED — Alliance founding is currently limited to the Overlord. Player access coming soon.</p>
       </div>
 
-      {/* Creation form */}
+      {/* Creation form — admin-only founding tool */}
+      {isAdmin && (
       <div className="glass-panel rounded-2xl p-5 mb-8">
         <div className="flex items-center gap-2 mb-4">
           <Plus className="w-4 h-4 text-cyan-300" />
@@ -106,6 +103,7 @@ export default function Alliance() {
           </Button>
         </div>
       </div>
+      )}
 
       {/* Existing alliances */}
       <h2 className="font-heading text-sm tracking-[0.3em] text-cyan-200/80 uppercase mb-4">Active Alliances</h2>
@@ -128,6 +126,7 @@ export default function Alliance() {
                     Founded by {a.founder_name || 'Unknown'}
                   </p>
                 </div>
+                {isAdmin && (
                 <button
                   type="button"
                   onClick={() => handleDelete(a.id)}
@@ -137,6 +136,7 @@ export default function Alliance() {
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>
+                )}
               </div>
               {a.description && (
                 <p className="text-sm text-foreground/80 mt-3 font-body">{a.description}</p>

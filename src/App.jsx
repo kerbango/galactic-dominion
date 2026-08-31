@@ -25,11 +25,9 @@ import GalacticMarket from '@/pages/GalacticMarket';
 import Comms from '@/pages/Comms';
 import Support from '@/pages/Support';
 import Alliance from '@/pages/Alliance';
-import { FlaskConical, Wrench, Radio } from 'lucide-react';
 // Add page imports here
 import Upgrades from '@/pages/Upgrades';
 import Military from '@/pages/Military';
-import AdminPreviewGate from '@/components/AdminPreviewGate';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError } = useAuth();
@@ -74,8 +72,8 @@ const AuthenticatedApp = () => {
           <Route path="/map" element={<GalacticMap />} />
           <Route path="/console" element={<Console />} />
           <Route path="/military" element={<Military />} />
-          <Route path="/research" element={<AdminPreviewGate Page={Research} title="Research" Icon={FlaskConical} />} />
-          <Route path="/upgrades" element={<AdminPreviewGate Page={Upgrades} title="Upgrades" Icon={Wrench} />} />
+          <Route path="/research" element={<Research />} />
+          <Route path="/upgrades" element={<Upgrades />} />
           <Route path="/market" element={<GalacticMarket />} />
           <Route path="/alliance" element={<Alliance />} />
           <Route path="/comms" element={<Comms />} />
