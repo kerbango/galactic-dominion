@@ -129,7 +129,7 @@ export default function ZoomableGalaxyMap({ empires, myEmpire, fleets, now, myUs
         </div>
         <span className="text-[9px] font-mono uppercase tracking-widest text-cyan-200/45">N-S · E-W Grid</span>
       </div>
-      <div className="relative w-full overflow-hidden rounded-xl border border-cyan-400/15 bg-slate-950/35" style={{ aspectRatio: '1 / 1' }}>
+      <div className="relative w-full overflow-hidden rounded-xl border border-cyan-400/15 bg-slate-950/35" style={{ aspectRatio: '1 / 1' }}><div className="scanline-overlay" />
         <svg
           ref={svgRef}
           viewBox={`${view.x} ${view.y} ${view.w} ${view.h}`}

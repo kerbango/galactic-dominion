@@ -33,10 +33,16 @@ export default function ActiveFleets({ fleets, now, myUserId }) {
             (f.loot.energy || 0) + (f.loot.vrind || 0)
           : 0;
         const route = `${f.origin_empire_name} → ${f.target_empire_name}`;
+        const ledClass = inBattle ? 'led-amber' : returning ? 'led-green' : mine ? 'led-green' : 'led-amber';
+        const barColor = inBattle ? 'bg-orange-400' : mine ? 'bg-cyan-400' : 'bg-rose-400';
+        const barGlow = inBattle ? 'shadow-[0_0_8px_rgba(251,146,60,0.6)]' : mine ? 'shadow-[0_0_8px_rgba(56,189,248,0.6)]' : 'shadow-[0_0_8px_rgba(244,63,94,0.6)]';
         return (
-          <div key={f.id} className={`glass-panel rounded-xl p-3 ${inBattle ? 'border border-orange-400/45 bg-orange-950/10' : returning ? 'border border-violet-400/15' : 'border border-cyan-400/10'}`}>
+          <div key={f.id} className={`glass-panel rounded-xl p-3 relative overflow-hidden ${inBattle ? 'border border-orange-400/45 bg-orange-950/10' : returning ? 'border border-violet-400/15' : 'border border-cyan-400/10'}`}>
             <div className="flex items-center justify-between gap-2">
-              <span className="text-[8px] font-mono uppercase tracking-[0.18em] text-muted-foreground">Fleet telemetry</span>
+              <span className="flex items-center gap-1.5 min-w-0">
+                <span className={`led ${ledClass}`} />
+                <span className="text-[8px] font-mono uppercase tracking-[0.18em] text-muted-foreground">Fleet telemetry</span>
+              </span>
               <span className="flex items-center gap-1.5 min-w-0">
                 {inBattle ? (
                   <Swords className="w-4 h-4 shrink-0 text-orange-300 animate-pulse-glow" />
@@ -53,7 +59,7 @@ export default function ActiveFleets({ fleets, now, myUserId }) {
             </div>
             <div className="mt-2.5 h-1.5 rounded-full bg-secondary/80 overflow-hidden border border-white/5">
               <div
-                className={`h-full ${inBattle ? 'bg-orange-400' : mine ? 'bg-cyan-400' : 'bg-rose-400'}`}
+                className={`h-full ${barColor} ${barGlow} transition-all duration-500`}
                 style={{ width: `${Math.round(p * 100)}%` }}
               />
             </div>

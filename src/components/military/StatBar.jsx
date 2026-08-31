@@ -28,7 +28,7 @@ export default function StatBar({ stat, value, label, icon: Icon, base = 0, mult
       <Icon className="w-3.5 h-3.5 text-slate-400 shrink-0" />
       <span className="text-[10px] font-mono uppercase tracking-widest text-slate-400 w-9 shrink-0">{label}</span>
       <div className="flex-1 h-2 rounded-full bg-slate-800/70 overflow-hidden">
-        <div className={`h-full ${color} transition-all duration-500`} style={{ width: `${pct}%` }} />
+        <div className={`h-full ${color} transition-all duration-500`} style={{ width: `${pct}%`, boxShadow: '0 0 6px currentColor' }} />
       </div>
       <span className="text-[10px] font-mono text-slate-200 tabular-nums w-12 text-right">{value.toFixed(2)}</span>
     </div>

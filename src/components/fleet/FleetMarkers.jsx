@@ -51,6 +51,7 @@ export default function FleetMarkers({ fleets, now, myUserId, myEmpireId }) {
         return (
           <g key={f.id}>
             <line x1={f.origin_x} y1={f.origin_y} x2={f.target_x} y2={f.target_y} stroke={lineColor} strokeWidth={2} strokeDasharray="4 8" />
+            <circle cx={pos.x} cy={pos.y} r={inBattle ? 20 : 14} fill={color} opacity="0.12" />
             <circle cx={pos.x} cy={pos.y} r={inBattle ? 15 : 10} fill="none" stroke={lineColor} strokeWidth={1} opacity="0.9" />
             {inBattle && (
               <circle

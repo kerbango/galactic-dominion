@@ -39,8 +39,8 @@ export default function ConstructionTimer({ record, onComplete }) {
   return (
     <div className="mt-3">
       <div className="flex items-center justify-between text-[11px] font-mono uppercase tracking-widest text-cyan-200/80 mb-1">
-        <span className="inline-flex items-center gap-1"><Rocket className="w-3 h-3" /> Constructing</span>
-        <span className={done ? 'text-emerald-300' : ''}>{done ? 'Ready' : label}</span>
+        <span className="inline-flex items-center gap-1"><span className="led led-amber" /><Rocket className="w-3 h-3" /> Constructing</span>
+        <span className={`inline-flex items-center gap-1 ${done ? 'text-emerald-300' : ''}`}><span className={`led ${done ? 'led-green' : 'led-amber'}`} />{done ? 'Ready' : label}</span>
       </div>
       <div className="h-1.5 rounded-full bg-slate-800/80 overflow-hidden">
         <div className="h-full bg-cyan-400/80 transition-all duration-500" style={{ width: `${pct}%` }} />

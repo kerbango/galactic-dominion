@@ -54,7 +54,7 @@ export default function UnitUpgradeList({ unit, unitRecord, unlocked, onDone }) 
             const cost = next ? unitUpgradeCost(up, next) : {};
             const StatIcon = STAT_ICON[up.stat] || Sword;
             return (
-              <div key={up.id} className="rounded-lg border border-slate-700/40 bg-slate-800/30 p-2.5">
+              <div key={up.id} className="rounded-lg border border-cyan-400/15 bg-slate-900/40 p-2.5">
                 <div className="flex items-center gap-2">
                   <StatIcon className="w-3.5 h-3.5 text-cyan-300 shrink-0" />
                   <p className="font-heading text-xs tracking-wide text-white uppercase flex-1">{up.name}</p>

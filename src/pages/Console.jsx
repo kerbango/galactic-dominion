@@ -44,7 +44,7 @@ export default function Console() {
   return (
     <div className="max-w-6xl mx-auto px-4 md:px-8 py-6 md:py-8">
       {/* Command header */}
-      <div className="glass-panel-strong rounded-2xl p-4 md:p-5 mb-4 overflow-hidden">
+      <div className="glass-panel-strong rounded-2xl p-4 md:p-5 mb-4 overflow-hidden relative">
         <div className="flex flex-col md:flex-row md:items-center gap-4">
           <div className="flex items-center gap-3 flex-1 min-w-0">
             <div className="shrink-0 w-11 h-11 rounded-xl border border-cyan-400/30 bg-cyan-400/10 flex items-center justify-center">
@@ -61,6 +61,18 @@ export default function Console() {
           </div>
         </div>
         <div className="hud-divider mt-4" />
+        <div className="scanline-overlay" />
+      </div>
+
+      {/* Sticky command bar */}
+      <div className="sticky top-2 z-10 glass-panel-strong rounded-xl px-4 py-2.5 mb-4 flex items-center gap-4">
+        <div className="flex items-center gap-4 text-[11px] font-mono uppercase tracking-widest">
+          <span className="flex items-center gap-1.5 text-slate-400"><Coins className="w-3 h-3 text-cyan-300" /> VRIND <span className="text-cyan-200">{formatAmount(empire.vrind)}</span></span>
+          <span className="flex items-center gap-1.5 text-slate-400"><Zap className="w-3 h-3 text-amber-300" /> Energy <span className="text-amber-300">{formatAmount(empire.energy)}</span></span>
+          <span className="flex items-center gap-1.5 text-slate-400"><FlaskConical className="w-3 h-3 text-fuchsia-300" /> RP <span className="text-fuchsia-300">{formatAmount(empire.research_points)}</span></span>
+          <span className="hidden md:flex items-center gap-1.5 text-slate-400"><Users className="w-3 h-3 text-rose-300" /> Pop <span className="text-rose-300">{formatAmount(empire.population)}</span></span>
+        </div>
+        <span className="ml-auto command-status">Systems nominal</span>
       </div>
 
       {/* Treasury */}
@@ -78,7 +90,7 @@ export default function Console() {
             <div key={r.key} className="glass-panel rounded-xl p-3 min-h-[82px]">
               <div className="flex items-center justify-between gap-2">
                 <Icon className={`w-4 h-4 ${r.color}`} />
-                <span className="text-[9px] font-mono uppercase tracking-widest text-muted-foreground">Reserve</span>
+                <span className="led led-green" />
               </div>
               <p className="font-mono text-lg font-bold text-foreground tabular-nums leading-none mt-3">{formatAmount(empire[r.key])}</p>
               <p className="text-[9px] uppercase tracking-widest text-muted-foreground mt-1 truncate">{r.label}</p>

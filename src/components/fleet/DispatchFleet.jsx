@@ -76,16 +76,20 @@ export default function DispatchFleet({ target, myEmpire, onDispatched }) {
 
   return (
     <div className="pt-3 border-t border-cyan-400/10 space-y-3">
+      <div className="flex items-center gap-2 mb-1">
+        <span className="led led-green" />
+        <label className="command-label">Fleet Size</label>
+      </div>
       <div className="flex items-center gap-2">
-        <label className="text-xs uppercase tracking-widest text-muted-foreground">Ships</label>
         <input
           type="number"
           min={1}
           max={9999}
           value={size}
           onChange={(e) => setSize(Math.max(1, Number(e.target.value) || 1))}
-          className="w-20 h-9 rounded-md bg-background/60 border border-cyan-400/20 px-2 font-mono text-sm text-foreground"
+          className="w-20 h-9 rounded-md bg-background/60 border border-cyan-400/20 px-2 font-mono text-sm text-foreground focus:border-cyan-400/60 focus:outline-none"
         />
+        <span className="text-[10px] font-mono uppercase tracking-widest text-slate-500">ships to deploy</span>
       </div>
 
       {/* Ground forces collapsible */}
@@ -140,7 +144,7 @@ export default function DispatchFleet({ target, myEmpire, onDispatched }) {
                         max={owned}
                         value={sel}
                         onChange={(e) => handleGroundChange(u.id, e.target.value)}
-                        className="w-16 h-8 rounded-md bg-background/60 border border-cyan-400/20 px-1.5 font-mono text-xs text-foreground text-center"
+                        className="w-16 h-8 rounded-md bg-background/60 border border-cyan-400/20 px-1.5 font-mono text-xs text-foreground text-center focus:border-cyan-400/60 focus:outline-none"
                       />
                     </div>
                   );
@@ -161,9 +165,9 @@ export default function DispatchFleet({ target, myEmpire, onDispatched }) {
         type="button"
         onClick={handle}
         disabled={!canDispatch}
-        className="w-full inline-flex items-center justify-center gap-2 h-10 rounded-md glass-panel-strong hover:border-cyan-300/60 transition-colors disabled:opacity-50"
+        className="command-btn w-full h-10 rounded-lg inline-flex items-center justify-center gap-2 disabled:opacity-50"
       >
-        {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Rocket className="w-4 h-4 text-cyan-300" />}
+        {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Rocket className="w-4 h-4" />}
         <span className="font-heading text-sm tracking-widest text-white uppercase">
           {loading ? 'Dispatching...' : 'Dispatch Fleet'}
         </span>
