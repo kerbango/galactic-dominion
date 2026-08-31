@@ -209,6 +209,15 @@
 }
 .animate-dash-flow { animation: dash-flow 1.1s linear infinite; }
 
+@keyframes system-spin {
+  to { transform: rotate(360deg); }
+}
+.animate-system-spin {
+  animation: system-spin 8s linear infinite;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
 /* ===== PCB Panel Grid aesthetic (Upgrades page) ===== */
 .pcb-grid-overlay {
   background-image:
