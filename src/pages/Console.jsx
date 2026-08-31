@@ -1,5 +1,5 @@
 import React from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, Link } from 'react-router-dom';
 import { Gem, Layers, Zap, Coins, Pickaxe, Users, Loader2, LayoutDashboard, FlaskConical, Shield, Factory, Radar, ArrowRight, Activity } from 'lucide-react';
 import { useEmpire } from '@/lib/EmpireContext';
 import ProductionBreakdown from '@/components/console/ProductionBreakdown';
@@ -138,9 +138,9 @@ export default function Console() {
             <p className="text-xs text-muted-foreground">Command systems synchronized. Review the Galactic Map for fleet movements and sector activity.</p>
           </div>
         </div>
-        <a href="/map" className="command-btn rounded-lg px-3 py-2 text-[10px] font-heading uppercase tracking-widest inline-flex items-center justify-center gap-2 whitespace-nowrap">
+        <Link to="/map" className="command-btn rounded-lg px-3 py-2 text-[10px] font-heading uppercase tracking-widest inline-flex items-center justify-center gap-2 whitespace-nowrap">
           Open Tactical Map <ArrowRight className="w-3.5 h-3.5" />
-        </a>
+        </Link>
       </div>
 
     </div>
