@@ -17,6 +17,10 @@ import { collectSystemIntel, INTEL_RANK } from '../../shared/planetaryIntel.ts';
 // Combat math is a PLACEHOLDER for now — real strength (fleet size + power +
 // upgrades + research + modifiers) and the win/loss formula are tuned later.
 const TRAVEL_SECONDS_PER_UNIT = 8;
+// TEMPORARY TESTING OVERRIDE: scout return legs use the same accelerated speed
+// as the outbound scout dispatch so round-trips complete in seconds. Attack
+// fleets keep the normal pacing. Revert when testing is done.
+const SCOUT_TRAVEL_SECONDS_PER_UNIT = 0.5;
 const dist = (ax, ay, bx, by) => Math.hypot(ax - bx, ay - by);
 
 // --- Battle window -------------------------------------------------------
@@ -182,7 +186,7 @@ async function completeScoutAndReturn(base44, fleet, target, now, nowIso) {
   const intelData = { target_empire_id: target.id, target_empire_name: target.empire_name, intelligence_level: level, last_scouted_date: nowIso, ...report };
   if (existing) await svc.entities.PlanetaryIntelligence.update(existing.id, intelData);
   else await svc.entities.PlanetaryIntelligence.create({ ...intelData, created_by_id: fleet.created_by_id });
-  const travelMs = Math.round(dist(fleet.origin_x, fleet.origin_y, fleet.target_x, fleet.target_y) * TRAVEL_SECONDS_PER_UNIT) * 1000;
+  const travelMs = Math.round(dist(fleet.origin_x, fleet.origin_y, fleet.target_x, fleet.target_y) * SCOUT_TRAVEL_SECONDS_PER_UNIT) * 1000;
   await svc.entities.Fleet.update(fleet.id, { status: 'in_transit', leg: 'return', survivors: 1, return_departure_date: nowIso, return_arrival_date: new Date(now + travelMs).toISOString() });
 }
 

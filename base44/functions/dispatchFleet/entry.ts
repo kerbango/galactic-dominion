@@ -5,6 +5,10 @@ import { getUnit } from '../../shared/units.ts';
 // computed server-side from the grid distance so the arrival timestamp the
 // client stores is authoritative and can't be tampered with from the UI.
 const TRAVEL_SECONDS_PER_UNIT = 8;
+// TEMPORARY TESTING OVERRIDE: scout missions use a much shorter travel speed so
+// reconnaissance round-trips resolve in seconds during QA. Attack fleets keep
+// the normal pacing. Revert to TRAVEL_SECONDS_PER_UNIT when testing is done.
+const SCOUT_TRAVEL_SECONDS_PER_UNIT = 0.5;
 const dist = (ax, ay, bx, by) => Math.hypot(ax - bx, ay - by);
 
 export default async function(req) {
@@ -102,7 +106,8 @@ export default async function(req) {
     }
 
     const d = dist(origin.map_x, origin.map_y, target.map_x, target.map_y);
-    const travelSeconds = Math.round(d * TRAVEL_SECONDS_PER_UNIT);
+    const speed = missionType === 'scout' ? SCOUT_TRAVEL_SECONDS_PER_UNIT : TRAVEL_SECONDS_PER_UNIT;
+    const travelSeconds = Math.round(d * speed);
     const now = new Date();
     const arrival = new Date(now.getTime() + travelSeconds * 1000);
 

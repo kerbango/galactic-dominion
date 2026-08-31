@@ -5,6 +5,10 @@ export const MIN_DISTANCE = 200;
 // (1000 units) takes ~133 minutes; the minimum spawn gap of 200 units is ~27
 // minutes — meaningful enough to matter strategically.
 export const TRAVEL_SECONDS_PER_UNIT = 8;
+// TEMPORARY TESTING OVERRIDE: scout missions travel much faster so
+// reconnaissance round-trips resolve in seconds during QA. Revert to
+// TRAVEL_SECONDS_PER_UNIT when testing is done.
+export const SCOUT_TRAVEL_SECONDS_PER_UNIT = 0.5;
 
 export function distance(a, b) {
   if (a.map_x == null || a.map_y == null || b.map_x == null || b.map_y == null) return null;
@@ -18,9 +22,10 @@ export function lightYears(units) {
   return units / 5;
 }
 
-export function travelSeconds(units) {
+export function travelSeconds(units, missionType) {
   if (units == null) return null;
-  return Math.round(units * TRAVEL_SECONDS_PER_UNIT);
+  const speed = missionType === 'scout' ? SCOUT_TRAVEL_SECONDS_PER_UNIT : TRAVEL_SECONDS_PER_UNIT;
+  return Math.round(units * speed);
 }
 
 export function formatDuration(totalSeconds) {
