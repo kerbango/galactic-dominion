@@ -50,15 +50,8 @@ export default function FleetMarkers({ fleets, now, myUserId, myEmpireId }) {
 
         return (
           <g key={f.id}>
-            <line
-              x1={f.origin_x}
-              y1={f.origin_y}
-              x2={f.target_x}
-              y2={f.target_y}
-              stroke={lineColor}
-              strokeWidth={1.5}
-              strokeDasharray="6 6"
-            />
+            <line x1={f.origin_x} y1={f.origin_y} x2={f.target_x} y2={f.target_y} stroke={lineColor} strokeWidth={2} strokeDasharray="4 8" />
+            <circle cx={pos.x} cy={pos.y} r={inBattle ? 15 : 10} fill="none" stroke={lineColor} strokeWidth={1} opacity="0.9" />
             {inBattle && (
               <circle
                 cx={pos.x}
@@ -70,15 +63,8 @@ export default function FleetMarkers({ fleets, now, myUserId, myEmpireId }) {
                 className="animate-pulse-glow"
               />
             )}
-            <circle
-              cx={pos.x}
-              cy={pos.y}
-              r={inBattle ? 6 : 5}
-              fill={color}
-              stroke="rgba(255,255,255,0.5)"
-              strokeWidth={1.5}
-              className={flashClass}
-            />
+            <circle cx={pos.x} cy={pos.y} r={inBattle ? 7 : 6} fill={color} stroke="rgba(255,255,255,0.65)" strokeWidth={1.5} className={flashClass} />
+            <circle cx={pos.x} cy={pos.y} r={inBattle ? 2.5 : 2} fill="rgba(255,255,255,0.95)" />
             {hasLoot && (
               <circle
                 cx={pos.x + 7}
