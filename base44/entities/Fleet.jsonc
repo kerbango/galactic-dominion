@@ -68,7 +68,9 @@
       "enum": [
         "in_transit",
         "in_battle",
-        "arrived"
+        "arrived",
+        "awaiting_recon",
+        "scouting"
       ],
       "default": "in_transit"
     },
@@ -91,6 +93,16 @@
     "battle_end_date": {
       "type": "string",
       "format": "date-time"
+    },
+    "recon_start_date": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Recon Start Date"
+    },
+    "recon_end_date": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Recon End Date"
     },
     "return_departure_date": {
       "type": "string",

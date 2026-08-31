@@ -1,6 +1,6 @@
 import React from 'react';
 import { Rocket, Navigation, Swords } from 'lucide-react';
-import { fleetProgress, remainingSeconds, formatDuration, battleProgress, battleRemainingSeconds } from '@/lib/galaxy';
+import { fleetProgress, remainingSeconds, formatDuration, battleProgress, battleRemainingSeconds, reconProgress, reconRemainingSeconds } from '@/lib/galaxy';
 
 // Lists all active fleets with live countdowns and progress bars.
 // `now` (epoch ms) drives the per-second countdown and progress fill. A fleet
@@ -12,6 +12,7 @@ import { fleetProgress, remainingSeconds, formatDuration, battleProgress, battle
 export default function ActiveFleets({ fleets, now, myUserId }) {
   const active = (fleets || []).filter((f) => {
     if (f.status === 'in_battle') return true;
+    if (f.status === 'awaiting_recon' || f.status === 'scouting') return true;
     if (f.status !== 'in_transit') return false;
     // Remove return-leg fleets once their return trip has elapsed.
     if (f.leg === 'return' && f.return_arrival_date) {
@@ -25,17 +26,19 @@ export default function ActiveFleets({ fleets, now, myUserId }) {
       {active.map((f) => {
         const mine = f.created_by_id === myUserId;
         const inBattle = f.status === 'in_battle';
+        const isScanning = f.status === 'awaiting_recon' || f.status === 'scouting';
+        const activeScan = f.status === 'scouting';
         const returning = f.leg === 'return';
-        const p = inBattle ? battleProgress(f, now) : fleetProgress(f, now);
-        const remaining = inBattle ? battleRemainingSeconds(f, now) : remainingSeconds(f, now);
+        const p = inBattle ? battleProgress(f, now) : isScanning && activeScan ? reconProgress(f, now) : isScanning ? 0 : fleetProgress(f, now);
+        const remaining = inBattle ? battleRemainingSeconds(f, now) : activeScan ? reconRemainingSeconds(f, now) : remainingSeconds(f, now);
         const lootTotal = f.loot
           ? (f.loot.aetherium_crystal || 0) + (f.loot.ferrite_titanium || 0) +
             (f.loot.energy || 0) + (f.loot.vrind || 0)
           : 0;
         const route = `${f.origin_empire_name} → ${f.target_empire_name}`;
-        const ledClass = inBattle ? 'led-amber' : returning ? 'led-green' : mine ? 'led-green' : 'led-amber';
-        const barColor = inBattle ? 'bg-orange-400' : mine ? 'bg-cyan-400' : 'bg-rose-400';
-        const barGlow = inBattle ? 'shadow-[0_0_8px_rgba(251,146,60,0.6)]' : mine ? 'shadow-[0_0_8px_rgba(56,189,248,0.6)]' : 'shadow-[0_0_8px_rgba(244,63,94,0.6)]';
+        const ledClass = inBattle ? 'led-amber' : isScanning ? 'led-green' : returning ? 'led-green' : mine ? 'led-green' : 'led-amber';
+        const barColor = inBattle ? 'bg-orange-400' : isScanning ? 'bg-cyan-400' : mine ? 'bg-cyan-400' : 'bg-rose-400';
+        const barGlow = inBattle ? 'shadow-[0_0_8px_rgba(251,146,60,0.6)]' : isScanning ? 'shadow-[0_0_8px_rgba(56,189,248,0.6)]' : mine ? 'shadow-[0_0_8px_rgba(56,189,248,0.6)]' : 'shadow-[0_0_8px_rgba(244,63,94,0.6)]';
         return (
           <div key={f.id} className={`glass-panel rounded-xl p-3 relative overflow-hidden ${inBattle ? 'border border-orange-400/45 bg-orange-950/10' : returning ? 'border border-violet-400/15' : 'border border-cyan-400/10'}`}>
             <div className="flex items-center justify-between gap-2">
@@ -66,13 +69,13 @@ export default function ActiveFleets({ fleets, now, myUserId }) {
             <div className="flex items-center justify-between mt-2 text-[10px] font-mono">
               <span className="flex items-center gap-2">
                 <span className="text-muted-foreground">{returning ? (f.survivors ?? f.fleet_size) : f.fleet_size} ships</span>
-                <span className={`uppercase tracking-widest ${inBattle ? 'text-orange-300/80' : returning ? 'text-violet-300/80' : 'text-cyan-300/70'}`}>
-                  {inBattle ? 'Battle' : returning ? 'Return' : 'Outbound'}
+                <span className={`uppercase tracking-widest ${inBattle ? 'text-orange-300/80' : isScanning ? 'text-cyan-300/80' : returning ? 'text-violet-300/80' : 'text-cyan-300/70'}`}>
+                  {inBattle ? 'Battle' : activeScan ? 'Scanning' : isScanning ? 'Recon Ready' : returning ? 'Return' : 'Outbound'}
                 </span>
               </span>
               <span className={`flex items-center gap-1 ${inBattle ? 'text-orange-200' : 'text-cyan-200'}`}>
                 {inBattle ? <Swords className="w-3 h-3" /> : <Navigation className="w-3 h-3" />}
-                {remaining > 0 ? formatDuration(remaining) : inBattle ? 'Resolving' : 'Arriving'}
+                {remaining > 0 ? formatDuration(remaining) : inBattle ? 'Resolving' : activeScan ? 'Completing' : isScanning ? 'Ready' : 'Arriving'}
               </span>
             </div>
             {returning && f.outcome && (

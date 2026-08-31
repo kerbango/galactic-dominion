@@ -9,6 +9,7 @@ const PROFILES = {
   hostile:   { color: 'rgba(248,113,113,1)', soft: 'rgba(248,113,113,0.3)',  trail: 'rgba(248,113,113,0.6)' },
   neutral:   { color: 'rgba(148,163,184,0.85)', soft: 'rgba(148,163,184,0.18)', trail: 'rgba(148,163,184,0.4)' },
   battle:    { color: 'rgba(251,146,60,1)',  soft: 'rgba(251,146,60,0.3)',  trail: 'rgba(251,146,60,0.5)'  },
+  scanning:  { color: 'rgba(56,189,248,1)',  soft: 'rgba(56,189,248,0.3)',  trail: 'rgba(56,189,248,0.5)'  },
 };
 
 // Single fleet rendered as: full planned route (faint dashed, flowing toward
@@ -23,9 +24,11 @@ export default function FleetMarker({ fleet: f, now, zoom, myUserId, myEmpireId,
   const mine = f.created_by_id === myUserId;
   const attackingMe = !mine && f.target_empire_id === myEmpireId;
   const inBattle = f.status === 'in_battle';
+  const isScanning = f.status === 'awaiting_recon' || f.status === 'scouting';
   const returning = f.leg === 'return';
 
   const profile = inBattle ? PROFILES.battle
+    : isScanning ? PROFILES.scanning
     : attackingMe ? PROFILES.hostile
     : mine && returning ? PROFILES.returning
     : mine ? PROFILES.outbound
@@ -45,6 +48,43 @@ export default function FleetMarker({ fleet: f, now, zoom, myUserId, myEmpireId,
 
   const opacity = selected ? 1 : anySelected ? 0.28 : 0.85;
   const handle = (e) => { e.stopPropagation(); onSelect(f.id); };
+
+  if (isScanning) {
+    const active = f.status === 'scouting';
+    const r = (selected ? 28 : 24) * visualScale;
+    return (
+      <g opacity={opacity} style={{ cursor: 'pointer' }} onClick={handle}>
+        {/* dim full route behind the scanning contact */}
+        <line x1={f.origin_x} y1={f.origin_y} x2={f.target_x} y2={f.target_y}
+          stroke={profile.soft} strokeWidth={selected ? 2.5 : 1.5} vectorEffect="non-scaling-stroke"
+          strokeDasharray="3 7" className="animate-dash-flow"
+          opacity={selected ? 0.7 : 0.3} />
+        {/* outer pulsing ring */}
+        <circle cx={pos.x} cy={pos.y} r={r} fill="none"
+          stroke="rgba(56,189,248,0.45)" strokeWidth={2} vectorEffect="non-scaling-stroke"
+          className="animate-pulse-glow" />
+        {/* radar sweep — rotating when actively scanning */}
+        {active && (
+          <g>
+            <animateTransform attributeName="transform" type="rotate"
+              from={`0 ${pos.x} ${pos.y}`} to={`360 ${pos.x} ${pos.y}`}
+              dur="3s" repeatCount="indefinite" />
+            <line x1={pos.x} y1={pos.y} x2={pos.x + r} y2={pos.y}
+              stroke="rgba(56,189,248,0.7)" strokeWidth={2} vectorEffect="non-scaling-stroke" />
+            <circle cx={pos.x} cy={pos.y} r={r} fill="none"
+              stroke="rgba(56,189,248,0.15)" strokeWidth={1} vectorEffect="non-scaling-stroke"
+              strokeDasharray="4 6" />
+          </g>
+        )}
+        {/* scout contact at target */}
+        <circle cx={pos.x} cy={pos.y} r={(selected ? 9 : 7) * visualScale} fill={profile.color}
+          stroke="rgba(255,255,255,0.7)" strokeWidth={1.5} vectorEffect="non-scaling-stroke" />
+        <circle cx={pos.x} cy={pos.y} r={3 * visualScale} fill="rgba(255,255,255,0.95)" />
+        {/* transparent hit area */}
+        <circle cx={pos.x} cy={pos.y} r={30 * visualScale} fill="transparent" />
+      </g>
+    );
+  }
 
   if (inBattle) {
     return (

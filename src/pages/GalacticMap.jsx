@@ -86,6 +86,7 @@ export default function GalacticMap() {
 
   const inTransit = visibleFleets.filter((f) => {
     if (f.status === 'in_battle') return true;
+    if (f.status === 'awaiting_recon' || f.status === 'scouting') return true;
     if (f.status !== 'in_transit') return false;
     // Drop return-leg fleets the instant their return trip completes so they
     // leave the operations box without waiting for the server tick (service-
@@ -167,6 +168,8 @@ export default function GalacticMap() {
             target={selected}
             myEmpire={myEmpire}
             relationship={selectedRelationship}
+            scoutFleet={visibleFleets.find((f) => f.created_by_id === user?.id && f.target_empire_id === selected.id && f.mission_type === 'scout' && (f.status === 'awaiting_recon' || f.status === 'scouting'))}
+            now={now}
             onClear={() => setSelectedId(null)} /> :
 
 

@@ -91,3 +91,20 @@ export function battleRemainingSeconds(fleet, now) {
   if (!end) return 0;
   return Math.max(0, Math.round((end - now) / 1000));
 }
+
+// --- Recon window helpers -----------------------------------------------
+// While a scout is in "scouting" status it sits at the target conducting a
+// reconnaissance scan. These derive the scan progress bar and remaining
+// countdown from recon_start_date → recon_end_date.
+export function reconProgress(fleet, now) {
+  const start = new Date(fleet.recon_start_date).getTime();
+  const end = new Date(fleet.recon_end_date).getTime();
+  if (!start || !end || end <= start) return 0;
+  return Math.max(0, Math.min(1, (now - start) / (end - start)));
+}
+
+export function reconRemainingSeconds(fleet, now) {
+  const end = new Date(fleet.recon_end_date).getTime();
+  if (!end) return 0;
+  return Math.max(0, Math.round((end - now) / 1000));
+}

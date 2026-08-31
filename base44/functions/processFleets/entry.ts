@@ -2,7 +2,7 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
 import { authorizeTick } from '../../shared/authGuard.ts';
 import { getUnit } from '../../shared/units.ts';
 import { computePlanetDefenseRating, computeGroundStrength, computeGarrisonStrength } from '../../shared/planetDefense.ts';
-import { collectSystemIntel, INTEL_RANK } from '../../shared/planetaryIntel.ts';
+import { collectSystemIntel, INTEL_RANK, resolveScoutRecon } from '../../shared/planetaryIntel.ts';
 
 // Processes every active fleet whose current phase has elapsed:
 //   • outbound arrival  → enter a visible "In Battle" window (status=in_battle)
@@ -178,16 +178,7 @@ async function resolveCombatAndReturn(base44, f, byId, now, nowIso) {
 
 async function completeScoutAndReturn(base44, fleet, target, now, nowIso) {
   const svc = base44.asServiceRole;
-  if (!target || !INTEL_RANK[fleet.scout_class]) return;
-  const report = await collectSystemIntel(svc, target, fleet.scout_class);
-  const found = await svc.entities.PlanetaryIntelligence.filter({ created_by_id: fleet.created_by_id, target_empire_id: target.id });
-  const existing = found[0];
-  const level = existing && INTEL_RANK[existing.intelligence_level] > INTEL_RANK[fleet.scout_class] ? existing.intelligence_level : fleet.scout_class;
-  const intelData = { target_empire_id: target.id, target_empire_name: target.empire_name, intelligence_level: level, last_scouted_date: nowIso, ...report };
-  if (existing) await svc.entities.PlanetaryIntelligence.update(existing.id, intelData);
-  else await svc.entities.PlanetaryIntelligence.create({ ...intelData, created_by_id: fleet.created_by_id });
-  const travelMs = Math.round(dist(fleet.origin_x, fleet.origin_y, fleet.target_x, fleet.target_y) * SCOUT_TRAVEL_SECONDS_PER_UNIT) * 1000;
-  await svc.entities.Fleet.update(fleet.id, { status: 'in_transit', leg: 'return', survivors: 1, return_departure_date: nowIso, return_arrival_date: new Date(now + travelMs).toISOString() });
+  await resolveScoutRecon(svc, fleet, target, now, nowIso);
 }
 
 export default async function(req) {
@@ -204,7 +195,7 @@ export default async function(req) {
     // both in_transit and in_battle fleets (in_battle fleets may have their
     // battle window elapsed and need combat resolution).
     const all = await base44.asServiceRole.entities.Fleet.list('-created_date', 1000);
-    const fleets = all.filter((f) => f.status === 'in_transit' || f.status === 'in_battle');
+    const fleets = all.filter((f) => f.status === 'in_transit' || f.status === 'in_battle' || f.status === 'scouting');
 
     const empires = await base44.asServiceRole.entities.Empire.list('-created_date', 1000);
     const byId = new Map(empires.map((e) => [e.id, e]));
@@ -216,6 +207,14 @@ export default async function(req) {
     let returned = 0;       // return arrivals → loot deposited, fleet home
 
     for (const f of fleets) {
+      if (f.status === 'scouting') {
+        // --- Scouting fleet: if recon timer elapsed, collect intel + return ---
+        const reconEnd = new Date(f.recon_end_date).getTime();
+        if (!reconEnd || reconEnd > now) continue; // still scanning
+        await completeScoutAndReturn(base44, f, byId.get(f.target_empire_id), now, nowIso);
+        scouted += 1;
+        continue;
+      }
       if (f.status === 'in_battle') {
         // --- Battle window elapsed: resolve combat, begin the return leg ---
         const battleEndMs = new Date(f.battle_end_date).getTime();
@@ -232,8 +231,8 @@ export default async function(req) {
 
       if (!returning) {
         if (f.mission_type === 'scout') {
-          await completeScoutAndReturn(base44, f, byId.get(f.target_empire_id), now, nowIso);
-          scouted += 1;
+          // --- Scout arrives: hold at target, awaiting player-initiated recon ---
+          await base44.asServiceRole.entities.Fleet.update(f.id, { status: 'awaiting_recon' });
           continue;
         }
         // --- Outbound arrival: enter the battle window (or resolve if it
