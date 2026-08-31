@@ -108,30 +108,39 @@ export default function Console() {
         <Factory className="w-3.5 h-3.5 text-cyan-300/60" />
         <h2 className="command-label">Production Network</h2>
       </div>
-      <div className="grid grid-cols-2 md:grid-cols-7 gap-[5px] mb-2 md:w-4/5 md:mx-auto">
-        {RESOURCES.map((r) => {
-          const Icon = r.icon;
-          return (
-            <div key={r.key} className="glass-panel rounded-md p-1">
-              <Icon className={`w-[17px] h-[17px] ${r.color} mb-[5px]`} />
-              <p className="font-mono text-[0.72rem] font-bold text-foreground tabular-nums leading-none">
-                {formatAmount(empire[r.key])}
-              </p>
-              <p className="text-[0.6rem] uppercase tracking-widest text-muted-foreground mt-[1px]">{r.label}</p>
-            </div>
-          );
-        })}
-      </div>
+      <ProductionBreakdown />
 
       <LowResourceWarning empire={empire} />
 
-      <PlanetDefenseRating />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-5">
+        <section>
+          <div className="flex items-center gap-2 mb-2 px-1">
+            <Shield className="w-3.5 h-3.5 text-emerald-300/70" />
+            <h2 className="command-label">Planetary Security</h2>
+          </div>
+          <PlanetDefenseRating />
+        </section>
 
-      <ProductionBreakdown />
+        <section>
+          <div className="flex items-center gap-2 mb-2 px-1">
+            <FlaskConical className="w-3.5 h-3.5 text-fuchsia-300/70" />
+            <h2 className="command-label">Research Operations</h2>
+          </div>
+          <ActiveResearchPanel />
+        </section>
+      </div>
 
-      <h2 className="font-heading text-[0.65rem] tracking-[0.3em] text-cyan-200/80 uppercase mb-2 mt-6 text-center">Active Research</h2>
-      <div className="md:w-3/5 md:mx-auto">
-        <ActiveResearchPanel />
+      <div className="glass-panel rounded-xl px-4 py-3 mt-4 flex flex-col sm:flex-row sm:items-center gap-3">
+        <div className="flex items-center gap-3 flex-1">
+          <Radar className="w-4 h-4 text-cyan-300" />
+          <div>
+            <p className="command-label">Strategic Network</p>
+            <p className="text-xs text-muted-foreground">Command systems synchronized. Review the Galactic Map for fleet movements and sector activity.</p>
+          </div>
+        </div>
+        <a href="/map" className="command-btn rounded-lg px-3 py-2 text-[10px] font-heading uppercase tracking-widest inline-flex items-center justify-center gap-2 whitespace-nowrap">
+          Open Tactical Map <ArrowRight className="w-3.5 h-3.5" />
+        </a>
       </div>
 
     </div>
