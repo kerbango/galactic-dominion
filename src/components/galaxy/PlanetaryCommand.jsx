@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Handshake, Loader2, Radar, Rocket, ScanSearch, ShieldCheck, Satellite, X, Crosshair, Activity } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { reconProgress, reconRemainingSeconds, formatDuration, lightYears, distance } from '@/lib/galaxy';
+import { toastSuccess } from '@/lib/toasts';
 import DispatchFleet from '@/components/fleet/DispatchFleet';
 import IntelligencePanel from './IntelligencePanel';
 import ScoutDispatch from './ScoutDispatch';
@@ -36,7 +37,7 @@ export default function PlanetaryCommand({ target, myEmpire, relationship, scout
   const [reconBusy, setReconBusy] = useState(false);
   const completingRef = useRef(false);
 
-  const load = () => base44.functions.invoke('getPlanetaryIntelligence', { target_empire_id: target.id }).then((r) => setIntel(r.data));
+  const load = () => base44.functions.invoke('getPlanetaryIntelligence', { target_empire_id: target.id }).then((r) => { setIntel(r.data); return r.data; });
   useEffect(() => {
     setIntel(null); setMode(null); completingRef.current = false;
     load();
@@ -53,6 +54,10 @@ export default function PlanetaryCommand({ target, myEmpire, relationship, scout
     completingRef.current = true;
     base44.functions.invoke('completeRecon', { fleet_id: scoutFleet.id })
       .then(() => load())
+      .then((intelData) => {
+        const lvl = intelData?.intelligence_level;
+        toastSuccess('RECONNAISSANCE COMPLETE', `${intelData?.system_name || target.empire_name} · ${lvl || 'updated'} intelligence`);
+      })
       .catch(() => { completingRef.current = false; });
   }, [scoutFleet?.id, scoutFleet?.status, now]);
 

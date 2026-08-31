@@ -8,6 +8,9 @@ import StatBar from './StatBar';
 import ConstructionTimer from './ConstructionTimer';
 import UnitUpgradeList from './UnitUpgradeList';
 import { getStatDisplay, isTransport } from '@/lib/unitStats';
+import { BASE_TURN_SECONDS } from '@/data/techTree';
+import { formatDuration } from '@/lib/galaxy';
+import { toastSuccess } from '@/lib/toasts';
 
 const RES_LABELS = { aetherium_crystal: 'Aetherium', ferrite_titanium: 'Ferrite', energy: 'Energy', vrind: 'VRIND', berentium: 'Berentium' };
 
@@ -39,6 +42,8 @@ export default function UnitDetailPanel({ unit, unitRecord, unlocked, onBuilt })
     try {
       const res = await base44.functions.invoke('buildUnit', { unit_type: unit.id });
       if (res?.data?.error) { setError(res.data.error); return; }
+      const completionSec = (unit.buildTurns || 1) * BASE_TURN_SECONDS;
+      toastSuccess('CONSTRUCTION STARTED', `${unit.name} · ready in ${formatDuration(completionSec)}`);
       await refresh();
       onBuilt?.();
     } catch (e) {

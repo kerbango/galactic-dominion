@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
+import { toastSuccess, toastWarning } from '@/lib/toasts';
 import { Loader2, Radar, Crosshair, Flag, Crown, Navigation, AlertTriangle, Shield, Radio, Target, Activity } from 'lucide-react';
 import { GRID_SIZE, distance, travelSeconds, formatDuration, lightYears } from '@/lib/galaxy';
 import ZoomableGalaxyMap from '@/components/galaxy/ZoomableGalaxyMap';
@@ -49,6 +50,30 @@ export default function GalacticMap() {
     const t = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(t);
   }, []);
+
+  // Detect battle resolutions: when one of the player's fleets transitions
+  // out of the in_battle window into the return leg (outcome set), fire a
+  // toast with the result. Driven by the realtime Fleet subscription, so it
+  // only fires after the server has actually resolved the engagement.
+  const prevFleetStatus = useRef({});
+  useEffect(() => {
+    if (!user) return;
+    const prev = prevFleetStatus.current;
+    const next = {};
+    for (const f of fleets) {
+      next[f.id] = { status: f.status, leg: f.leg, outcome: f.outcome };
+      const p = prev[f.id];
+      if (p && p.status === 'in_battle' && f.status === 'in_transit' && f.leg === 'return' && f.created_by_id === user.id) {
+        const win = f.outcome === 'win';
+        const surv = f.survivors ?? f.fleet_size;
+        const lootTotal = f.loot ? (f.loot.aetherium_crystal || 0) + (f.loot.ferrite_titanium || 0) + (f.loot.energy || 0) + (f.loot.vrind || 0) : 0;
+        const lootStr = win && lootTotal > 0 ? ` · +${lootTotal.toLocaleString()} loot` : '';
+        if (win) toastSuccess('BATTLE RESOLVED', `VICTORY at ${f.target_empire_name} · ${surv} survivors${lootStr}`);
+        else toastWarning('BATTLE RESOLVED', `DEFEAT at ${f.target_empire_name} · ${surv} survivors`);
+      }
+    }
+    prevFleetStatus.current = next;
+  }, [fleets, user]);
 
   // Arrivals are resolved by the server-side processFleets tick (combat +
   // return leg + loot deposit), which runs even with no client open. The

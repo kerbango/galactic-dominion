@@ -9,6 +9,9 @@ import TechInfoPanel from '@/components/research/TechInfoPanel';
 import TechControls from '@/components/research/TechControls';
 import ActiveResearchPanel from '@/components/research/ActiveResearchPanel';
 import { Loader2 } from 'lucide-react';
+import { BASE_TURN_SECONDS } from '@/data/techTree';
+import { formatDuration } from '@/lib/galaxy';
+import { toastSuccess } from '@/lib/toasts';
 
 // Research Nexus — data-driven technology tree. Loads the shared tech
 // dataset and the player's TechProgress records, derives every node's state
@@ -80,6 +83,10 @@ export default function Research() {
     try {
       const res = await base44.functions.invoke('startResearch', { tech_id: techId });
       if (res?.data?.error) { setError(res.data.error); return; }
+      const tech = TECH_TREE.find((t) => t.id === techId);
+      const turns = res?.data?.record?.research_turns || tech?.researchTurns || 1;
+      const completionSec = turns * BASE_TURN_SECONDS * (1 - speedBonus);
+      toastSuccess('RESEARCH STARTED', `${tech?.name || techId} · completes in ${formatDuration(completionSec)}`);
       await loadProgress();
       await refreshEmpire();
     } catch (e) {

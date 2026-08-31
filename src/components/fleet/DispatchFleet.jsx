@@ -4,6 +4,7 @@ import { base44 } from '@/api/base44Client';
 import { UNITS, isUnitUnlocked } from '@/data/units';
 import ShipManifestSelector from './ShipManifestSelector';
 import DeploymentSummary from './DeploymentSummary';
+import { toastSuccess } from '@/lib/toasts';
 
 // Inline dispatch control shown for a rival empire. Creates a fleet record
 // via the dispatchFleet backend function. The player selects actual built
@@ -67,11 +68,16 @@ export default function DispatchFleet({ target, myEmpire, onDispatched }) {
       for (const [k, v] of Object.entries(groundSelection)) {
         if (v > 0) ground_forces[k] = v;
       }
-      await base44.functions.invoke('dispatchFleet', {
+      const res = await base44.functions.invoke('dispatchFleet', {
         target_empire_id: target.id,
         ship_manifest,
         ground_forces,
       });
+      const fleet = res?.data?.fleet;
+      if (fleet) {
+        const eta = fleet.arrival_date ? new Date(fleet.arrival_date).toLocaleTimeString() : null;
+        toastSuccess('FLEET DEPLOYED', `${fleet.fleet_size} ships → ${fleet.target_empire_name}${eta ? ' · ETA ' + eta : ''}`);
+      }
       onDispatched?.();
     } catch (err) {
       setError(err.response?.data?.error || err.message || 'Failed to dispatch fleet.');

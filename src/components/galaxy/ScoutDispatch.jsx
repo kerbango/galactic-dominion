@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Loader2, Radar } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
+import { toastSuccess } from '@/lib/toasts';
 
 const SCOUTS = [
   { id: 'light_scout', label: 'Light Scout', reveals: 'Resources' },
@@ -17,8 +18,12 @@ export default function ScoutDispatch({ target, onDispatched }) {
   const dispatch = async () => {
     setBusy(true); setError('');
     try {
-      await base44.functions.invoke('dispatchFleet', { target_empire_id: target.id, fleet_size: 1, mission_type: 'scout', scout_unit_type: selected });
+      const res = await base44.functions.invoke('dispatchFleet', { target_empire_id: target.id, fleet_size: 1, mission_type: 'scout', scout_unit_type: selected });
       setOwned((prev) => ({ ...prev, [selected]: Math.max(0, (prev[selected] || 0) - 1) }));
+      const scoutLabel = SCOUTS.find((s) => s.id === selected)?.label || 'Scout';
+      const fleet = res?.data?.fleet;
+      const eta = fleet?.arrival_date ? new Date(fleet.arrival_date).toLocaleTimeString() : null;
+      toastSuccess('SCOUT DEPLOYED', `${scoutLabel} → ${target.empire_name}${eta ? ' · ETA ' + eta : ''}`);
       onDispatched?.();
     } catch (e) { setError(e.response?.data?.error || e.message || 'Scout dispatch failed.'); }
     finally { setBusy(false); }
