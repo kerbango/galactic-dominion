@@ -34,8 +34,9 @@ export default function ActiveFleets({ fleets, now, myUserId }) {
           : 0;
         const route = `${f.origin_empire_name} → ${f.target_empire_name}`;
         return (
-          <div key={f.id} className={`glass-panel rounded-lg p-3 ${inBattle ? 'border border-orange-400/40' : ''}`}>
+          <div key={f.id} className={`glass-panel rounded-xl p-3 ${inBattle ? 'border border-orange-400/45 bg-orange-950/10' : returning ? 'border border-violet-400/15' : 'border border-cyan-400/10'}`}>
             <div className="flex items-center justify-between gap-2">
+              <span className="text-[8px] font-mono uppercase tracking-[0.18em] text-muted-foreground">Fleet telemetry</span>
               <span className="flex items-center gap-1.5 min-w-0">
                 {inBattle ? (
                   <Swords className="w-4 h-4 shrink-0 text-orange-300 animate-pulse-glow" />
@@ -50,13 +51,13 @@ export default function ActiveFleets({ fleets, now, myUserId }) {
                 {inBattle ? 'In Battle' : mine ? 'Yours' : 'Incoming'}
               </span>
             </div>
-            <div className="mt-2 h-1.5 rounded-full bg-secondary overflow-hidden">
+            <div className="mt-2.5 h-1.5 rounded-full bg-secondary/80 overflow-hidden border border-white/5">
               <div
                 className={`h-full ${inBattle ? 'bg-orange-400' : mine ? 'bg-cyan-400' : 'bg-rose-400'}`}
                 style={{ width: `${Math.round(p * 100)}%` }}
               />
             </div>
-            <div className="flex items-center justify-between mt-1.5 text-xs font-mono">
+            <div className="flex items-center justify-between mt-2 text-[10px] font-mono">
               <span className="flex items-center gap-2">
                 <span className="text-muted-foreground">{returning ? (f.survivors ?? f.fleet_size) : f.fleet_size} ships</span>
                 <span className={`uppercase tracking-widest ${inBattle ? 'text-orange-300/80' : returning ? 'text-violet-300/80' : 'text-cyan-300/70'}`}>
