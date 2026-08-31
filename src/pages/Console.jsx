@@ -64,16 +64,6 @@ export default function Console() {
         <div className="scanline-overlay" />
       </div>
 
-      {/* Sticky command bar */}
-      <div className="sticky top-2 z-10 glass-panel-strong rounded-xl px-4 py-2.5 mb-4 flex items-center gap-4">
-        <div className="flex items-center gap-4 text-[11px] font-mono uppercase tracking-widest">
-          <span className="flex items-center gap-1.5 text-slate-400"><Coins className="w-3 h-3 text-cyan-300" /> VRIND <span className="text-cyan-200">{formatAmount(empire.vrind)}</span></span>
-          <span className="flex items-center gap-1.5 text-slate-400"><Zap className="w-3 h-3 text-amber-300" /> Energy <span className="text-amber-300">{formatAmount(empire.energy)}</span></span>
-          <span className="flex items-center gap-1.5 text-slate-400"><FlaskConical className="w-3 h-3 text-fuchsia-300" /> RP <span className="text-fuchsia-300">{formatAmount(empire.research_points)}</span></span>
-          <span className="hidden md:flex items-center gap-1.5 text-slate-400"><Users className="w-3 h-3 text-rose-300" /> Pop <span className="text-rose-300">{formatAmount(empire.population)}</span></span>
-        </div>
-      </div>
-
       {/* Treasury */}
       <div className="flex items-center justify-between mb-2 px-1">
         <div>

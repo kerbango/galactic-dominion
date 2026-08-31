@@ -17,7 +17,7 @@ export default function TopNav() {
   const isAdmin = user?.role === 'admin';
   const location = useLocation();
   // Treasury HUD only on empire-management screens where resources are spent.
-  const SHOW_TREASURY_ON = ['/profile', '/research', '/military', '/upgrades', '/market'];
+  const SHOW_TREASURY_ON = ['/profile', '/research', '/military', '/upgrades', '/market', '/map', '/console'];
   const showTreasury = SHOW_TREASURY_ON.includes(location.pathname);
   const linkClass = ({ isActive }) =>
     `flex items-center gap-1 px-2 py-1 rounded-md text-xs font-heading uppercase tracking-wider whitespace-nowrap transition-colors ${
