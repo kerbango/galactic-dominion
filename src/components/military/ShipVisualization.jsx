@@ -51,7 +51,7 @@ export default function ShipVisualization({ unit, unlocked, className = '' }) {
             showSchematic && hasSchematic ? (
               <Image src={art.schematic} fittingType="fit" className="max-h-[300px] md:max-h-[340px]" />
             ) : !showSchematic && hasArt ? (
-              <Image src={art.art} fittingType="fit" className="max-h-[280px] md:max-h-[320px] animate-float-slow" />
+              <Image src={art.art} fittingType="fit" className="w-full max-w-[440px] h-[280px] md:h-[320px] animate-float-slow" />
             ) : (
               <ShipSilhouette variant={variant} wireframe={showSchematic} className="w-full max-w-[440px] animate-float-slow" />
             )
