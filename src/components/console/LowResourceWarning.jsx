@@ -50,13 +50,17 @@ export default function LowResourceWarning({ empire }) {
   if (lowResources.length === 0) return null;
 
   return (
-    <div className="md:w-3/5 md:mx-auto mt-2">
-      <div className="glass-panel rounded-md p-2 border border-amber-400/40 animate-pulse-glow">
-        <div className="flex items-center gap-2 mb-1.5">
-          <AlertTriangle className="w-4 h-4 text-amber-300" />
-          <p className="text-[0.6rem] font-mono uppercase tracking-widest text-amber-200">
-            Low Reserves
-          </p>
+    <div className="mt-3">
+      <div className="glass-panel rounded-xl p-3 border border-amber-400/35 animate-pulse-glow">
+        <div className="flex items-center justify-between gap-3 mb-2">
+          <div className="flex items-center gap-2">
+            <AlertTriangle className="w-4 h-4 text-amber-300" />
+            <div>
+              <p className="command-label text-amber-200/80">Logistics Warning</p>
+              <p className="text-[10px] font-mono uppercase tracking-widest text-amber-100/60">Reserves below operational threshold</p>
+            </div>
+          </div>
+          <span className="text-[9px] font-mono uppercase tracking-widest text-amber-300">Action required</span>
         </div>
         <div className="flex flex-wrap gap-2">
           {lowResources.map((r) => {
