@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import { ZoomIn, ZoomOut, Maximize } from 'lucide-react';
 import { GRID_SIZE } from '@/lib/galaxy';
 import FleetMarkers from '@/components/fleet/FleetMarkers';
+import SystemMarker from '@/components/galaxy/SystemMarker';
 
 const MAX_ZOOM = 12;
 
@@ -120,6 +121,21 @@ export default function ZoomableGalaxyMap({ empires, myEmpire, fleets, now, myUs
   const reset = () => setView({ x: 0, y: 0, w: GRID_SIZE, h: GRID_SIZE });
   const zoom = GRID_SIZE / view.w;
 
+  // Classify systems by live fleet activity for marker styling: hostileIds =
+  // rivals currently attacking the player; contestedIds = systems with a fleet
+  // in active battle at that target.
+  const userIdToEmpireId = new Map();
+  empires.forEach((e) => { if (e.created_by_id) userIdToEmpireId.set(e.created_by_id, e.id); });
+  const hostileIds = new Set();
+  const contestedIds = new Set();
+  fleets.forEach((f) => {
+    if (f.status === 'in_battle' && f.target_empire_id) contestedIds.add(f.target_empire_id);
+    if (myEmpire && f.target_empire_id === myEmpire.id && f.created_by_id !== myUserId) {
+      const atk = userIdToEmpireId.get(f.created_by_id);
+      if (atk) hostileIds.add(atk);
+    }
+  });
+
   return (
     <div className="glass-panel-strong rounded-2xl p-2 md:p-3">
       <div className="flex items-center justify-between gap-3 px-2 py-2 mb-2 border-b border-cyan-400/10">
@@ -166,32 +182,21 @@ export default function ZoomableGalaxyMap({ empires, myEmpire, fleets, now, myUs
           {/* In-transit fleets (rendered under empire markers) */}
           <FleetMarkers fleets={fleets} now={now} myUserId={myUserId} myEmpireId={myEmpire?.id} selectedFleetId={selectedFleetId} onSelectFleetId={onSelectFleetId} />
 
-          {/* Empire markers */}
+          {/* System markers */}
           {empires.map((e) => {
-            const mine = myEmpire && e.id === myEmpire.id;
-            const sel = selectedId && e.id === selectedId;
+            const inView = e.map_x >= view.x - 100 && e.map_x <= view.x + view.w + 100 && e.map_y >= view.y - 100 && e.map_y <= view.y + view.h + 100;
             return (
-              <g key={e.id} onClick={() => onSelectId(e.id)} className="cursor-pointer">
-                {sel && (
-                  <circle cx={e.map_x} cy={e.map_y} r={34} fill="none" stroke="rgba(255,255,255,0.55)" strokeWidth={1.5} strokeDasharray="6 5" className="animate-pulse-glow" />
-                )}
-                {mine && (
-                  <circle cx={e.map_x} cy={e.map_y} r={30} fill="none" stroke="rgba(56,189,248,0.5)" strokeWidth={2} className="animate-pulse-glow" />
-                )}
-                <circle cx={e.map_x} cy={e.map_y} r={mine ? 10 : 7} fill={mine ? 'rgba(56,189,248,0.95)' : 'rgba(167,139,250,0.9)'} stroke={sel ? '#ffffff' : 'rgba(255,255,255,0.45)'} strokeWidth={sel ? 3 : 1.5} />
-                <circle cx={e.map_x} cy={e.map_y} r={mine ? 3 : 2} fill="rgba(224,247,255,0.95)" />
-                <text
-                  x={e.map_x}
-                  y={e.map_y - 14}
-                  textAnchor="middle"
-                  fontSize={mine ? 20 : 15}
-                  fontFamily="Orbitron, sans-serif"
-                  fill={mine ? 'rgba(186,240,255,0.95)' : 'rgba(203,213,225,0.75)'}
-                  style={{ pointerEvents: 'none' }}
-                >
-                  {e.empire_name.length > 16 ? e.empire_name.slice(0, 15) + '…' : e.empire_name}
-                </text>
-              </g>
+              <SystemMarker
+                key={e.id}
+                empire={e}
+                mine={myEmpire && e.id === myEmpire.id}
+                selected={selectedId && e.id === selectedId}
+                hostile={hostileIds.has(e.id)}
+                contested={contestedIds.has(e.id)}
+                zoom={zoom}
+                inView={inView}
+                onSelect={onSelectId}
+              />
             );
           })}
 
