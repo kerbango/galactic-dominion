@@ -4,8 +4,7 @@
 // never a random or unrelated image. Add entries here as art becomes
 // available — no UI changes required.
 const SHIP_ART = {
-  // Example:
-  // Dreadnaught: { art: 'https://...dreadnaught.png', schematic: 'https://...dreadnaught-blueprint.png' },
+  light_scout: { art: 'https://media.base44.com/images/public/6a8dedaa90af486a558f758e/fa07a0737_lightscout.png' },
 };
 
 export function getShipArt(unitType) {
