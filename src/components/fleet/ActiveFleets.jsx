@@ -1,20 +1,19 @@
 import React from 'react';
-import { Rocket, Navigation, Swords } from 'lucide-react';
+import { Rocket, Navigation, Swords, ArrowRight, ArrowLeft } from 'lucide-react';
 import { fleetProgress, remainingSeconds, formatDuration, battleProgress, battleRemainingSeconds, reconProgress, reconRemainingSeconds } from '@/lib/galaxy';
 
-// Lists all active fleets with live countdowns and progress bars.
-// `now` (epoch ms) drives the per-second countdown and progress fill. A fleet
-// can be in one of three active phases:
-//   - in_transit + outbound → travelling to the target (Outbound)
-//   - in_battle             → fighting at the target (In Battle) with a
-//                              countdown to combat resolution
-//   - in_transit + return   → travelling home with survivors/loot (Return)
-export default function ActiveFleets({ fleets, now, myUserId }) {
+const SCOUT_LABEL = { light: 'Light Scout', medium: 'Medium Scout', heavy: 'Heavy Scout' };
+
+// Lists all active fleets with live countdowns and progress bars. Each card
+// leads with the fleet name, then a prominent destination line (arrow +
+// system name, or ← HOME for returning fleets, or ⚔ for active battles) so
+// the destination is immediately obvious. `now` (epoch ms) drives the
+// per-second countdown and progress fill.
+export default function ActiveFleets({ fleets, now, myUserId, onSelectFleet }) {
   const active = (fleets || []).filter((f) => {
     if (f.status === 'in_battle') return true;
     if (f.status === 'awaiting_recon' || f.status === 'scouting') return true;
     if (f.status !== 'in_transit') return false;
-    // Remove return-leg fleets once their return trip has elapsed.
     if (f.leg === 'return' && f.return_arrival_date) {
       return new Date(f.return_arrival_date).getTime() > now;
     }
@@ -35,7 +34,13 @@ export default function ActiveFleets({ fleets, now, myUserId }) {
           ? (f.loot.aetherium_crystal || 0) + (f.loot.ferrite_titanium || 0) +
             (f.loot.energy || 0) + (f.loot.vrind || 0)
           : 0;
-        const route = `${f.origin_empire_name} → ${f.target_empire_name}`;
+
+        const fleetName = f.mission_type === 'scout' ? (SCOUT_LABEL[f.scout_class] || 'Scout') : (f.origin_empire_name || 'Fleet');
+        const destLabel = returning ? `HOME: ${f.origin_empire_name || 'Home'}` : (f.target_empire_name || 'Unknown');
+        const DestIcon = inBattle ? Swords : returning ? ArrowLeft : ArrowRight;
+        const destColor = inBattle ? 'text-orange-300' : returning ? 'text-violet-300' : mine ? 'text-cyan-300' : 'text-rose-300';
+        const destRouteColor = inBattle ? 'text-orange-200' : returning ? 'text-violet-200' : mine ? 'text-cyan-200' : 'text-rose-200';
+
         const ledClass = inBattle ? 'led-amber' : isScanning ? 'led-green' : returning ? 'led-green' : mine ? 'led-green' : 'led-amber';
         const barColor = inBattle ? 'bg-orange-400' : isScanning ? 'bg-cyan-400' : mine ? 'bg-cyan-400' : 'bg-rose-400';
         const barGlow = inBattle ? 'shadow-[0_0_8px_rgba(251,146,60,0.6)]' : isScanning ? 'shadow-[0_0_8px_rgba(56,189,248,0.6)]' : mine ? 'shadow-[0_0_8px_rgba(56,189,248,0.6)]' : 'shadow-[0_0_8px_rgba(244,63,94,0.6)]';
@@ -46,21 +51,29 @@ export default function ActiveFleets({ fleets, now, myUserId }) {
                 <span className={`led ${ledClass}`} />
                 <span className="text-[8px] font-mono uppercase tracking-[0.18em] text-muted-foreground">Fleet telemetry</span>
               </span>
-              <span className="flex items-center gap-1.5 min-w-0">
-                {inBattle ? (
-                  <Swords className="w-4 h-4 shrink-0 text-orange-300 animate-pulse-glow" />
-                ) : (
-                  <Rocket className={`w-4 h-4 shrink-0 ${mine ? 'text-cyan-300' : 'text-rose-300'}`} />
-                )}
-                <span className="truncate font-heading text-xs uppercase tracking-wide text-foreground">
-                  {route}
-                </span>
-              </span>
               <span className={`text-[10px] font-mono uppercase ${inBattle ? 'text-orange-300/90' : mine ? 'text-cyan-300/80' : 'text-rose-300/80'}`}>
                 {inBattle ? 'In Battle' : mine ? 'Yours' : 'Incoming'}
               </span>
             </div>
-            <div className="mt-2.5 h-1.5 rounded-full bg-secondary/80 overflow-hidden border border-white/5">
+
+            {/* Fleet name (origin / scout class) */}
+            <p className="mt-1 font-heading text-xs uppercase tracking-wide text-foreground truncate">
+              {fleetName}
+            </p>
+
+            {/* Destination — prominent, clickable to focus the map */}
+            <button
+              type="button"
+              onClick={() => onSelectFleet?.(f)}
+              className="mt-0.5 flex items-center gap-1.5 w-full text-left group focus:outline-none"
+            >
+              <DestIcon className={`w-4 h-4 shrink-0 ${destColor} ${inBattle ? 'animate-pulse-glow' : ''}`} />
+              <span className={`font-heading text-sm uppercase tracking-wide truncate group-hover:underline ${destRouteColor}`}>
+                {destLabel}
+              </span>
+            </button>
+
+            <div className="mt-2 h-1.5 rounded-full bg-secondary/80 overflow-hidden border border-white/5">
               <div
                 className={`h-full ${barColor} ${barGlow} transition-all duration-500`}
                 style={{ width: `${Math.round(p * 100)}%` }}

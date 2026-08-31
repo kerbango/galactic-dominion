@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { ZoomIn, ZoomOut, Maximize } from 'lucide-react';
 import { GRID_SIZE } from '@/lib/galaxy';
 import FleetMarkers from '@/components/fleet/FleetMarkers';
@@ -17,11 +17,20 @@ const clampView = ({ x, y, w, h }) => {
 // Zoomable, pannable SVG galactic map. Wheel zooms toward the cursor; drag
 // pans; buttons zoom about the centre. Empire markers stay clickable and
 // keep their original sizes regardless of zoom level.
-export default function ZoomableGalaxyMap({ empires, myEmpire, fleets, now, myUserId, selectedId, onSelectId, selectedFleetId, onSelectFleetId }) {
+export default function ZoomableGalaxyMap({ empires, myEmpire, fleets, now, myUserId, selectedId, onSelectId, selectedFleetId, onSelectFleetId, centerOn }) {
   const svgRef = useRef(null);
   const [view, setView] = useState({ x: 0, y: 0, w: GRID_SIZE, h: GRID_SIZE });
   const viewRef = useRef(view);
   viewRef.current = view;
+
+  // Center the tactical view on a system when a fleet destination is
+  // selected from the operations list. Keyed by a token so repeated
+  // selections of the same system re-center.
+  useEffect(() => {
+    if (!centerOn) return;
+    const w = GRID_SIZE / 12;
+    setView(clampView({ x: centerOn.x - w / 2, y: centerOn.y - w / 2, w, h: w }));
+  }, [centerOn?.key]);
   const drag = useRef(null);
   const pointers = useRef(new Map());
   const pinch = useRef(null);

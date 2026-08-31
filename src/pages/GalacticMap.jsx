@@ -18,7 +18,14 @@ export default function GalacticMap() {
   const [error, setError] = useState('');
   const [selectedId, setSelectedId] = useState(null);
   const [selectedFleetId, setSelectedFleetId] = useState(null);
+  const [centerOn, setCenterOn] = useState(null);
   const handleSelectFleet = (id) => setSelectedFleetId((prev) => (prev === id ? null : id));
+  const focusFleet = (fleet) => {
+    setSelectedFleetId(fleet.id);
+    const tx = fleet.leg === 'return' ? fleet.origin_x : fleet.target_x;
+    const ty = fleet.leg === 'return' ? fleet.origin_y : fleet.target_y;
+    if (tx != null && ty != null) setCenterOn({ x: tx, y: ty, key: Date.now() });
+  };
 
   useEffect(() => {
     let active = true;
@@ -172,6 +179,7 @@ export default function GalacticMap() {
           onSelectId={setSelectedId}
           selectedFleetId={selectedFleetId}
           onSelectFleetId={handleSelectFleet}
+          centerOn={centerOn}
         />
 
         {/* Side panel */}
@@ -215,7 +223,7 @@ empires.length === 0 ? (
                   <h2 className="font-heading text-sm tracking-[0.18em] text-cyan-100 uppercase">Active Operations</h2>
                 </div>
               </div>
-              <ActiveFleets fleets={visibleFleets} now={now} myUserId={user?.id} />
+              <ActiveFleets fleets={visibleFleets} now={now} myUserId={user?.id} onSelectFleet={focusFleet} />
             </div>
           }
 
