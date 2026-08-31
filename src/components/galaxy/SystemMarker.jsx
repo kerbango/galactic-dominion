@@ -27,14 +27,16 @@ export default function SystemMarker({ empire, mine, selected, hostile, conteste
   const ownership = mine ? OWNERSHIP.player : hostile ? OWNERSHIP.hostile : OWNERSHIP.neutral;
   const palette = PLANETS[stableIndex(empire.id)];
   const medium = zoom >= 2.4;
-  const detailed = zoom >= 5;
+  const detailed = zoom >= 8;
   const planetR = detailed ? 13 : medium ? 10 : 7;
   const orbitX = detailed ? 25 : medium ? 20 : 14;
   const orbitY = detailed ? 12 : medium ? 9 : 6;
   const planetX = detailed ? 20 : medium ? 16 : 11;
   const starR = detailed ? 4.2 : medium ? 3.5 : 2.8;
   const markerRadius = detailed ? 39 : medium ? 32 : 24;
-  const scale = 1 / zoom;
+  // Counter-scale only partially: strategic markers stay compact, while the
+  // system grows progressively through sector, system, and tactical zoom.
+  const scale = 1 / Math.pow(zoom, 0.58);
   const safeId = `system-${String(empire.id).replace(/[^a-zA-Z0-9_-]/g, '')}`;
   const name = empire.empire_name || 'Unknown System';
   const displayName = detailed || name.length <= 18 ? name : `${name.slice(0, 17)}…`;

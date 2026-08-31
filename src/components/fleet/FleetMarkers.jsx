@@ -5,7 +5,7 @@ import FleetMarker from './FleetMarker';
 // contact movement (the parent's `now` only ticks once per second for the
 // countdown panels); the rAF loop runs only while at least one fleet is
 // actually in transit, so idle/battle-only maps incur no animation cost.
-export default function FleetMarkers({ fleets, now, myUserId, myEmpireId, selectedFleetId, onSelectFleetId }) {
+export default function FleetMarkers({ fleets, now, zoom, myUserId, myEmpireId, selectedFleetId, onSelectFleetId }) {
   const [localNow, setLocalNow] = useState(now);
   const hasMoving = fleets?.some((f) => f.status === 'in_transit');
 
@@ -27,6 +27,7 @@ export default function FleetMarkers({ fleets, now, myUserId, myEmpireId, select
           key={f.id}
           fleet={f}
           now={localNow}
+          zoom={zoom}
           myUserId={myUserId}
           myEmpireId={myEmpireId}
           selected={selectedFleetId === f.id}

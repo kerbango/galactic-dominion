@@ -4,7 +4,7 @@ import { GRID_SIZE } from '@/lib/galaxy';
 import FleetMarkers from '@/components/fleet/FleetMarkers';
 import SystemMarker from '@/components/galaxy/SystemMarker';
 
-const MAX_ZOOM = 12;
+const MAX_ZOOM = 48;
 
 const clampView = ({ x, y, w, h }) => {
   const cw = Math.max(GRID_SIZE / MAX_ZOOM, Math.min(GRID_SIZE, w));
@@ -51,7 +51,7 @@ export default function ZoomableGalaxyMap({ empires, myEmpire, fleets, now, myUs
 
   const onWheel = (e) => {
     e.preventDefault();
-    const factor = e.deltaY < 0 ? 1.25 : 1 / 1.25;
+    const factor = Math.max(0.76, Math.min(1.32, Math.exp(-e.deltaY * 0.0018)));
     zoomAt(e.clientX, e.clientY, factor);
   };
 
@@ -120,6 +120,7 @@ export default function ZoomableGalaxyMap({ empires, myEmpire, fleets, now, myUs
 
   const reset = () => setView({ x: 0, y: 0, w: GRID_SIZE, h: GRID_SIZE });
   const zoom = GRID_SIZE / view.w;
+  const zoomMode = zoom < 2.4 ? 'Galaxy' : zoom < 8 ? 'Sector' : zoom < 24 ? 'System' : 'Tactical';
 
   // Classify systems by live fleet activity for marker styling: hostileIds =
   // rivals currently attacking the player; contestedIds = systems with a fleet
@@ -180,7 +181,7 @@ export default function ZoomableGalaxyMap({ empires, myEmpire, fleets, now, myUs
           <rect x={0} y={0} width={GRID_SIZE} height={GRID_SIZE} fill="none" stroke="rgba(103,232,249,0.28)" strokeWidth={2} rx={8} />
 
           {/* In-transit fleets (rendered under empire markers) */}
-          <FleetMarkers fleets={fleets} now={now} myUserId={myUserId} myEmpireId={myEmpire?.id} selectedFleetId={selectedFleetId} onSelectFleetId={onSelectFleetId} />
+          <FleetMarkers fleets={fleets} now={now} zoom={zoom} myUserId={myUserId} myEmpireId={myEmpire?.id} selectedFleetId={selectedFleetId} onSelectFleetId={onSelectFleetId} />
 
           {/* System markers */}
           {empires.map((e) => {
@@ -211,7 +212,7 @@ export default function ZoomableGalaxyMap({ empires, myEmpire, fleets, now, myUs
         {/* Zoom controls */}
         <div className="absolute top-3 right-3 flex flex-col gap-1.5">
           <div className="glass-panel-strong rounded-lg px-2 py-1.5 text-center">
-            <p className="text-[8px] font-mono uppercase tracking-widest text-cyan-200/50">Scale</p>
+            <p className="text-[8px] font-mono uppercase tracking-widest text-cyan-200/50">{zoomMode}</p>
             <p className="font-mono text-[10px] text-cyan-200">{zoom.toFixed(1)}×</p>
           </div>
           <button onClick={() => zoomCenter(1.6)} className="command-btn w-10 h-10 rounded-lg flex items-center justify-center" title="Zoom in">
