@@ -81,10 +81,12 @@ async function resolveCombatAndReturn(base44, f, byId, byOwnerId, now, nowIso) {
   let win;
   let survivors;               // total survivor count (stored for CombatLog)
   let shipLosses = null;      // per-type losses (stored for return + CombatLog)
+  let attackerStrength = null; // persisted snapshot for battle result + Combat Log
+  let defenderStrength = null; // persisted snapshot for battle result + Combat Log
 
   if (hasManifest) {
-    const attackerStrength = computeAttackerSpaceStrength(manifest, attackerUpgrades, attackerEmpire);
-    const defenderStrength = computeDefenderSpaceStrength(defender, defenderUnits);
+    attackerStrength = computeAttackerSpaceStrength(manifest, attackerUpgrades, attackerEmpire);
+    defenderStrength = computeDefenderSpaceStrength(defender, defenderUnits);
     win = attackerStrength > defenderStrength;
     const totalShips = Object.values(manifest).reduce((s, n) => s + (n || 0), 0);
     const defenseBonus = attackerFleetDefenseBonus(attackerEmpire);
@@ -96,8 +98,8 @@ async function resolveCombatAndReturn(base44, f, byId, byOwnerId, now, nowIso) {
     shipLosses = computeFleetLosses(manifest, survivorMap);
   } else {
     // Legacy fleet (no ship_manifest): preserve the original fallback math.
-    const attackerStrength = (f.fleet_size || 0) * LEGACY_ATTACKER_POWER_PER_SHIP;
-    const defenderStrength = defender ? 50 : 0;
+    attackerStrength = (f.fleet_size || 0) * LEGACY_ATTACKER_POWER_PER_SHIP;
+    defenderStrength = defender ? 50 : 0;
     win = attackerStrength > defenderStrength;
     survivors = Math.max(
       1,
@@ -209,6 +211,8 @@ async function resolveCombatAndReturn(base44, f, byId, byOwnerId, now, nowIso) {
     ground_survivors: groundSurvivors,
     return_departure_date: nowIso,
     return_arrival_date: returnArrival,
+    attacker_strength: attackerStrength,
+    defender_strength: defenderStrength,
   };
   if (shipLosses) update.ship_losses = shipLosses;
   await svc.entities.Fleet.update(f.id, update);

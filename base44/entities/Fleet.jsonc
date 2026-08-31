@@ -119,6 +119,18 @@
         "loss"
       ]
     },
+    "attacker_strength": {
+      "type": "number",
+      "title": "Attacker Strength",
+      "description": "Snapshot of the attacker's space-combat strength at resolution time. Display-only \u2014 persisted so the battle result notification and Combat Log can show the actual fleet strength that fought.",
+      "minimum": 0
+    },
+    "defender_strength": {
+      "type": "number",
+      "title": "Defender Strength",
+      "description": "Snapshot of the defender's space-combat strength (planetary defenses + stationed warships) at resolution time. Display-only \u2014 persisted so the battle result notification and Combat Log can show the actual enemy defense that was overcome.",
+      "minimum": 0
+    },
     "survivors": {
       "type": "number",
       "minimum": 0

@@ -46,7 +46,11 @@ export default function ResourceBar() {
     const unsubscribe = base44.entities.Empire.subscribe((event) => {
       if (active) load();
     });
-    return () => { active = false; clearInterval(poll); unsubscribe(); };
+    // Refresh immediately when a fleet returns home and loot is deposited —
+    // the server-side return write doesn't reach the realtime subscription.
+    const onLoot = () => { if (active) load(); };
+    window.addEventListener('loot-deposited', onLoot);
+    return () => { active = false; clearInterval(poll); unsubscribe(); window.removeEventListener('loot-deposited', onLoot); };
   }, []);
 
   // Refetch the instant the production-cycle countdown hits zero, so the HUD

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
-import { toastSuccess, toastWarning } from '@/lib/toasts';
+import { notifyBattleResolved, notifyFleetReturned } from '@/lib/battleNotify.jsx';
 import { Loader2, Radar, Crosshair, Flag, Crown, Navigation, AlertTriangle, Shield, Radio, Target, Activity } from 'lucide-react';
 import { GRID_SIZE, distance, travelSeconds, formatDuration, lightYears } from '@/lib/galaxy';
 import ZoomableGalaxyMap from '@/components/galaxy/ZoomableGalaxyMap';
@@ -49,7 +49,13 @@ export default function GalacticMap() {
     const unsubscribe = base44.entities.Fleet.subscribe(() => {
       base44.entities.Fleet.list('-created_date', 200).then((f) => setFleets(f)).catch(() => {});
     });
-    return () => {active = false;unsubscribe();};
+    // Polling fallback: service-role writes (processFleets) do not reliably
+    // trigger the realtime subscription, so re-fetch every 30 seconds to
+    // catch battle resolutions and return arrivals the socket missed.
+    const poll = setInterval(() => {
+      base44.entities.Fleet.list('-created_date', 200).then((f) => setFleets(f)).catch(() => {});
+    }, 30000);
+    return () => {active = false;unsubscribe();clearInterval(poll);};
   }, []);
 
   // Per-second tick drives the live countdowns and fleet position animation.
@@ -58,10 +64,11 @@ export default function GalacticMap() {
     return () => clearInterval(t);
   }, []);
 
-  // Detect battle resolutions: when one of the player's fleets transitions
-  // out of the in_battle window into the return leg (outcome set), fire a
-  // toast with the result. Driven by the realtime Fleet subscription, so it
-  // only fires after the server has actually resolved the engagement.
+  // Detect battle resolutions and fleet returns. Compares each fleet's
+  // current status against the previous snapshot so transitions fire exactly
+  // once. Both the realtime subscription and the 30-second polling fallback
+  // feed into this same effect; the localStorage guard inside the notify
+  // helpers prevents a duplicate toast if both detect the same transition.
   const prevFleetStatus = useRef({});
   useEffect(() => {
     if (!user) return;
@@ -69,14 +76,15 @@ export default function GalacticMap() {
     const next = {};
     for (const f of fleets) {
       next[f.id] = { status: f.status, leg: f.leg, outcome: f.outcome };
+      if (f.created_by_id !== user.id) continue;
       const p = prev[f.id];
-      if (p && p.status === 'in_battle' && f.status === 'in_transit' && f.leg === 'return' && f.created_by_id === user.id) {
-        const win = f.outcome === 'win';
-        const surv = f.survivors ?? f.fleet_size;
-        const lootTotal = f.loot ? (f.loot.aetherium_crystal || 0) + (f.loot.ferrite_titanium || 0) + (f.loot.energy || 0) + (f.loot.vrind || 0) : 0;
-        const lootStr = win && lootTotal > 0 ? ` · +${lootTotal.toLocaleString()} loot` : '';
-        if (win) toastSuccess('BATTLE RESOLVED', `VICTORY at ${f.target_empire_name} · ${surv} survivors${lootStr}`);
-        else toastWarning('BATTLE RESOLVED', `DEFEAT at ${f.target_empire_name} · ${surv} survivors`);
+      // Battle resolved: in_battle → return leg (outcome now set).
+      if (p && p.status === 'in_battle' && f.status === 'in_transit' && f.leg === 'return') {
+        notifyBattleResolved(f);
+      }
+      // Fleet returned home: return leg → arrived (loot deposited by server).
+      if (p && p.leg === 'return' && p.status !== 'arrived' && f.status === 'arrived') {
+        notifyFleetReturned(f);
       }
     }
     prevFleetStatus.current = next;

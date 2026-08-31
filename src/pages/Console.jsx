@@ -1,11 +1,12 @@
 import React from 'react';
 import { Navigate, Link } from 'react-router-dom';
-import { Gem, Layers, Zap, Coins, Pickaxe, Users, Loader2, LayoutDashboard, FlaskConical, Shield, Factory, Radar, ArrowRight, Activity } from 'lucide-react';
+import { Gem, Layers, Zap, Coins, Pickaxe, Users, Loader2, LayoutDashboard, FlaskConical, Shield, Factory, Radar, ArrowRight, Activity, Swords } from 'lucide-react';
 import { useEmpire } from '@/lib/EmpireContext';
 import ProductionBreakdown from '@/components/console/ProductionBreakdown';
 import CommandDirectives from '@/components/console/CommandDirectives';
 import LowResourceWarning from '@/components/console/LowResourceWarning';
 import PlanetDefenseRating from '@/components/console/PlanetDefenseRating';
+import RecentEngagement from '@/components/console/RecentEngagement';
 import ActiveResearchPanel from '@/components/research/ActiveResearchPanel';
 
 const RESOURCES = [
@@ -123,6 +124,14 @@ export default function Console() {
             <h2 className="command-label">Planetary Security</h2>
           </div>
           <PlanetDefenseRating />
+        </section>
+
+        <section>
+          <div className="flex items-center gap-2 mb-2 px-1">
+            <Swords className="w-3.5 h-3.5 text-cyan-300/70" />
+            <h2 className="command-label">Recent Engagement</h2>
+          </div>
+          <RecentEngagement />
         </section>
 
         <section>
