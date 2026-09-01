@@ -1,1 +1,0 @@
-Light Frigate artwork registry integration prepared in src/data/shipArt.js.
