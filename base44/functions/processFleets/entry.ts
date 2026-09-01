@@ -89,7 +89,6 @@ async function resolveCombatAndReturn(base44, f, byId, byOwnerId, now, nowIso) {
   if (win && defender && Object.keys(groundForces).length > 0) {
     const attackerGroundStr = computeGroundStrength(groundForces, attackerUpgrades);
     const pdr = computePlanetDefenseRating(defender, defenderUnits);
-
     if (attackerGroundStr > pdr) {
       const phase1Rate = Math.min(0.9, 0.5 + 0.4 * (1 - pdr / Math.max(1, attackerGroundStr)));
       const phase1Surv = {};
@@ -97,10 +96,8 @@ async function resolveCombatAndReturn(base44, f, byId, byOwnerId, now, nowIso) {
         const s = Math.max(1, Math.floor(count * phase1Rate));
         if (s > 0) phase1Surv[type] = s;
       }
-
       const garrisonStr = computeGarrisonStrength(defenderUnits);
       const attackerSurvStr = computeGroundStrength(phase1Surv, attackerUpgrades);
-
       if (attackerSurvStr > garrisonStr) {
         for (const u of defenderUnits) {
           const unit = getUnit(u.unit_type);
@@ -156,4 +153,110 @@ async function resolveCombatAndReturn(base44, f, byId, byOwnerId, now, nowIso) {
   };
   if (shipLosses) update.ship_losses = shipLosses;
   await svc.entities.Fleet.update(f.id, update);
+}
+
+async function completeScoutAndReturn(base44, fleet, target, now, nowIso) {
+  const svc = base44.asServiceRole;
+  await resolveScoutRecon(svc, fleet, target, now, nowIso);
+}
+
+export default async function(req) {
+  try {
+    const base44 = createClientFromRequest(req);
+    const guard = await authorizeTick(base44);
+    if (!guard.ok) return guard.response;
+    const now = Date.now();
+    const nowIso = new Date(now).toISOString();
+    const all = await base44.asServiceRole.entities.Fleet.list('-created_date', 1000);
+    const fleets = all.filter((f) => f.status === 'in_transit' || f.status === 'in_battle' || f.status === 'scouting');
+    const empires = await base44.asServiceRole.entities.Empire.list('-created_date', 1000);
+    const byId = new Map(empires.map((e) => [e.id, e]));
+    const byOwnerId = new Map(empires.map((e) => [e.created_by_id, e]));
+    let enteredBattle = 0;
+    let scouted = 0;
+    let resolved = 0;
+    let returned = 0;
+
+    for (const f of fleets) {
+      if (f.status === 'scouting') {
+        const reconEnd = new Date(f.recon_end_date).getTime();
+        if (!reconEnd || reconEnd > now) continue;
+        await completeScoutAndReturn(base44, f, byId.get(f.target_empire_id), now, nowIso);
+        scouted += 1;
+        continue;
+      }
+      if (f.status === 'in_battle') {
+        const battleEndMs = new Date(f.battle_end_date).getTime();
+        if (!battleEndMs || battleEndMs > now) continue;
+        await resolveCombatAndReturn(base44, f, byId, byOwnerId, now, nowIso);
+        resolved += 1;
+        continue;
+      }
+
+      const returning = f.leg === 'return';
+      const arrivalMs = new Date(returning ? f.return_arrival_date : f.arrival_date).getTime();
+      if (!arrivalMs || arrivalMs > now) continue;
+
+      if (!returning) {
+        if (f.mission_type === 'scout') {
+          await base44.asServiceRole.entities.Fleet.update(f.id, { status: 'awaiting_recon' });
+          continue;
+        }
+        const battleEnd = arrivalMs + battleDurationMs(f.fleet_size);
+        if (battleEnd > now) {
+          await base44.asServiceRole.entities.Fleet.update(f.id, {
+            status: 'in_battle',
+            battle_end_date: new Date(battleEnd).toISOString(),
+          });
+          enteredBattle += 1;
+        } else {
+          await resolveCombatAndReturn(base44, f, byId, byOwnerId, now, nowIso);
+          resolved += 1;
+        }
+      } else {
+        const attacker = byOwnerId.get(f.created_by_id);
+        if (f.mission_type === 'scout' && f.scout_unit_type) {
+          const scouts = await base44.asServiceRole.entities.Unit.filter({ created_by_id: f.created_by_id, unit_type: f.scout_unit_type });
+          if (scouts[0]) await base44.asServiceRole.entities.Unit.update(scouts[0].id, { owned_count: (scouts[0].owned_count || 0) + 1 });
+          await base44.asServiceRole.entities.Fleet.update(f.id, { status: 'arrived' });
+          returned += 1;
+          continue;
+        }
+        if (f.loot && attacker) {
+          const inc = {};
+          for (const k of RES_KEYS) inc[k] = f.loot[k] || 0;
+          await base44.asServiceRole.entities.Empire.updateMany({ id: attacker.id }, { $inc: inc });
+        }
+        const groundSurv = f.ground_survivors || {};
+        if (attacker && Object.keys(groundSurv).length > 0) {
+          const attackerUnits = await base44.asServiceRole.entities.Unit.filter({ created_by_id: f.created_by_id });
+          const unitMap = {};
+          for (const u of attackerUnits) unitMap[u.unit_type] = u;
+          for (const [type, count] of Object.entries(groundSurv)) {
+            const rec = unitMap[type];
+            if (rec) await base44.asServiceRole.entities.Unit.update(rec.id, { owned_count: (rec.owned_count || 0) + count });
+          }
+        }
+        const shipManifest = f.ship_manifest || {};
+        const shipLosses = f.ship_losses || {};
+        if (attacker && Object.keys(shipManifest).length > 0) {
+          const attackerUnits = await base44.asServiceRole.entities.Unit.filter({ created_by_id: f.created_by_id });
+          const unitMap = {};
+          for (const u of attackerUnits) unitMap[u.unit_type] = u;
+          for (const [type, count] of Object.entries(shipManifest)) {
+            const rec = unitMap[type];
+            if (!rec) continue;
+            const lost = shipLosses[type] || 0;
+            const back = Math.max(0, (count || 0) - lost);
+            if (back > 0) await base44.asServiceRole.entities.Unit.update(rec.id, { owned_count: (rec.owned_count || 0) + back });
+          }
+        }
+        await base44.asServiceRole.entities.Fleet.update(f.id, { status: 'arrived' });
+        returned += 1;
+      }
+    }
+    return Response.json({ ok: true, enteredBattle, scouted, resolved, returned, at: nowIso });
+  } catch (error) {
+    return Response.json({ error: error.message }, { status: 500 });
+  }
 }
