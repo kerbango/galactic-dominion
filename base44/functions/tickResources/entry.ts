@@ -5,35 +5,68 @@ import { totalResearchSpeedBonus, computeCompletionMs } from '../../shared/resea
 import { researchPointsPerCycle } from '../../shared/researchPoints.ts';
 import { processBuildCompletions } from '../../shared/buildCompletion.ts';
 
-// Hourly resource tick. Each empire earns 1 of every resource (Aetherium
-// Crystal, Ferrite-Titanium, Energy, VRIND) per run — every player controls
-// a single planet. Runs on a schedule (see function.jsonc) but is also
-// invokable by admins.
+const VRIND_INCOME_UPGRADE_IDS = [
+  'income_upgrade_i',
+  'income_upgrade_ii',
+  'income_upgrade_iii',
+  'tax_office_i',
+  'tax_office_ii',
+  'tax_office_iii',
+];
+
+// All recurring VRIND upgrades are percentage bonuses to the normal VRIND
+// production rate. They stack additively with one another, while temporary
+// production multipliers such as Martial Law are applied afterward.
+function recurringVrindMultiplier(empire) {
+  const levels = empire?.empire_upgrade_levels || {};
+  const bonuses = {
+    income_upgrade_i: 0.05,
+    income_upgrade_ii: 0.05,
+    income_upgrade_iii: 0.05,
+    tax_office_i: 0.05,
+    tax_office_ii: 0.10,
+    tax_office_iii: 0.15,
+  };
+  const bonus = VRIND_INCOME_UPGRADE_IDS.reduce((sum, id) => {
+    return sum + (levels[id] > 0 ? bonuses[id] : 0);
+  }, 0);
+  return 1 + bonus;
+}
+
+// Resource + research + construction tick. Production is accumulated from
+// the server-side last_tick_date, so players receive all due production after
+// being offline. Research completion remains real-time and uses the shared
+// research-speed calculation below.
 export default async function(req) {
   try {
     const base44 = createClientFromRequest(req);
     const guard = await authorizeTick(base44);
     if (!guard.ok) return guard.response;
 
-    // Empire RLS is owner-only, so read/update as service role to reach every empire.
     const empires = await base44.asServiceRole.entities.Empire.list('-created_date', 1000);
 
     const now = Date.now();
     const tickedAt = new Date().toISOString();
     let ticked = 0;
     let granted = 0;
+    let vrindGranted = 0;
+
     for (const empire of empires) {
       const due = cyclesDue(empire.last_tick_date, now);
       if (due <= 0) continue;
-      const grant = due * martialLawMultiplier(empire, now);
+
+      const martialMultiplier = martialLawMultiplier(empire, now);
+      const grant = due * martialMultiplier;
+      const vrindGrant = grant * recurringVrindMultiplier(empire);
       const rpGrant = grant * researchPointsPerCycle(empire.research_points_production_level || 0);
+
       await base44.asServiceRole.entities.Empire.updateMany(
         { id: empire.id },
         { $inc: {
           aetherium_crystal: grant,
           ferrite_titanium: grant,
           energy: grant,
-          vrind: grant,
+          vrind: vrindGrant,
           berentium: grant,
           research_points: rpGrant,
         }, $set: {
@@ -42,16 +75,14 @@ export default async function(req) {
       );
       ticked += 1;
       granted += grant;
+      vrindGranted += vrindGrant;
     }
 
     // Time-based research completion. A record completes when
-    //   now >= start_date + research_turns * BASE_TURN_SECONDS * (1 - bonus)
+    // now >= start_date + research_turns * BASE_TURN_SECONDS * (1 - bonus)
     // where bonus stacks from a completed tech + the player's purchased
-    // upgrade level. The tick cadence only affects how soon completions are
-    // detected — not when they're due — so lengthening the cron is a pure
-    // cost knob. TechProgress RLS is owner-only, so read/update as service
-    // role to reach all players. Legacy records without start_date fall back
-    // to created_date. `now` is declared above for the resource tick.
+    // research-speed level. The tick cadence only affects when a completion
+    // is detected, not the completion timestamp itself.
     const completedTech = await base44.asServiceRole.entities.TechProgress.filter(
       { status: 'completed' },
       '-created_date',
@@ -93,13 +124,10 @@ export default async function(req) {
       }
     }
 
-    // Time-based ship-construction completion. Unit RLS is owner-only, so
-    // read as service role to reach all players. A construction completes
-    // when now >= construction_start_date + construction_turns * BASE_TURN_SECONDS.
     const allUnits = await base44.asServiceRole.entities.Unit.list('-created_date', 5000);
     const buildsCompleted = await processBuildCompletions(base44.asServiceRole, allUnits, now);
 
-    return Response.json({ ok: true, ticked, granted, advanced, completed, buildsCompleted, at: new Date().toISOString() });
+    return Response.json({ ok: true, ticked, granted, vrindGranted, advanced, completed, buildsCompleted, at: new Date().toISOString() });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
   }
