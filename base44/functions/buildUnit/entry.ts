@@ -1,5 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
-import { getUnit, isUnitUnlocked } from '../../shared/units.ts';
+import { getUnit, isUnitUnlocked } from '../../shared/unitsRuntime.ts';
 
 const COST_RESOURCES = ['aetherium_crystal', 'ferrite_titanium', 'energy', 'vrind', 'berentium'];
 
