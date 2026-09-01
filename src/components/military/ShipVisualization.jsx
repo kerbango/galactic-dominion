@@ -1,17 +1,17 @@
 import React, { useState } from 'react';
-import { Lock, Crosshair, FileSpreadsheet, Eye } from 'lucide-react';
+import { Lock, Crosshair, FileSpreadsheet, Eye, Layers3 } from 'lucide-react';
 import { unitClass, unitClassLabel, unitRole } from '@/lib/unitClasses';
 import { getShipArt } from '@/data/shipArt';
 import ShipSilhouette, { SILHOUETTE_VARIANT } from './ShipSilhouette';
 import { Image } from '@/components/ui/image';
 
-// Centerpiece: a holographic inspection bay for the selected ship. Renders
-// the registered artwork (if any) or a tasteful SVG silhouette over a
-// tactical grid with scan lines, targeting brackets and a slow idle float.
-// VIEW SCHEMATICS toggles a wireframe blueprint rendering (or the registered
-// schematic asset). No fabricated assets — falls back to the silhouette.
+// Centerpiece: a holographic inspection bay for the selected ship. Registered
+// artwork is used when available; otherwise the UI falls back to the SVG
+// silhouette. The art registry may provide a thumbnail, hero art, schematic,
+// and role variants for the same hull.
 export default function ShipVisualization({ unit, unlocked, className = '' }) {
   const [mode, setMode] = useState('visual');
+  const [selectedVariant, setSelectedVariant] = useState(null);
 
   if (!unit) {
     return <div className={`glass-panel-strong rounded-2xl p-10 flex items-center justify-center text-slate-500 text-sm ${className}`}>No hull selected.</div>;
@@ -20,26 +20,31 @@ export default function ShipVisualization({ unit, unlocked, className = '' }) {
   const art = getShipArt(unit.id);
   const variant = SILHOUETTE_VARIANT[unitClass(unit)] || 'medium';
   const showSchematic = mode === 'schematic';
-  const hasArt = !!art?.art;
+  const variants = art?.variants || [];
+  const activeVariant = variants.find((v) => v.id === selectedVariant) || null;
+  const displayArt = activeVariant?.art || art?.art;
+  const hasArt = !!displayArt;
   const hasSchematic = !!art?.schematic;
+  const hasThumbnail = !!art?.thumbnail;
+
+  // Reset a stale variant selection when switching to a hull without it.
+  if (selectedVariant && !activeVariant && variants.length === 0) {
+    setSelectedVariant(null);
+  }
 
   return (
     <div className={`glass-panel-strong rounded-2xl flex flex-col overflow-hidden ${className}`}>
       <div className="relative flex-1 min-h-[300px] md:min-h-[400px] overflow-hidden">
         {/* tactical grid */}
         <div className="absolute inset-0 pointer-events-none" style={{ backgroundImage: 'linear-gradient(rgba(34,211,238,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(34,211,238,0.06) 1px, transparent 1px)', backgroundSize: '32px 32px' }} />
-        {/* radial vignette */}
         <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at center, rgba(8,20,40,0) 25%, rgba(5,8,16,0.85) 100%)' }} />
-        {/* corner targeting brackets */}
         <div className="absolute top-3 left-3 w-6 h-6 border-l-2 border-t-2 border-cyan-400/50" />
         <div className="absolute top-3 right-3 w-6 h-6 border-r-2 border-t-2 border-cyan-400/50" />
         <div className="absolute bottom-3 left-3 w-6 h-6 border-l-2 border-b-2 border-cyan-400/50" />
         <div className="absolute bottom-3 right-3 w-6 h-6 border-r-2 border-b-2 border-cyan-400/50" />
-        {/* scan line */}
         <div className="absolute left-0 right-0 h-px bg-cyan-400/50 animate-scan-line pointer-events-none" />
         <div className="scanline-overlay" />
 
-        {/* header tag */}
         <div className="absolute top-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5">
           <Crosshair className="w-3 h-3 text-cyan-300/70" />
           <span className="command-label">Holographic Inspection</span>
@@ -51,7 +56,7 @@ export default function ShipVisualization({ unit, unlocked, className = '' }) {
             showSchematic && hasSchematic ? (
               <Image src={art.schematic} fittingType="fit" className="max-h-[300px] md:max-h-[340px]" />
             ) : !showSchematic && hasArt ? (
-              <Image src={art.art} fittingType="fit" className="w-full max-w-[440px] h-[280px] md:h-[320px] animate-float-slow" />
+              <Image src={displayArt} fittingType="fit" className="w-full max-w-[440px] h-[280px] md:h-[320px] animate-float-slow" />
             ) : (
               <ShipSilhouette variant={variant} wireframe={showSchematic} className="w-full max-w-[440px] animate-float-slow" />
             )
@@ -63,9 +68,41 @@ export default function ShipVisualization({ unit, unlocked, className = '' }) {
           )}
         </div>
 
+        {/* thumbnail + variant strip */}
+        {unlocked && (hasThumbnail || variants.length > 0) && (
+          <div className="absolute bottom-3 left-3 right-3 flex items-end gap-2 pointer-events-auto">
+            {hasThumbnail && (
+              <button
+                type="button"
+                title="Base hull"
+                onClick={() => setSelectedVariant(null)}
+                className={`shrink-0 w-14 h-11 rounded-md border bg-slate-950/80 p-1 transition ${!activeVariant ? 'border-cyan-300/80 ring-1 ring-cyan-400/30' : 'border-cyan-400/20 hover:border-cyan-300/50'}`}
+              >
+                <Image src={art.thumbnail} fittingType="fit" className="w-full h-full" />
+              </button>
+            )}
+            {variants.map((v) => (
+              <button
+                key={v.id}
+                type="button"
+                title={v.label}
+                onClick={() => setSelectedVariant(v.id)}
+                className={`shrink-0 w-14 h-11 rounded-md border bg-slate-950/80 p-1 transition ${activeVariant?.id === v.id ? 'border-cyan-300/80 ring-1 ring-cyan-400/30' : 'border-cyan-400/20 hover:border-cyan-300/50'}`}
+              >
+                <Image src={v.art} fittingType="fit" className="w-full h-full" />
+              </button>
+            ))}
+            {variants.length > 0 && (
+              <div className="ml-auto hidden sm:flex items-center gap-1 rounded-md border border-cyan-400/15 bg-slate-950/70 px-2 py-1 text-[8px] font-mono uppercase tracking-widest text-cyan-200/55">
+                <Layers3 className="w-3 h-3" /> {variants.length} variants
+              </div>
+            )}
+          </div>
+        )}
+
         {/* mode toggle */}
         {unlocked && (
-          <div className="absolute bottom-3 left-1/2 -translate-x-1/2">
+          <div className="absolute top-10 right-3">
             <button
               type="button"
               onClick={() => setMode((m) => (m === 'visual' ? 'schematic' : 'visual'))}
@@ -81,6 +118,7 @@ export default function ShipVisualization({ unit, unlocked, className = '' }) {
       <div className="px-4 py-3 border-t border-cyan-400/15 text-center">
         <h2 className="font-heading text-xl md:text-2xl tracking-[0.1em] text-white uppercase">{unlocked ? unit.name : '████████'}</h2>
         <p className="text-[10px] font-mono uppercase tracking-widest text-cyan-200/70 mt-0.5">{unitClassLabel(unit)} · {unitRole(unit)}</p>
+        {activeVariant && <p className="text-[9px] font-mono uppercase tracking-[0.16em] text-amber-300/80 mt-1">Variant · {activeVariant.label}</p>}
       </div>
     </div>
   );
