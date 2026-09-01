@@ -1,16 +1,11 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
-import { getUnit, isUnitUnlocked } from '../../shared/units.ts';
+import { getUnit, isUnitUnlocked } from '../../shared/unitsRuntime.ts';
 
 const COST_RESOURCES = ['aetherium_crystal', 'ferrite_titanium', 'energy', 'vrind', 'berentium'];
 
 // Starts a timed construction of one ship of the given unit type. Validates
-// the calling player's empire, that the unit's gating tech is completed
-// (server-side re-check — frontend greying is UX only), that no build is
-// already in progress for that type (one active construction per type),
-// then validates + atomically deducts the build cost and sets the
-// construction fields on the player's Unit record (creating it if this is
-// the first of that type). Completion is time-based
-// (start_date + buildTurns * BASE_TURN_SECONDS) and finalized by the tick.
+// the calling player's empire and completed research server-side before
+// deducting resources and starting construction.
 export default async function(req) {
   try {
     const base44 = createClientFromRequest(req);
@@ -29,8 +24,9 @@ export default async function(req) {
     const empire = empires[0];
     if (!empire) return Response.json({ error: 'You must found an empire first.' }, { status: 400 });
 
-    // Server-side tech gate: the unit's gating tech must be completed.
-    const completed = await base44.entities.TechProgress.filter({ status: 'completed' });
+    // Explicitly scope research to the calling player. Never rely on RLS or
+    // another player's completed research to satisfy a build gate.
+    const completed = await svc.entities.TechProgress.filter({ created_by_id: user.id, status: 'completed' });
     const doneIds = new Set(completed.map((r) => r.tech_id));
     if (!isUnitUnlocked(unit, doneIds)) {
       return Response.json({ error: 'Required research not completed.' }, { status: 400 });
@@ -43,7 +39,7 @@ export default async function(req) {
       return Response.json({ error: 'A construction is already in progress for this unit type.' }, { status: 400 });
     }
 
-    // Validate + deduct build cost atomically (same pattern as startResearch).
+    // Validate + deduct build cost.
     const updates = {};
     for (const res of COST_RESOURCES) {
       const c = unit.buildCost[res] || 0;

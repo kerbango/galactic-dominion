@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Shield, Loader2, LockKeyhole } from 'lucide-react';
+import { Shield, LockKeyhole } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { computePlanetDefenseRating } from '@/data/planetDefense';
 import { useEmpire } from '@/lib/EmpireContext';
@@ -22,7 +22,6 @@ export default function PlanetDefenseRating() {
       }
     };
     load();
-    // Refresh when Unit records change (new builds, upgrades, losses).
     const unsub = base44.entities.Unit.subscribe(() => {
       base44.entities.Unit.list('-created_date', 200)
         .then((units) => setRating(computePlanetDefenseRating(empire, units)))

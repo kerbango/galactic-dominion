@@ -1,203 +1,123 @@
-// Canonical technology tree dataset — single source of truth shared by the
-// frontend (via src/data/techTree.js re-export) and backend functions
-// (startResearch, tickResources). Adding a tech here automatically creates
-// its node and connection lines in the UI; the layout is derived from
-// tier + category, never hard-coded.
+// Galactic Dominion — canonical technology tree dataset.
+// Research nodes live here; Roman numeral entries are Upgrade Page purchases.
+// Hidden restricted trees are only exposed when their explicit gate is met.
 
 export const CATEGORIES = {
-  Energy: { icon: "Zap", color: "text-amber-300" },
-  Construction: { icon: "Hammer", color: "text-orange-300" },
-  Computing: { icon: "Cpu", color: "text-violet-300" },
-  Propulsion: { icon: "Rocket", color: "text-sky-300" },
-  Industry: { icon: "Factory", color: "text-lime-300" },
-  Weapons: { icon: "Sword", color: "text-rose-300" },
-  Biotechnology: { icon: "Dna", color: "text-emerald-300" },
-  Economics: { icon: "Coins", color: "text-yellow-300" },
-  Military: { icon: "Shield", color: "text-red-300" },
-  "Ship Technology": { icon: "Ship", color: "text-blue-300" },
-  Terraforming: { icon: "Globe", color: "text-teal-300" },
-  Automation: { icon: "Bot", color: "text-cyan-300" },
-  Fleet: {icon: "Rocket", color: "text-cyan-300" },
+  Defense: { icon: "Shield", color: "text-red-300" },
+  "Economy and Resources": { icon: "Coins", color: "text-yellow-300" },
+  "Fleet Research": { icon: "Rocket", color: "text-cyan-300" },
+  Exploration: { icon: "Radar", color: "text-emerald-300" },
+  "Empire Governance": { icon: "Crown", color: "text-violet-300" },
 };
 
-// Vertical order of category bands in the auto-layout.
-export const CATEGORY_ORDER = [
-  "Military",
-  "Construction",
-  "Computing",
-  "Propulsion",
-  "Industry",
-  "Weapons",
-  "Biotechnology",
-  "Economics",
-  "Energy",
-  "Ship Technology",
-  "Fleet",
-  "Terraforming",
-  "Automation",
-];
+export const CATEGORY_ORDER = ["Defense", "Economy and Resources", "Fleet Research", "Exploration", "Empire Governance"];
+
+const u = (name) => ({ upgrades: [name] });
 
 export const TECH_TREE = [
-  // ───────────────────────── TIER 1 — roots ─────────────────────────
+  { id: "defense_command", name: "Defense Command", description: "Establishes the empire's formal planetary and fleet defense doctrine.", category: "Defense", icon: "Shield", tier: 1, researchTurns: 1, prerequisites: [], isPrimary: true },
+  { id: "planetary_defense_architecture", name: "Planetary Defense Architecture", description: "Creates the framework for layered planetary defense installations.", category: "Defense", tier: 2, researchTurns: 2, prerequisites: ["defense_command"], isPrimary: true, unlocks: { units: ["bunker", "pdg"] } },
+  { id: "fleet_defense_doctrine", name: "Fleet Defense Doctrine", description: "Formalizes defensive fleet formations and capital protection doctrine.", category: "Defense", tier: 2, researchTurns: 2, prerequisites: ["defense_command"] },
+  { id: "early_warning_network", name: "Early Warning Network", description: "Links planetary sensors into an integrated hostile-fleet warning system.", category: "Defense", tier: 3, researchTurns: 3, prerequisites: ["planetary_defense_architecture"] },
+  { id: "heavy_battery_systems", name: "Heavy Battery Systems", description: "Unlocks massive planetary battery emplacements designed to engage large warships.", category: "Defense", tier: 3, researchTurns: 3, prerequisites: ["planetary_defense_architecture"], isPrimary: true, unlocks: { units: ["heavy_battery"] } },
+  { id: "point_defense_grid", name: "Point Defense Grid", description: "Layered planetary point-defense weapons protect installations from incoming craft and ordnance.", category: "Defense", tier: 3, researchTurns: 3, prerequisites: ["planetary_defense_architecture"], isPrimary: true, unlocks: { units: ["pdg"] } },
+  { id: "shield_coordination", name: "Shield Coordination", description: "Coordinates defensive shield systems across installations and fleet formations.", category: "Defense", tier: 3, researchTurns: 3, prerequisites: ["fleet_defense_doctrine"] },
+  { id: "ecm_detection_architecture", name: "ECM Detection Architecture", description: "Creates the detection framework used to resist stealth and electronic concealment.", category: "Defense", tier: 4, researchTurns: 4, prerequisites: ["early_warning_network"] },
+  { id: "fortress_command", name: "Fortress Command", description: "Integrates planetary defenses into a unified command structure.", category: "Defense", tier: 4, researchTurns: 4, prerequisites: ["heavy_battery_systems", "shield_coordination"], unlocks: { buildings: ["fortress_command"] } },
+  { id: "advanced_detection_grid", name: "Advanced Detection Grid", description: "Expands the empire's ability to detect concealed fleets.", category: "Defense", tier: 5, researchTurns: 5, prerequisites: ["ecm_detection_architecture"], unlocks: u("ECM Field Matrix I") },
+  { id: "planetary_fortress_network", name: "Planetary Fortress Network", description: "The final conventional defense architecture.", category: "Defense", tier: 6, researchTurns: 6, prerequisites: ["fortress_command", "advanced_detection_grid"], isPrimary: true, unlocks: u("Empire Defense Control Matrix I") },
 
-  { id: "basic_power", name: "Fusion Reactor", description: "Compact fusion power for colonies and ships.", category: "Energy", researchTurns: 1, prerequisites: [], tier: 1 },
-  { id: "basic_materials", name: "Alloy Smelting", description: "Refine ferrite-titanium into structural alloys.", category: "Construction", researchTurns: 1, prerequisites: [], tier: 1 },
-  { id: "basic_computing", name: "Logic Circuits", description: "Programmable logic for control systems.", category: "Computing", researchTurns: 1, prerequisites: [], tier: 1 },
-  { id: "basic_propulsion", name: "Chemical Thrusters", description: "Reliable reaction drives for early ships.", category: "Propulsion", researchTurns: 1, prerequisites: [], tier: 1 },
-  { id: "basic_industry", name: "Automated Mining", description: "Extractor drones harvest raw ore.", category: "Industry", researchTurns: 1, prerequisites: [], tier: 1 },
-  { id: "basic_weapons", name: "Kinetic Cannons", description: "Mass-driver weapons for defense.", category: "Weapons", icon: "Crosshair", researchTurns: 1, prerequisites: [], tier: 1, unlocks: { weapons: ["kinetic_cannon"] } },
-  { id: "basic_bio", name: "Hydroponics", description: "Closed-loop food production.", category: "Biotechnology", researchTurns: 1, prerequisites: [], tier: 1 },
-  { id: "basic_econ", name: "Trade Routes", description: "Standardized inter-colony commerce.", category: "Economics", researchTurns: 1, prerequisites: [], tier: 1 },
-  { id: "basic_military", name: "Militia Training", description: "Organized planetary defense forces.", category: "Military", researchTurns: 1, prerequisites: [], tier: 1 },
-  { id: "basic_ship", name: "Orbital Frames", description: "Modular hull frameworks for stations.", category: "Ship Technology", researchTurns: 1, prerequisites: [], tier: 1, isPrimary: true, unlockTags: ["ship", "ship_upgrade"] },
-  { id: "basic_terraforming", name: "Soil Conditioning", description: "Render barren regolith arable.", category: "Terraforming", researchTurns: 1, prerequisites: [], tier: 1 },
-  { id: "basic_automation", name: "Simple Machines", description: "Mechanized assistance for labor.", category: "Automation", researchTurns: 1, prerequisites: [], tier: 1 },
-  { id: "fleet_hull", name: "Fleet Technology", description: "Advance your Fleet in Research and open new hull types", category: "Fleet", researchTurns: 1, prerequisites: [], tier: 1 },
-  // ───────────────────────── TIER 2 ─────────────────────────
-  { id: "ion_beams", name: "Ion Beams", description: "Focused ion streams as ship-scale weapons.", category: "Weapons", icon: "Zap", researchTurns: 2, prerequisites: ["basic_power"], tier: 2 },
-  { id: "laser_weapons", name: "Laser Batteries", description: "Coherent-light point dfense.", category: "Weapons", icon: "Sun", researchTurns: 2, prerequisites: ["basic_weapons"], tier: 2, isPrimary: true, unlocks: { weapons: ["laser_battery"] } },
-  { id: "missile_weapons", name: "Missile Pods", description: "Guided ordnance salvos.", category: "Weapons", icon: "Rocket", researchTurns: 2, prerequisites: ["basic_weapons"], tier: 2 },
-  { id: "energy_storage", name: "Capacitor Banks", description: "Store surplus energy for surges.", category: "Energy", researchTurns: 2, prerequisites: ["basic_power"], tier: 2 },
-  { id: "shielding", name: "Deflector Shields", description: "Energy barriers against weapons fire.", category: "Energy", researchTurns: 2, prerequisites: ["basic_power"], tier: 2 },
-  { id: "advanced_alloys", name: "Composite Plating", description: "Layered armor for hulls.", category: "Construction", researchTurns: 2, prerequisites: ["basic_materials"], tier: 2 },
-  { id: "microprocessors", name: "Microprocessors", description: "Dense logic for automation.", category: "Computing", researchTurns: 2, prerequisites: ["basic_computing"], tier: 2 },
-  { id: "cyber_warfare", name: "Cyber Warfare", description: "Electronic intrusion and defense.", category: "Computing", researchTurns: 2, prerequisites: ["basic_computing"], tier: 2 },
-  { id: "sensor_arrays", name: "Sensor Arrays", description: "Long-range detection grids.", category: "Computing", researchTurns: 2, prerequisites: ["basic_computing"], tier: 2 },
-  { id: "ion_drive", name: "Ion Drive", description: "Efficient long-endurance thrust.", category: "Propulsion", researchTurns: 2, prerequisites: ["basic_propulsion"], tier: 2 },
-  { id: "freighters", name: "Freighters", description: "Bulk cargo hulls.", category: "Ship Technology", researchTurns: 2, prerequisites: ["basic_propulsion"], tier: 2, isPrimary: true, unlockTags: ["ship", "ship_upgrade"] },
-  { id: "orbital_mining", name: "Orbital Mining", description: "Strip-mine asteroids and moons.", category: "Industry", researchTurns: 2, prerequisites: ["basic_industry"], tier: 2 },
-  { id: "mass_production", name: "Mass Production", description: "Standardized output at scale.", category: "Industry", researchTurns: 2, prerequisites: ["basic_industry"], tier: 2 },
-  { id: "genetics", name: "Genetic Engineering", description: "Edit crop and livestock genomes.", category: "Biotechnology", researchTurns: 2, prerequisites: ["basic_bio"], tier: 2 },
-  { id: "banking", name: "Central Banking", description: "Stabilize and expand the economy.", category: "Economics", researchTurns: 2, prerequisites: ["basic_econ"], tier: 2 },
-  { id: "command", name: "Command Doctrine", description: "Coordinated fleet tactics.", category: "Military", researchTurns: 2, prerequisites: ["basic_military"], tier: 2 },
-  { id: "orbital_defense", name: "Orbital Defense", description: "Stationed defense platforms.", category: "Military", researchTurns: 2, prerequisites: ["basic_military", "basic_ship"], tier: 2, unlockTags: ["military"] },
-  { id: "soil_regen", name: "Soil Regeneration", description: "Accelerate ecosystem recovery.", category: "Terraforming", researchTurns: 2, prerequisites: ["basic_terraforming"], tier: 2 },
-  { id: "assembly_lines", name: "Assembly Lines", description: "Sequential automated fabrication.", category: "Automation", researchTurns: 2, prerequisites: ["basic_automation"], tier: 2 },
-  { id: "frigate_hull", name: "Standard Hull Framing", description: "Creates a Stadnard Hull Frame design.", category: "Fleet", icon: "Rocket", researchTurns: 2, prerequisites: ["fleet_hull"], tier: 2 },
-  { id: "Jump_drive_attune", name: "Jump Drive Attunement", description: "Drive Recalibration for Faster Hulls", category: "Fleet", icon: "Rocket", researchTurns: 2, prerequisites: ["fleet_hull"], tier: 2 },
+  { id: "resource_administration", name: "Resource Administration", description: "Establishes centralized management of imperial production and resources.", category: "Economy and Resources", tier: 1, researchTurns: 1, prerequisites: [], isPrimary: true },
+  { id: "industrial_expansion", name: "Industrial Expansion", description: "Expands planetary industry and production capacity.", category: "Economy and Resources", tier: 2, researchTurns: 2, prerequisites: ["resource_administration"] },
+  { id: "resource_extraction", name: "Advanced Resource Extraction", description: "Improves extraction of strategic resources.", category: "Economy and Resources", tier: 2, researchTurns: 2, prerequisites: ["resource_administration"] },
+  { id: "vrind_economy", name: "VRIND Economic Systems", description: "Formalizes the empire's VRIND economy and revenue infrastructure.", category: "Economy and Resources", tier: 3, researchTurns: 3, prerequisites: ["resource_administration"] },
+  { id: "planetary_growth_economics", name: "Planetary Growth Economics", description: "Aligns population growth with long-term economic output.", category: "Economy and Resources", tier: 3, researchTurns: 3, prerequisites: ["industrial_expansion"], unlocks: u("Population Growth I") },
+  { id: "advanced_mining_network", name: "Advanced Mining Network", description: "Coordinates extraction operations across planetary and orbital deposits.", category: "Economy and Resources", tier: 3, researchTurns: 3, prerequisites: ["resource_extraction"] },
+  { id: "galactic_trade", name: "Galactic Trade", description: "Opens larger-scale interplanetary and galactic market operations.", category: "Economy and Resources", tier: 4, researchTurns: 4, prerequisites: ["vrind_economy", "advanced_mining_network"] },
+  { id: "economic_optimization", name: "Economic Optimization", description: "Increases recurring VRIND income.", category: "Economy and Resources", tier: 4, researchTurns: 4, prerequisites: ["vrind_economy"], unlocks: u("Income Upgrade I") },
+  { id: "trade_manipulation", name: "Trade Manipulation", description: "Advanced market systems influence taxation and trade flows.", category: "Economy and Resources", tier: 5, researchTurns: 5, prerequisites: ["galactic_trade", "economic_optimization"] },
+  { id: "resource_dominance", name: "Resource Dominance", description: "A mature economic network optimized for sustained imperial expansion.", category: "Economy and Resources", tier: 6, researchTurns: 6, prerequisites: ["trade_manipulation", "planetary_growth_economics"], isPrimary: true, unlocks: u("Tax Office I") },
 
-  // ───────────────────────── TIER 3 ─────────────────────────
-  { id: "heavy_ion_beams", name: "Heavy Ion Beams", description: "Capital-scale ion weaponry.", category: "Weapons", icon: "Zap", researchTurns: 3, prerequisites: ["ion_beams"], tier: 3 },
-  { id: "turbolasers", name: "Turbolasers", description: "Rapid-fire coherent beams.", category: "Weapons", icon: "Sun", researchTurns: 3, prerequisites: ["laser_weapons"], tier: 3, isPrimary: true, unlocks: { weapons: ["turbolaser_array"] } },
-  { id: "guided_missiles", name: "Guided Missiles", description: "Smart ordnance with terminal guidance.", category: "Weapons", icon: "Rocket", researchTurns: 3, prerequisites: ["missile_weapons"], tier: 3 },
-  { id: "point_defense", name: "Point Defense", description: "Intercept incoming ordnance.", category: "Weapons", icon: "Crosshair", researchTurns: 3, prerequisites: ["laser_weapons"], tier: 3 },
-  { id: "antimatter_reactor", name: "Antimatter Reactor", description: "Matter-annihilation power.", category: "Energy", researchTurns: 3, prerequisites: ["energy_storage"], tier: 3 },
-  { id: "shield_harmonics", name: "Shield Harmonics", description: "Tunable defensive frequencies.", category: "Energy", researchTurns: 3, prerequisites: ["shielding"], tier: 3 },
-  { id: "fuel_refining", name: "Fuel Refining", description: "High-density propellants.", category: "Energy", researchTurns: 3, prerequisites: ["energy_storage"], tier: 3 },
-  { id: "nanotech", name: "Nanotech Assembly", description: "Build structures molecule by molecule.", category: "Construction", researchTurns: 3, prerequisites: ["advanced_alloys"], tier: 3 },
-  { id: "habitat_domes", name: "Habitat Domes", description: "Sealed colony structures.", category: "Construction", researchTurns: 3, prerequisites: ["advanced_alloys"], tier: 3 },
-  { id: "quantum_computing", name: "Quantum Computing", description: "Superposed logic at scale — accelerates all future research.", category: "Computing", researchTurns: 3, prerequisites: ["microprocessors"], tier: 3, unlocks: { abilities: ["research_speed"] } },
-  { id: "electronic_warfare", name: "Electronic Warfare", description: "Disrupt enemy systems.", category: "Computing", researchTurns: 3, prerequisites: ["cyber_warfare"], tier: 3 },
-  { id: "warp_drive", name: "Warp Drive", description: "Fold space for faster transit.", category: "Propulsion", researchTurns: 3, prerequisites: ["ion_drive"], tier: 3 },
-  { id: "freighter_fleets", name: "Freighter Fleets", description: "Coordinated trade convoys.", category: "Ship Technology", researchTurns: 3, prerequisites: ["freighters", "banking"], tier: 3 },
-  { id: "deep_mining", name: "Deep Core Mining", description: "Tap planetary mantles.", category: "Industry", researchTurns: 3, prerequisites: ["orbital_mining"], tier: 3 },
-  { id: "robotics", name: "Robotics", description: "Autonomous labor units.", category: "Automation", researchTurns: 3, prerequisites: ["mass_production", "microprocessors"], tier: 3 },
-  { id: "biofuels", name: "Biofuel Synthesis", description: "Engineered microbes yield fuel.", category: "Biotechnology", researchTurns: 3, prerequisites: ["genetics"], tier: 3 },
-  { id: "stock_market", name: "Stock Exchange", description: "Liquid investment markets.", category: "Economics", researchTurns: 3, prerequisites: ["banking"], tier: 3 },
-  { id: "trade_guilds", name: "Trade Guilds", description: "Regulated merchant cartels.", category: "Economics", researchTurns: 3, prerequisites: ["banking"], tier: 3 },
-  { id: "fleet_command", name: "Fleet Command", description: "Multi-squadron coordination.", category: "Military", researchTurns: 3, prerequisites: ["command"], tier: 3 },
-  { id: "atmosphere_processing", name: "Atmosphere Processing", description: "Tailor planetary atmospheres.", category: "Terraforming", researchTurns: 3, prerequisites: ["soil_regen"], tier: 3 },
-  { id: "planetary_fortifications", name: "Planetary Fortifications", description: "Construct ground-based defensive installations to protect your planet.", category: "Military", icon: "Shield", researchTurns: 3, prerequisites: ["orbital_defense", "advanced_alloys"], tier: 3, isPrimary: true, unlocks: { units: ["bunker", "pdg", "ground_ion_cannon", "orbit_defense_platform", "heavy_battery"] }, unlockTags: ["defense"] },
-  { id: "planetary_invasion", name: "Planetary Invasion Doctrine", description: "Train and deploy ground forces for planetary assault operations.", category: "Military", icon: "Sword", researchTurns: 3, prerequisites: ["command", "orbital_defense"], tier: 3, isPrimary: true, unlocks: { units: ["troop_transport", "infantry", "heavy_infantry", "assault_infantry", "mechanized_infantry", "mecha"] }, unlockTags: ["ground", "transport"] },
+  { id: "fleet_foundation", name: "Fleet Foundation", description: "Establishes the research doctrine for military spacecraft and fleet operations.", category: "Fleet Research", tier: 1, researchTurns: 1, prerequisites: [], isPrimary: true },
+  { id: "standard_hull_framing", name: "Standard Hull Framing", description: "Creates standardized hull architecture used by fleet yards.", category: "Fleet Research", tier: 2, researchTurns: 2, prerequisites: ["fleet_foundation"], isPrimary: true, unlocks: { units: ["scout_ship", "medium_frigate"] } },
+  { id: "jump_drive_attunement", name: "Jump Drive Attunement", description: "Improves jump calculations and arrival positioning.", category: "Fleet Research", tier: 2, researchTurns: 2, prerequisites: ["fleet_foundation"] },
+  { id: "frigate_design", name: "Frigate Design", description: "Develops specialized frigate hulls.", category: "Fleet Research", tier: 3, researchTurns: 3, prerequisites: ["standard_hull_framing"], isPrimary: true, unlocks: { units: ["medium_frigate", "heavy_frigate"] } },
+  { id: "destroyer_design", name: "Destroyer Design", description: "Develops heavier escort and line-combat hulls.", category: "Fleet Research", tier: 3, researchTurns: 3, prerequisites: ["standard_hull_framing"], isPrimary: true, unlocks: { units: ["destroyer", "heavy_super_destroyer"] } },
+  { id: "quantum_computing", name: "Quantum Computing", description: "Advanced computation accelerates research.", category: "Fleet Research", tier: 3, researchTurns: 3, prerequisites: ["jump_drive_attunement"], unlocks: { abilities: ["research_speed"] } },
+  { id: "cruiser_hull", name: "Cruiser Hull Architecture", description: "Creates cruiser-scale combat architecture.", category: "Fleet Research", tier: 4, researchTurns: 4, prerequisites: ["frigate_design", "destroyer_design"], isPrimary: true, unlocks: { units: ["light_cruiser", "medium_cruiser", "heavy_cruiser"] } },
+  { id: "carrier_architecture", name: "Carrier Architecture", description: "Develops dedicated carrier systems.", category: "Fleet Research", tier: 4, researchTurns: 4, prerequisites: ["cruiser_hull"], isPrimary: true, unlocks: { units: ["carrier", "drone_carrier"] } },
+  { id: "capital_hull_engineering", name: "Capital Hull Engineering", description: "Allows construction of battleship, dreadnought and battlecruiser-scale hulls.", category: "Fleet Research", tier: 5, researchTurns: 5, prerequisites: ["cruiser_hull"], isPrimary: true, unlocks: { units: ["battleship", "battlecruiser", "dreadnought"] } },
+  { id: "fleet_command_network", name: "Fleet Command Network", description: "Links fleets into a coordinated battlespace network.", category: "Fleet Research", tier: 5, researchTurns: 5, prerequisites: ["quantum_computing", "capital_hull_engineering"] },
+  { id: "advanced_fleet_architecture", name: "Advanced Fleet Architecture", description: "Final conventional fleet research before specialized technologies.", category: "Fleet Research", tier: 6, researchTurns: 6, prerequisites: ["carrier_architecture", "capital_hull_engineering", "fleet_command_network"], isPrimary: true, unlocks: { units: ["titan", "exploration_command_ship"] } },
 
-  // ───────────────────────── TIER 4 ─────────────────────────
-  { id: "neutron_beams", name: "Neutron Beams", description: "Skip armor, kill crews.", category: "Weapons", icon: "Atom", researchTurns: 4, prerequisites: ["heavy_ion_beams"], tier: 4 },
-  { id: "advanced_turbolasers", name: "Advanced Turbolasers", description: "Overcharged beam arrays.", category: "Weapons", icon: "Sun", researchTurns: 4, prerequisites: ["turbolasers"], tier: 4 },
-  { id: "plasma_weapons", name: "Plasma Focusing", description: "Confine plasma into lances.", category: "Weapons", icon: "Flame", researchTurns: 4, prerequisites: ["heavy_ion_beams"], tier: 4, unlocks: { weapons: ["plasma_cannon"], upgrades: ["plasma_efficiency"] }, unlockTags: ["empire_upgrade"] },
-  { id: "torpedo_systems", name: "Torpedo Systems", description: "Capital-grade warheads.", category: "Weapons", icon: "Rocket", researchTurns: 4, prerequisites: ["guided_missiles"], tier: 4 },
-  { id: "zero_point_energy", name: "Zero-Point Energy", description: "Tap vacuum fluctuations.", category: "Energy", researchTurns: 4, prerequisites: ["antimatter_reactor"], tier: 4 },
-  { id: "phase_shields", name: "Phase Shields", description: "Partial-phasing defenses.", category: "Energy", researchTurns: 4, prerequisites: ["shield_harmonics"], tier: 4 },
-  { id: "metamaterials", name: "Metamaterials", description: "Engineered optical and structural properties.", category: "Construction", researchTurns: 4, prerequisites: ["nanotech"], tier: 4 },
-  { id: "ai_core", name: "AI Core", description: "General machine intelligence.", category: "Computing", researchTurns: 4, prerequisites: ["quantum_computing", "robotics"], tier: 4 },
-  { id: "cyber_command", name: "Cyber Command", description: "Theater-scale info warfare.", category: "Computing", researchTurns: 4, prerequisites: ["electronic_warfare"], tier: 4 },
-  { id: "stealth_systems", name: "Stealth Systems", description: "Cloak ships from sensors.", category: "Computing", researchTurns: 4, prerequisites: ["electronic_warfare"], tier: 4 },
-  { id: "jump_drive", name: "Jump Drive", description: "Instant point-to-point jumps.", category: "Propulsion", researchTurns: 4, prerequisites: ["warp_drive"], tier: 4 },
-  { id: "orbital_shipyards", name: "Orbital Shipyards", description: "Build ships in orbit.", category: "Ship Technology", researchTurns: 4, prerequisites: ["advanced_alloys", "ion_drive"], tier: 4, isPrimary: true, unlocks: { buildings: ["orbital_shipyard"] } },
-  { id: "interceptor", name: "Interceptors", description: "Fast strike craft.", category: "Ship Technology", researchTurns: 4, prerequisites: ["freighters", "laser_weapons"], tier: 4 },
-  { id: "automated_factory", name: "Automated Factories", description: "Lights-out production.", category: "Automation", researchTurns: 4, prerequisites: ["robotics"], tier: 4 },
-  { id: "advanced_plasma", name: "Advanced Plasma Weapons", description: "Stable plasma lances with antimatter containment.", category: "Weapons", icon: "Flame", researchTurns: 4, prerequisites: ["plasma_weapons", "antimatter_reactor"], tier: 4 },
-  { id: "cybernetics", name: "Cybernetics", description: "Merge flesh and machine.", category: "Biotechnology", researchTurns: 4, prerequisites: ["genetics", "microprocessors"], tier: 4 },
-  { id: "terraforming_advanced", name: "Ecosystem Engineering", description: "Whole-biosphere design.", category: "Terraforming", researchTurns: 4, prerequisites: ["atmosphere_processing"], tier: 4 },
+  { id: "long_range_sensors", name: "Long Range Sensors", description: "Detect and analyze distant regions of space.", category: "Exploration", tier: 1, researchTurns: 1, prerequisites: [], isPrimary: true, unlocks: { units: ["pathfinder_exploration_vessel"] } },
+  { id: "aero_probe_launcher", name: "Aero-Probe Launcher", description: "Launches autonomous probes into hazardous regions.", category: "Exploration", tier: 1, researchTurns: 1, prerequisites: [], isPrimary: true, unlocks: { units: ["pathfinder_exploration_vessel"] } },
+  { id: "sub_light_mapping", name: "Sub Light Mapping", description: "Maps local space without full warp transit.", category: "Exploration", tier: 1, researchTurns: 1, prerequisites: [], isPrimary: true, unlocks: { units: ["pathfinder_exploration_vessel"] } },
+  { id: "tachyon_sensor_array", name: "Tachyon Sensor Array", description: "Extends sensor range.", category: "Exploration", tier: 2, researchTurns: 2, prerequisites: ["long_range_sensors"], unlocks: u("Exploration Speed I") },
+  { id: "deep_space_survey_probe", name: "Deep Space Survey Probe", description: "Deploys durable probes for long-duration resource surveys.", category: "Exploration", tier: 2, researchTurns: 2, prerequisites: ["aero_probe_launcher"], unlocks: u("Resource Finder I") },
+  { id: "anomaly_analysis_algorithms", name: "Anomaly Analysis Algorithms", description: "Identifies unusual signals and ancient sites.", category: "Exploration", tier: 2, researchTurns: 2, prerequisites: ["sub_light_mapping"], unlocks: u("Cost Reducer I") },
+  { id: "relic_matrices", name: "Relic Matrices", description: "Interprets ancient structures and signals.", category: "Exploration", tier: 3, researchTurns: 3, prerequisites: ["tachyon_sensor_array"] },
+  { id: "atmospheric_hazard_cartography", name: "Atmospheric Hazard Cartography", description: "Maps hazardous environments and improves ancient lost technology discovery.", category: "Exploration", tier: 3, researchTurns: 3, prerequisites: ["deep_space_survey_probe"], unlocks: u("Resource Finder II") },
+  { id: "warp_lane_optimization", name: "Warp Lane Optimization", description: "Optimizes exploration routes and reduces travel time.", category: "Exploration", tier: 3, researchTurns: 3, prerequisites: ["anomaly_analysis_algorithms"], unlocks: u("Cost Reducer II") },
+  { id: "study_ancient_languages", name: "Study Ancient Languages", description: "Deciphers ancient language systems and permits communication with visiting alien traders once the Travel Trade Center exists.", category: "Exploration", tier: 4, researchTurns: 4, prerequisites: ["relic_matrices"] },
+  { id: "subspace_beacon_network", name: "Subspace Beacon Network", description: "Creates navigational beacons for deeper exploration missions.", category: "Exploration", tier: 4, researchTurns: 4, prerequisites: ["relic_matrices"], unlocks: { units: ["wayfinder_exploration_vessel"] } },
+  { id: "fold_navigation", name: "Fold Navigation", description: "Completes the conventional exploration program.", category: "Exploration", tier: 5, researchTurns: 5, prerequisites: ["warp_lane_optimization"], unlocks: u("Exploration Speed IV") },
+  { id: "relic_adhesion_matrix_ai", name: "Relic Adhesion Matrix AI", description: "A dangerous AI that reconstructs and integrates ancient technology. This is one half of the gate to Blacklisted Alien Technology.", category: "Exploration", tier: 6, researchTurns: 6, prerequisites: ["subspace_beacon_network", "study_ancient_languages"], isPrimary: true, unlockTags: ["blacklisted_gate"] },
 
-  // ───────────────────────── TIER 5 ─────────────────────────
-  { id: "disruptors", name: "Disruptors", description: "Molecular-bond disruption.", category: "Weapons", icon: "Atom", researchTurns: 5, prerequisites: ["plasma_weapons"], tier: 5 },
-  { id: "primary_beams", name: "Primary Beams", description: "Spinal-mount beam cannons.", category: "Weapons", icon: "Zap", researchTurns: 5, prerequisites: ["disruptors"], tier: 5 },
-  { id: "neutron_lances", name: "Neutron Lances", description: "Sustained neutron streams.", category: "Weapons", icon: "Atom", researchTurns: 5, prerequisites: ["neutron_beams"], tier: 5 },
-  { id: "singularity_engine", name: "Singularity Engine", description: "Contain a micro black hole.", category: "Energy", researchTurns: 5, prerequisites: ["zero_point_energy"], tier: 5 },
-  { id: "adaptive_armor", name: "Adaptive Armor", description: "Reactive self-repairing plating.", category: "Construction", researchTurns: 5, prerequisites: ["metamaterials"], tier: 5 },
-  { id: "neural_net", name: "Neural Networks", description: "Deep learning at fleet scale.", category: "Computing", researchTurns: 5, prerequisites: ["ai_core"], tier: 5 },
-  { id: "quantum_stealth", name: "Quantum Stealth", description: "Near-total concealment.", category: "Computing", researchTurns: 5, prerequisites: ["stealth_systems", "quantum_computing"], tier: 5 },
-  { id: "hyperspace_drive", name: "Hyperspace Drive", description: "Transit through hyperspace.", category: "Propulsion", researchTurns: 5, prerequisites: ["jump_drive"], tier: 5 },
-  { id: "battleship_hull", name: "Battleship Hull", description: "Capital warship frame.", category: "Ship Technology", researchTurns: 5, prerequisites: ["orbital_shipyards", "turbolasers"], tier: 5, isPrimary: true, unlocks: { upgrades: ["reinforced_hull_ii"] }, unlockTags: ["ship", "empire_upgrade", "ship_upgrade"] },
-  { id: "carrier_hull", name: "Carrier Hull", description: "Launch swarm craft.", category: "Ship Technology", researchTurns: 5, prerequisites: ["orbital_shipyards", "guided_missiles"], tier: 5, isPrimary: true, unlocks: { units: ["carrier"] }, unlockTags: ["ship", "ship_upgrade"] },
-  { id: "swarm_robotics", name: "Swarm Robotics", description: "Coordinated micro-drone swarms.", category: "Automation", researchTurns: 5, prerequisites: ["automated_factory"], tier: 5 },
-  { id: "planetary_shield", name: "Planetary Shield", description: "World-scale defense.", category: "Military", researchTurns: 5, prerequisites: ["phase_shields", "metamaterials"], tier: 5, unlockTags: ["military"] },
-  { id: "bio_warfare", name: "Bio-Warfare", description: "Targeted bioweapons.", category: "Biotechnology", researchTurns: 5, prerequisites: ["cybernetics"], tier: 5 },
-  { id: "gaia_terraforming", name: "Gaia Transformation", description: "Engineer paradise worlds.", category: "Terraforming", researchTurns: 5, prerequisites: ["terraforming_advanced"], tier: 5 },
-  { id: "megastructures", name: "Megastructures", description: "Build at planetary scale.", category: "Construction", researchTurns: 5, prerequisites: ["metamaterials", "mass_production"], tier: 5 },
-  { id: "fleet_logistics", name: "Fleet Logistics", description: "Sustain fleets across the void.", category: "Military", researchTurns: 5, prerequisites: ["stock_market", "jump_drive"], tier: 5 },
+  { id: "centralized_administration", name: "Centralized Administration", description: "Concentrates imperial administration into a unified governing structure.", category: "Empire Governance", tier: 1, researchTurns: 1, prerequisites: [], isPrimary: true },
+  { id: "sub_space_relays", name: "Sub-space Relays", description: "Establishes the communication backbone for the empire.", category: "Empire Governance", tier: 1, researchTurns: 1, prerequisites: [], isPrimary: true, unlocks: { abilities: ["global_comms"] } },
+  { id: "standardized_empire_codes", name: "Standardized Empire Codes", description: "Creates common legal and administrative standards.", category: "Empire Governance", tier: 1, researchTurns: 1, prerequisites: [], isPrimary: true, unlocks: { abilities: ["political_tab"] } },
+  { id: "planetary_growth_matrix", name: "Planetary Growth Matrix", description: "Coordinates planetary population and development policy.", category: "Empire Governance", tier: 2, researchTurns: 2, prerequisites: ["centralized_administration"], unlocks: u("Population Growth II") },
+  { id: "tachyon_communications", name: "Tachyon Communications", description: "High-speed communications increase VRIND income.", category: "Empire Governance", tier: 2, researchTurns: 2, prerequisites: ["sub_space_relays"], unlocks: u("Income Upgrade II") },
+  { id: "imperial_directives", name: "Imperial Directives", description: "Central directives increase VRIND income.", category: "Empire Governance", tier: 2, researchTurns: 2, prerequisites: ["standardized_empire_codes"], unlocks: u("Income Upgrade III") },
+  { id: "imperial_networking", name: "Imperial Networking", description: "Links administrative centers across the empire.", category: "Empire Governance", tier: 3, researchTurns: 3, prerequisites: ["planetary_growth_matrix"], unlocks: u("Population Growth III") },
+  { id: "quantum_entanglement_command_matrix", name: "Quantum Entanglement Command Matrix", description: "Instant command and communication across imperial distances.", category: "Empire Governance", tier: 3, researchTurns: 3, prerequisites: ["tachyon_communications"], unlocks: { abilities: ["zero_comm_fee"] } },
+  { id: "diplomatic_decree", name: "Diplomatic Decree", description: "Creates the legal authority for formal alliances.", category: "Empire Governance", tier: 3, researchTurns: 3, prerequisites: ["imperial_directives"], unlocks: { abilities: ["alliance_creation"] } },
+  { id: "empire_data_encryption", name: "Empire Data Encryption", description: "Protects imperial intelligence from hostile reconnaissance.", category: "Empire Governance", tier: 4, researchTurns: 4, prerequisites: ["imperial_networking"], unlocks: u("Secured Fleet Network I") },
+  { id: "centralized_command_matrix", name: "Centralized Command Matrix", description: "Unifies defensive command.", category: "Empire Governance", tier: 4, researchTurns: 4, prerequisites: ["imperial_networking"], unlocks: u("Empire Defense Control Matrix I") },
+  { id: "sub_space_data_networks", name: "Sub-space Data Networks", description: "Creates the next generation of secure imperial data routing.", category: "Empire Governance", tier: 4, researchTurns: 4, prerequisites: ["imperial_networking"] },
+  { id: "galactic_trade_manipulation_ai", name: "Galactic Trade Manipulation AI", description: "An economic AI capable of manipulating market taxation systems.", category: "Empire Governance", tier: 4, researchTurns: 4, prerequisites: ["quantum_entanglement_command_matrix"], unlocks: u("TAX EVASION I") },
+  { id: "travel_trade_ambassador", name: "Travel Trade Ambassador", description: "Establishes the diplomatic authority for an Alien Travel Trade Center.", category: "Empire Governance", tier: 4, researchTurns: 4, prerequisites: ["quantum_entanglement_command_matrix"], unlocks: { buildings: ["alien_travel_trade_center"] } },
+  { id: "empire_control_overlord", name: "Empire Control OVERLORD", description: "Emergency imperial authority. This is the second half of the Blacklisted Alien Technology gate.", category: "Empire Governance", tier: 4, researchTurns: 4, prerequisites: ["quantum_entanglement_command_matrix"], isPrimary: true, unlocks: { abilities: ["martial_law"] }, unlockTags: ["blacklisted_gate"] },
+  { id: "espionage", name: "Espionage", description: "Unlocks the Espionage operations system.", category: "Empire Governance", tier: 4, researchTurns: 4, prerequisites: ["diplomatic_decree"], unlocks: { abilities: ["espionage"] } },
+  { id: "counter_espionage", name: "Counter Espionage", description: "Develops systems for detecting, hindering and capturing hostile spies.", category: "Empire Governance", tier: 4, researchTurns: 4, prerequisites: ["diplomatic_decree"], unlocks: u("Anti Spy Network") },
+  { id: "war_council", name: "War Council", description: "Formalizes allied military coordination against common enemies.", category: "Empire Governance", tier: 4, researchTurns: 4, prerequisites: ["diplomatic_decree"], unlocks: u("Alliance Bonus I") },
+  { id: "taxation_doctrine", name: "Taxation Doctrine", description: "Creates formal imperial taxation policy.", category: "Empire Governance", tier: 4, researchTurns: 4, prerequisites: ["diplomatic_decree"], unlocks: u("Tax Office I") },
 
-  // ───────────────────────── TIER 6 ─────────────────────────
-  { id: "death_ray", name: "Death Ray", description: "Planet-cracking beam.", category: "Weapons", icon: "Skull", researchTurns: 7, prerequisites: ["primary_beams"], tier: 6 },
-  { id: "antimatter_torpedoes", name: "Antimatter Torpedoes", description: "Annihilation warheads.", category: "Weapons", icon: "Rocket", researchTurns: 6, prerequisites: ["torpedo_systems", "antimatter_reactor"], tier: 6 },
-  { id: "dark_matter", name: "Dark Matter Extraction", description: "Harvest exotic mass.", category: "Energy", researchTurns: 7, prerequisites: ["singularity_engine"], tier: 6 },
-  { id: "living_metal", name: "Living Metal", description: "Self-repairing smart matter.", category: "Construction", researchTurns: 6, prerequisites: ["adaptive_armor", "nanotech"], tier: 6 },
-  { id: "sentience", name: "Artificial Sentience", description: "Self-aware machine minds.", category: "Computing", researchTurns: 7, prerequisites: ["neural_net"], tier: 6 },
-  { id: "wormhole_drive", name: "Wormhole Drive", description: "Stabilized wormhole transit.", category: "Propulsion", researchTurns: 6, prerequisites: ["hyperspace_drive"], tier: 6 },
-  { id: "titan_hull", name: "Titan Hull", description: "Vessels of immense scale.", category: "Ship Technology", researchTurns: 6, prerequisites: ["battleship_hull", "living_metal"], tier: 6, isPrimary: true, unlocks: { upgrades: ["heavy_armor"] }, unlockTags: ["ship", "empire_upgrade", "ship_upgrade"] },
-  { id: "bio_ships", name: "Bio-Ships", description: "Living vessels.", category: "Ship Technology", researchTurns: 6, prerequisites: ["titan_hull", "cybernetics"], tier: 6 },
-  { id: "nanoswarm", name: "Nanoswarm", description: "Disassembler clouds.", category: "Automation", researchTurns: 6, prerequisites: ["swarm_robotics"], tier: 6 },
-  { id: "battlestation", name: "Battlestation", description: "Armed orbital fortresses.", category: "Military", researchTurns: 6, prerequisites: ["planetary_shield", "orbital_shipyards"], tier: 6, unlockTags: ["military"] },
-  { id: "gene_targeting", name: "Gene Targeting", description: "Species-specific bioweapons.", category: "Biotechnology", researchTurns: 6, prerequisites: ["bio_warfare"], tier: 6 },
-  { id: "ringworld_frame", name: "Ringworld Frame", description: "Habitable rings around stars.", category: "Construction", researchTurns: 8, prerequisites: ["megastructures", "dark_matter"], tier: 6 },
-  { id: "grand_fleet", name: "Grand Armada", description: "Unified national fleet.", category: "Military", researchTurns: 6, prerequisites: ["fleet_logistics", "battleship_hull"], tier: 6 },
-  { id: "stealth_fleet", name: "Stealth Fleet", description: "Undetectable strike groups.", category: "Military", researchTurns: 6, prerequisites: ["stealth_systems", "fleet_command"], tier: 6 },
+  // Hidden: Blacklisted Alien Technology. This tree must never be available
+  // from normal category navigation until BOTH gate technologies are complete.
+  { id: "blacklisted_alien_technology", name: "Blacklisted Alien Technology", description: "Restricted ancient technology recovered through the Relic Adhesion Matrix AI and controlled through the Empire Control OVERLORD. Every technology in this tree carries catastrophic instability risk.", category: "Blacklisted Alien Technology", tier: 0, researchTurns: 0, prerequisites: { all: ["relic_adhesion_matrix_ai", "empire_control_overlord"] }, hidden: true, isGate: true },
+  { id: "void_siphon_engine", name: "Void Siphon Engine", description: "A blacklisted energy system that extracts usable power from hostile void phenomena.", category: "Blacklisted Alien Technology", tier: 1, researchTurns: 6, prerequisites: ["blacklisted_alien_technology"], hidden: true, unlockTags: ["blacklisted", "unstable"] },
+  { id: "quantum_core", name: "Quantum Core", description: "A prohibited quantum-energy core capable of supporting impossible hull architectures.", category: "Blacklisted Alien Technology", tier: 1, researchTurns: 6, prerequisites: ["blacklisted_alien_technology"], hidden: true, unlockTags: ["blacklisted", "unstable"] },
+  { id: "entropy_cannon", name: "Entropy Cannon", description: "A weapon that destabilizes matter and can bypass conventional defenses.", category: "Blacklisted Alien Technology", tier: 2, researchTurns: 7, prerequisites: ["void_siphon_engine"], hidden: true, unlocks: { upgrades: ["Entropy Single Shot", "Entropy Multi Shot"] }, unlockTags: ["blacklisted", "unstable"] },
+  { id: "vampiric_field_generator", name: "Vampiric Field Generator", description: "A prohibited field that transfers defensive energy between designated vessels.", category: "Blacklisted Alien Technology", tier: 2, researchTurns: 7, prerequisites: ["quantum_core"], hidden: true, unlocks: { upgrades: ["Vampiric Field Generator Single Target", "Vampiric Field Generator Area"], units: ["vampiric_shield_ship"] }, unlockTags: ["blacklisted", "unstable"] },
+  { id: "phasing_hull_matrix", name: "Phasing Hull Matrix", description: "A forbidden hull architecture that allows a vessel to bypass every known defense and detection system.", category: "Blacklisted Alien Technology", tier: 2, researchTurns: 7, prerequisites: ["quantum_core"], hidden: true, unlocks: { units: ["phase_scout"] }, unlockTags: ["blacklisted", "unstable", "zero_detection"] },
+  { id: "entropic_cascade_reactor", name: "Entropic Cascade Reactor", description: "Escalates entropy weaponry into a cascading destructive system.", category: "Blacklisted Alien Technology", tier: 3, researchTurns: 8, prerequisites: ["entropy_cannon"], hidden: true, unlocks: { upgrades: ["Entropy Cascade"] , units: ["entropy_destroyer"] }, unlockTags: ["blacklisted", "unstable"] },
+  { id: "vampiric_resonance_core", name: "Vampiric Resonance Core", description: "Expands vampiric energy transfer into a resonance weapon system.", category: "Blacklisted Alien Technology", tier: 3, researchTurns: 8, prerequisites: ["vampiric_field_generator"], hidden: true, unlocks: { upgrades: ["Resonance Drain"], units: ["vampiric_guardian"] }, unlockTags: ["blacklisted", "unstable"] },
+  { id: "quantum_phase_lattice", name: "Quantum Phase Lattice", description: "Extends phasing architecture into controlled phase transit.", category: "Blacklisted Alien Technology", tier: 3, researchTurns: 8, prerequisites: ["phasing_hull_matrix"], hidden: true, unlocks: { upgrades: ["Phase Transit"], units: ["phase_interceptor"] }, unlockTags: ["blacklisted", "unstable"] },
+  { id: "quantum_nullification_field", name: "Quantum Nullification Field", description: "Suppresses detectable signatures through forbidden quantum interference.", category: "Blacklisted Alien Technology", tier: 3, researchTurns: 8, prerequisites: ["quantum_core"], hidden: true, unlocks: { upgrades: ["Null Signature"], units: ["nullifier_ship"] }, unlockTags: ["blacklisted", "unstable"] },
+  { id: "entropy_singularity_engine", name: "Entropy Singularity Engine", description: "Compresses entropy effects into a singularity-scale weapon.", category: "Blacklisted Alien Technology", tier: 4, researchTurns: 10, prerequisites: ["entropic_cascade_reactor"], hidden: true, unlocks: { upgrades: ["Singularity Cannon"], units: ["entropy_reaper"] }, unlockTags: ["blacklisted", "unstable"] },
+  { id: "vampiric_singularity_matrix", name: "Vampiric Singularity Matrix", description: "Creates a singularity-scale defensive energy drain.", category: "Blacklisted Alien Technology", tier: 4, researchTurns: 10, prerequisites: ["vampiric_resonance_core"], hidden: true, unlocks: { upgrades: ["Singularity Shield"], units: ["vampiric_leviathan"] }, unlockTags: ["blacklisted", "unstable"] },
+  { id: "phase_singularity_drive", name: "Phase Singularity Drive", description: "Creates permanent phase architecture for a capital ship. It is not permanently undetectable.", category: "Blacklisted Alien Technology", tier: 4, researchTurns: 10, prerequisites: ["quantum_phase_lattice"], hidden: true, unlocks: { upgrades: ["Permanent Phase Architecture"], units: ["phase_dreadnought"] }, unlockTags: ["blacklisted", "unstable"] },
+  { id: "quantum_null_matrix", name: "Quantum Null Matrix", description: "A final quantum-null architecture for a dedicated support vessel.", category: "Blacklisted Alien Technology", tier: 4, researchTurns: 10, prerequisites: ["quantum_nullification_field"], hidden: true, unlocks: { upgrades: ["Detection Collapse"], units: ["null_star"] }, unlockTags: ["blacklisted", "unstable"] },
 
-  // ───────────────────────── TIER 7 — capstones ─────────────────────────
-  { id: "doomsday", name: "Doomsday Weapon", description: "End worlds in a single shot.", category: "Weapons", icon: "Skull", researchTurns: 11, prerequisites: ["death_ray", "singularity_engine"], tier: 7 },
-  { id: "stellar_engine", name: "Stellar Engine", description: "Move and harvest entire stars.", category: "Energy", researchTurns: 10, prerequisites: ["dark_matter", "ringworld_frame"], tier: 7 },
-  { id: "ascension", name: "Technological Ascension", description: "Transcend physical limits.", category: "Computing", researchTurns: 12, prerequisites: ["sentience", "dark_matter"], tier: 7 },
-  { id: "void_drive", name: "Void Drive", description: "Step between galaxies.", category: "Propulsion", researchTurns: 10, prerequisites: ["wormhole_drive", "dark_matter"], tier: 7 },
-  { id: "titan_class", name: "Titan-Class Vessel", description: "The pinnacle warship.", category: "Ship Technology", researchTurns: 9, prerequisites: ["titan_hull", "death_ray"], tier: 7, isPrimary: true, unlocks: { weapons: ["spinal_mount_cannon"] }, unlockTags: ["ship", "ship_upgrade"] },
-  { id: "immortality", name: "Biological Immortality", description: "End aging.", category: "Biotechnology", researchTurns: 10, prerequisites: ["gene_targeting", "sentience"], tier: 7 },
-  { id: "ringworld", name: "Ringworld", description: "A finished ringworld.", category: "Construction", researchTurns: 11, prerequisites: ["ringworld_frame", "gaia_terraforming"], tier: 7 },
-  { id: "galactic_command", name: "Galactic Command", description: "Command all fleets at once.", category: "Military", researchTurns: 9, prerequisites: ["grand_fleet", "titan_hull"], tier: 7 },
+  // Dedicated instability research: reduces catastrophic failure chance but
+  // never reaches zero. These are intentionally separate from normal empire upgrades.
+  { id: "blacklisted_instability_control", name: "Blacklisted Technology Instability Control", description: "Dedicated research reduces catastrophic failure probability for blacklisted systems, but can never reduce it to 0%.", category: "Blacklisted Alien Technology", tier: 5, researchTurns: 12, prerequisites: ["entropy_singularity_engine", "vampiric_singularity_matrix", "phase_singularity_drive", "quantum_null_matrix"], hidden: true, unlockTags: ["blacklisted", "instability_control"] },
 ];
 
-// ── Derived tech helpers (data layer) ──────────────────────────────
-// Backward-compatible prerequisite normalization: a plain array is treated
-// as an AND group ({ all: [...], any: [] }). New techs may use the object
-// form to express AND (all) and OR (any) prerequisites.
 export function normalizePrereqs(tech) {
-  const p = tech.prerequisites;
-  if (Array.isArray(p)) return { all: p, any: [] };
-  return { all: (p && p.all) || [], any: (p && p.any) || [] };
+  if (!tech) return { all: [], any: [] };
+  if (Array.isArray(tech.prerequisites)) return { all: tech.prerequisites, any: [] };
+  const p = tech.prerequisites || {};
+  return { all: p.all || [], any: p.any || [] };
 }
 
-// Default resource cost scales with tier. A tech may override by setting
-// its own researchCost map.
 export function defaultResearchCost(tier) {
-  const scale = Math.pow(2, tier - 1);
-  return {
-    research_points: 20 * scale,
-    vrind: 40 * scale,
-  };
+  const t = Math.max(1, Number(tier) || 1);
+  return { research_points: 20 * (2 ** (t - 1)), vrind: 40 * (2 ** (t - 1)) };
 }
 
-export function getResearchCost(tech) {
-  return tech.researchCost || defaultResearchCost(tech.tier);
-}
-
-// Primary techs form the main progression chains; supporting techs branch
-// off them. Defaults to true for tier-1 roots and tier-7 capstones; any tech
-// can override with isPrimary: true/false.
-export function isPrimaryTech(tech) {
-  if (tech.isPrimary != null) return tech.isPrimary === true;
-  return tech.tier === 1 || tech.tier === 7;
-}
-
-// Grouped gameplay unlocks. Empty by default; populated per tech to display
-// units/weapons/upgrades/buildings/abilities in the info panel.
-export function getUnlocks(tech) {
-  return tech.unlocks || {};
-}
+export function getResearchCost(tech) { return tech?.researchCost || defaultResearchCost(tech?.tier); }
+export function isPrimaryTech(tech) { return tech?.isPrimary === true || (!Object.prototype.hasOwnProperty.call(tech || {}, "isPrimary") && tech?.tier === 1); }
+export function getUnlocks(tech) { return tech?.unlocks || {}; }
