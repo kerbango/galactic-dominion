@@ -17,7 +17,7 @@ export const CATEGORY_ORDER = [
   "Defense",
   "Economy and Resources",
   "Fleet Research",
-  Exploration,
+  "Exploration",
   "Empire Governance",
 ];
 
@@ -70,8 +70,8 @@ export const TECH_TREE = [
   // EXPLORATION
   // ═══════════════════════════════════════════════════════════════════════
   { id: "long_range_sensors", name: "Long Range Sensors", description: "Detect and analyze distant regions of space.", category: "Exploration", icon: "Radar", tier: 1, researchTurns: 1, prerequisites: [], isPrimary: true, unlocks: { units: ["pathfinder_exploration_vessel"] }, unlockTags: ["exploration"] },
-  { id: "aero_probe_launcher", name: "Aero-Probe Launcher", description: "Launches autonomous probes into hazardous and poorly mapped regions.", category: "Exploration", tier: 1, researchTurns: 1, prerequisites: [], isPrimary: true, unlocks: { units: ["pathfinder_exploration_vessel"] }, unlockTags: ["exploration"] },
-  { id: "sub_light_mapping", name: "Sub Light Mapping", description: "Maps local space without requiring full warp transit.", category: "Exploration", tier: 1, researchTurns: 1, prerequisites: [], isPrimary: true, unlocks: { units: ["pathfinder_exploration_vessel"] }, unlockTags: ["exploration"] },
+  { id: "aero_probe_launcher", name: "Aero-Probe Launcher", description: "Launches autonomous probes into hazardous and poorly mapped regions.", category: "Exploration", icon: "Radar", tier: 1, researchTurns: 1, prerequisites: [], isPrimary: true, unlocks: { units: ["pathfinder_exploration_vessel"] }, unlockTags: ["exploration"] },
+  { id: "sub_light_mapping", name: "Sub Light Mapping", description: "Maps local space without requiring full warp transit.", category: "Exploration", icon: "Radar", tier: 1, researchTurns: 1, prerequisites: [], isPrimary: true, unlocks: { units: ["pathfinder_exploration_vessel"] }, unlockTags: ["exploration"] },
   { id: "tachyon_sensor_array", name: "Tachyon Sensor Array", description: "Extends sensor range into regions masked by normal detection limits.", category: "Exploration", tier: 2, researchTurns: 2, prerequisites: ["long_range_sensors"], unlocks: { upgrades: ["Exploration Speed I"] } },
   { id: "deep_space_survey_probe", name: "Deep Space Survey Probe", description: "Deploys durable probes for long-duration resource surveys.", category: "Exploration", tier: 2, researchTurns: 2, prerequisites: ["aero_probe_launcher"], unlocks: { upgrades: ["Resource Finder I"] } },
   { id: "anomaly_analysis_algorithms", name: "Anomaly Analysis Algorithms", description: "Identifies unusual signals, spatial anomalies and ancient sites.", category: "Exploration", tier: 2, researchTurns: 2, prerequisites: ["sub_light_mapping"], unlocks: { upgrades: ["Cost Reducer I"] } },
@@ -87,8 +87,8 @@ export const TECH_TREE = [
   // EMPIRE GOVERNANCE
   // ═══════════════════════════════════════════════════════════════════════
   { id: "centralized_administration", name: "Centralized Administration", description: "Concentrates imperial administration into a unified governing structure.", category: "Empire Governance", icon: "Crown", tier: 1, researchTurns: 1, prerequisites: [], isPrimary: true, unlockTags: ["governance"] },
-  { id: "sub_space_relays", name: "Sub-space Relays", description: "Establishes the communication backbone for the empire.", category: "Empire Governance", tier: 1, researchTurns: 1, prerequisites: [], isPrimary: true, unlockTags: ["governance"] },
-  { id: "standardized_empire_codes", name: "Standardized Empire Codes", description: "Creates common legal and administrative standards throughout the empire.", category: "Empire Governance", tier: 1, researchTurns: 1, prerequisites: [], isPrimary: true, unlockTags: ["governance"] },
+  { id: "sub_space_relays", name: "Sub-space Relays", description: "Establishes the communication backbone for the empire.", category: "Empire Governance", icon: "Crown", tier: 1, researchTurns: 1, prerequisites: [], isPrimary: true, unlockTags: ["governance"] },
+  { id: "standardized_empire_codes", name: "Standardized Empire Codes", description: "Creates common legal and administrative standards throughout the empire.", category: "Empire Governance", icon: "Crown", tier: 1, researchTurns: 1, prerequisites: [], isPrimary: true, unlockTags: ["governance"] },
   { id: "planetary_growth_matrix", name: "Planetary Growth Matrix", description: "Coordinates planetary population and development policy.", category: "Empire Governance", tier: 2, researchTurns: 2, prerequisites: ["centralized_administration"], unlocks: { upgrades: ["Population Growth II"] } },
   { id: "tachyon_communications", name: "Tachyon Communications", description: "High-speed communications strengthen economic coordination and increase VRIND income.", category: "Empire Governance", tier: 2, researchTurns: 2, prerequisites: ["sub_space_relays"], unlocks: { upgrades: ["Income Upgrade II"] } },
   { id: "imperial_directives", name: "Imperial Directives", description: "Central directives increase imperial economic efficiency and VRIND income.", category: "Empire Governance", tier: 2, researchTurns: 2, prerequisites: ["standardized_empire_codes"], unlocks: { upgrades: ["Income Upgrade III"] } },
@@ -108,8 +108,6 @@ export const TECH_TREE = [
   { id: "governance_apex", name: "Imperial Governance Apex", description: "The mature governance framework that coordinates communications, defense, trade, diplomacy and intelligence.", category: "Empire Governance", tier: 5, researchTurns: 5, prerequisites: ["empire_data_encryption", "centralized_command_matrix", "galactic_trade_manipulation_ai", "empire_control_overlord", "counter_espionage", "war_council", "taxation_doctrine"], isPrimary: true, unlockTags: ["governance_apex"] },
 ];
 
-// Normalize prerequisite declarations. Arrays mean AND prerequisites.
-// Objects may specify both all and any groups.
 export function normalizePrereqs(tech) {
   if (!tech) return { all: [], any: [] };
   if (Array.isArray(tech.prerequisites)) return { all: tech.prerequisites, any: [] };
@@ -117,22 +115,15 @@ export function normalizePrereqs(tech) {
   return { all: p.all || [], any: p.any || [] };
 }
 
-// Default research cost scales by tier while allowing individual techs to
-// override it with `researchCost`.
 export function defaultResearchCost(tier) {
   const t = Math.max(1, Number(tier) || 1);
-  return {
-    research_points: 20 * (2 ** (t - 1)),
-    vrind: 40 * (2 ** (t - 1)),
-  };
+  return { research_points: 20 * (2 ** (t - 1)), vrind: 40 * (2 ** (t - 1)) };
 }
 
 export function getResearchCost(tech) {
   return tech?.researchCost || defaultResearchCost(tech?.tier);
 }
 
-// Primary nodes are rendered larger by the existing canvas. Explicit flags
-// take precedence; tier 1 roots are primary by default.
 export function isPrimaryTech(tech) {
   return tech?.isPrimary === true || (!Object.prototype.hasOwnProperty.call(tech || {}, "isPrimary") && tech?.tier === 1);
 }
