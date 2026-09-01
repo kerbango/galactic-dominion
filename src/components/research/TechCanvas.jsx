@@ -5,16 +5,17 @@ import { TECH_TREE } from '@/data/techTree';
 import { getTechnologyState, getConnectionState } from '@/lib/techLayout';
 
 const LINE_COLORS = {
-  completed: 'rgba(34,197,94,0.88)',
-  active: 'rgba(34,211,238,0.9)',
-  dormant: 'rgba(96,165,250,0.38)',
-  inactive: 'rgba(71,85,105,0.22)',
+  completed: 'rgba(34,197,94,0.95)',
+  active: 'rgba(34,211,238,0.95)',
+  dormant: 'rgba(96,165,250,0.72)',
+  inactive: 'rgba(100,116,139,0.48)',
 };
-const LINE_WIDTH = { completed: 2.4, active: 2.4, dormant: 1.5, inactive: 1.1 };
+const LINE_WIDTH = { completed: 2.6, active: 2.6, dormant: 1.9, inactive: 1.5 };
 const ARROW_FOR = { completed: 'url(#cwArrowGreen)', active: 'url(#cwArrowCyan)', dormant: 'url(#cwArrowGrey)', inactive: '' };
 
 // Pannable / zoomable graph surface. Research behavior and edge logic are
-// unchanged; only the command-console presentation is being refined here.
+// unchanged; connectors are rendered as a dedicated network layer so every
+// prerequisite relationship remains visually traceable.
 export default function TechCanvas({ statusMap, edges, layout, selectedId, onSelect, visibleIds }) {
   const containerRef = useRef(null);
   const [zoom, setZoom] = useState(0.85);
@@ -122,33 +123,53 @@ export default function TechCanvas({ statusMap, edges, layout, selectedId, onSel
             backgroundSize: '32px 32px, 32px 32px, 100% 100%',
           }} />
           <div data-canvas-bg="1" className="absolute inset-x-0 top-0 h-10 border-b border-cyan-400/10 bg-gradient-to-b from-cyan-400/[0.03] to-transparent" />
-          <svg className="absolute inset-0 pointer-events-none" width={worldW} height={worldH} style={{ overflow: 'visible' }}>
+          <svg className="absolute inset-0 pointer-events-none" width={worldW} height={worldH} style={{ overflow: 'visible', zIndex: 1 }}>
             <defs>
               <filter id="cwGlow"><feGaussianBlur stdDeviation="3" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-              <marker id="cwArrowGreen" markerWidth="7" markerHeight="7" refX="6.5" refY="3.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L7,3.5 L0,7 Z" fill="rgba(34,197,94,0.95)" /></marker>
-              <marker id="cwArrowCyan" markerWidth="7" markerHeight="7" refX="6.5" refY="3.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L7,3.5 L0,7 Z" fill="rgba(34,211,238,0.95)" /></marker>
-              <marker id="cwArrowGrey" markerWidth="7" markerHeight="7" refX="6.5" refY="3.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L7,3.5 L0,7 Z" fill="rgba(148,163,184,0.6)" /></marker>
+              <marker id="cwArrowGreen" markerWidth="7" markerHeight="7" refX="6.5" refY="3.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L7,3.5 L0,7 Z" fill="rgba(34,197,94,0.98)" /></marker>
+              <marker id="cwArrowCyan" markerWidth="7" markerHeight="7" refX="6.5" refY="3.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L7,3.5 L0,7 Z" fill="rgba(34,211,238,0.98)" /></marker>
+              <marker id="cwArrowGrey" markerWidth="7" markerHeight="7" refX="6.5" refY="3.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L7,3.5 L0,7 Z" fill="rgba(148,163,184,0.75)" /></marker>
             </defs>
             {edges.map((ed, i) => {
-              const from = pos[ed.from]; const to = pos[ed.to];
+              const from = pos[ed.from];
+              const to = pos[ed.to];
               if (!from || !to) return null;
-              const fs = getTechnologyState({ id: ed.from }, statusMap); const ts = getTechnologyState({ id: ed.to }, statusMap); const cs = getConnectionState(fs, ts);
-              const x1 = from.x + from.w; const y1 = from.y + from.h / 2; const x2 = to.x; const y2 = to.y + to.h / 2; const midX = x1 + (x2 - x1) / 2;
+              const fs = getTechnologyState(TECH_TREE.find((t) => t.id === ed.from) || { id: ed.from }, statusMap);
+              const ts = getTechnologyState(TECH_TREE.find((t) => t.id === ed.to) || { id: ed.to }, statusMap);
+              const cs = getConnectionState(fs, ts);
+              const x1 = from.x + from.w;
+              const y1 = from.y + from.h / 2;
+              const x2 = to.x;
+              const y2 = to.y + to.h / 2;
+              const gap = Math.max(24, x2 - x1);
+              const midX = x1 + gap / 2;
               const d = `M ${x1} ${y1} L ${midX} ${y1} L ${midX} ${y2} L ${x2} ${y2}`;
               const flow = cs === 'completed' || cs === 'active';
               const isSel = selectedId && (ed.from === selectedId || ed.to === selectedId);
-              const stroke = isSel ? 'rgba(103,232,249,0.98)' : LINE_COLORS[cs];
-              const width = isSel ? 3 : LINE_WIDTH[cs];
-              return <path key={i} d={d} fill="none" stroke={stroke} strokeWidth={width} strokeLinejoin="round" strokeLinecap="round" markerEnd={ARROW_FOR[cs] || undefined} strokeDasharray={flow ? '5 11' : undefined} filter={isSel ? 'url(#cwGlow)' : undefined}>{flow && <animate attributeName="stroke-dashoffset" from="0" to="-16" dur="0.9s" repeatCount="indefinite" />}</path>;
+              const stroke = isSel ? 'rgba(165,243,252,1)' : LINE_COLORS[cs];
+              const width = isSel ? 3.2 : LINE_WIDTH[cs];
+              const showArrow = cs !== 'inactive';
+              return (
+                <g key={`${ed.from}-${ed.to}-${i}`}>
+                  <path d={d} fill="none" stroke="rgba(2,7,13,0.9)" strokeWidth={width + 4} strokeLinejoin="round" strokeLinecap="round" />
+                  <path d={d} fill="none" stroke={stroke} strokeWidth={width} strokeLinejoin="round" strokeLinecap="round" markerEnd={showArrow ? ARROW_FOR[cs] : undefined} strokeDasharray={flow ? '5 11' : undefined} filter={isSel ? 'url(#cwGlow)' : undefined}>
+                    {flow && <animate attributeName="stroke-dashoffset" from="0" to="-16" dur="0.9s" repeatCount="indefinite" />}
+                  </path>
+                  <circle cx={midX} cy={y1} r={2.8} fill={stroke} opacity="0.95" />
+                  {Math.abs(y2 - y1) > 2 && <circle cx={midX} cy={y2} r={2.8} fill={stroke} opacity="0.95" />}
+                </g>
+              );
             })}
           </svg>
-          {visibleTechs.map((t) => <TechNode key={t.id} tech={t} state={getTechnologyState(t, statusMap)} position={pos[t.id]} selected={selectedId === t.id} onClick={() => onSelect(t.id)} />)}
+          <div className="absolute inset-0" style={{ zIndex: 2 }}>
+            {visibleTechs.map((t) => <TechNode key={t.id} tech={t} state={getTechnologyState(t, statusMap)} position={pos[t.id]} selected={selectedId === t.id} onClick={() => onSelect(t.id)} />)}
+          </div>
         </div>
       </div>
 
       <div className="absolute top-3 right-3 flex flex-col gap-1.5">
         <button onClick={() => zoomCenter(1.3)} className="w-9 h-9 rounded-md border border-cyan-400/20 bg-[#06111d]/90 flex items-center justify-center text-cyan-200 hover:text-white hover:border-cyan-300/50 transition-colors" title="Zoom in"><ZoomIn className="w-4 h-4" /></button>
-        <button onClick={() => zoomCenter(1 / 1.3)} className="w-9 h-9 rounded-md border border-cyan-400/20 bg-[#06111d]/90 flex items-center justify-center text-cyan-200 hover:text-white hover:border-cyan-300/50 transition-colors" title="Zoom out"><ZoomOut className="w-4 h-4" /></button>
+        <button onClick={() => zoomCenter(1 / 1.3)} className="w-9 h-9 rounded-md border border-cyan-400/20 bg-[#06111d]/90 flex items-center justify-center text-cyan-200 hover:text-white transition-colors" title="Zoom out"><ZoomOut className="w-4 h-4" /></button>
         <button onClick={centerSelected} disabled={!selectedId} className="w-9 h-9 rounded-md border border-cyan-400/20 bg-[#06111d]/90 flex items-center justify-center text-cyan-200 hover:text-white disabled:opacity-30 transition-colors" title="Center on selected"><Crosshair className="w-4 h-4" /></button>
         <button onClick={reset} className="w-9 h-9 rounded-md border border-cyan-400/20 bg-[#06111d]/90 flex items-center justify-center text-cyan-200 hover:text-white transition-colors" title="Reset view"><Maximize className="w-4 h-4" /></button>
       </div>
