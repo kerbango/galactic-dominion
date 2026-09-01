@@ -10,17 +10,11 @@ export const CATEGORIES = {
   "Empire Governance": { icon: "Crown", color: "text-violet-300" },
 };
 
-export const CATEGORY_ORDER = [
-  "Defense",
-  "Economy and Resources",
-  "Fleet Research",
-  "Exploration",
-  "Empire Governance",
-];
+export const CATEGORY_ORDER = ["Defense", "Economy and Resources", "Fleet Research", "Exploration", "Empire Governance"];
 
 export const TECH_TREE = [
   // DEFENSE
-  { id: "defense_command", name: "Defense Command", description: "Establishes the empire's formal planetary and fleet defense doctrine.", category: "Defense", icon: "Shield", tier: 1, researchTurns: 1, prerequisites: [], isPrimary: true },
+  { id: "defense_command", name: "Defense Command", description: "Establishes the empire's formal planetary and fleet defense doctrine.", category: "Defense", tier: 1, researchTurns: 1, prerequisites: [], isPrimary: true },
   { id: "planetary_defense_architecture", name: "Planetary Defense Architecture", description: "Creates the framework for layered planetary defense installations.", category: "Defense", tier: 2, researchTurns: 2, prerequisites: ["defense_command"], isPrimary: true, unlocks: { units: ["bunker", "pdg"] } },
   { id: "fleet_defense_doctrine", name: "Fleet Defense Doctrine", description: "Formalizes defensive fleet formations and capital protection doctrine.", category: "Defense", tier: 2, researchTurns: 2, prerequisites: ["defense_command"] },
   { id: "early_warning_network", name: "Early Warning Network", description: "Links planetary sensors into an integrated hostile-fleet warning system.", category: "Defense", tier: 3, researchTurns: 3, prerequisites: ["planetary_defense_architecture"] },
@@ -42,11 +36,11 @@ export const TECH_TREE = [
   { id: "galactic_trade", name: "Galactic Trade", description: "Opens larger-scale interplanetary and galactic market operations.", category: "Economy and Resources", tier: 4, researchTurns: 4, prerequisites: ["vrind_economy", "advanced_mining_network"] },
   { id: "economic_optimization", name: "Economic Optimization", description: "Uses advanced planning to increase the empire's recurring VRIND income.", category: "Economy and Resources", tier: 4, researchTurns: 4, prerequisites: ["vrind_economy"], unlocks: { upgrades: ["Income Upgrade I"] } },
   { id: "trade_manipulation", name: "Trade Manipulation", description: "Advanced market systems allow the empire to influence taxation and trade flows.", category: "Economy and Resources", tier: 5, researchTurns: 5, prerequisites: ["galactic_trade", "economic_optimization"] },
-  { id: "resource_dominance", name: "Resource Dominance", description: "A mature economic network optimized for sustained imperial expansion.", category: "Economy and Resources", tier: 6, researchTurns: 6, prerequisites: ["trade_manipulation", "planetary_growth_economics"], isPrimary: true, unlocks: { upgrades: ["Tax Office I", "Tax Office II", "Tax Office III"] } },
+  { id: "resource_dominance", name: "Resource Dominance", description: "A mature economic network optimized for sustained imperial expansion.", category: "Economy and Resources", tier: 6, researchTurns: 6, prerequisites: ["trade_manipulation", "planetary_growth_economics"], isPrimary: true },
 
   // FLEET RESEARCH
   { id: "fleet_foundation", name: "Fleet Foundation", description: "Establishes the research doctrine for military spacecraft and fleet operations.", category: "Fleet Research", tier: 1, researchTurns: 1, prerequisites: [], isPrimary: true },
-  { id: "standard_hull_framing", name: "Standard Hull Framing", description: "Creates standardized hull architecture used by fleet yards.", category: "Fleet Research", tier: 2, researchTurns: 2, prerequisites: ["fleet_foundation"], isPrimary: true, unlocks: { units: ["scout_ship"] } },
+  { id: "standard_hull_framing", name: "Standard Hull Framing", description: "Creates standardized hull architecture used by fleet yards.", category: "Fleet Research", tier: 2, researchTurns: 2, prerequisites: ["fleet_foundation"], isPrimary: true, unlocks: { units: ["scout_ship", "medium_frigate"] } },
   { id: "jump_drive_attunement", name: "Jump Drive Attunement", description: "Improves jump calculations, transition stability and fleet arrival positioning.", category: "Fleet Research", tier: 2, researchTurns: 2, prerequisites: ["fleet_foundation"] },
   { id: "frigate_design", name: "Frigate Design", description: "Develops specialized frigate hulls.", category: "Fleet Research", tier: 3, researchTurns: 3, prerequisites: ["standard_hull_framing"], isPrimary: true, unlocks: { units: ["medium_frigate", "heavy_frigate"] } },
   { id: "destroyer_design", name: "Destroyer Design", description: "Develops heavier escort and line-combat hulls.", category: "Fleet Research", tier: 3, researchTurns: 3, prerequisites: ["standard_hull_framing"], isPrimary: true, unlocks: { units: ["destroyer", "heavy_super_destroyer"] } },
@@ -58,13 +52,13 @@ export const TECH_TREE = [
   { id: "advanced_fleet_architecture", name: "Advanced Fleet Architecture", description: "Final conventional fleet research before specialized technologies.", category: "Fleet Research", tier: 6, researchTurns: 6, prerequisites: ["carrier_architecture", "capital_hull_engineering", "fleet_command_network"], isPrimary: true, unlocks: { units: ["titan"] } },
 
   // EXPLORATION
-  { id: "long_range_sensors", name: "Long Range Sensors", description: "Detect and analyze distant regions of space.", category: "Exploration", tier: 1, researchTurns: 1, prerequisites: [], isPrimary: true, unlocks: { units: ["pathfinder_exploration_vessel"] } },
+  { id: "long_range_sensors", name: "Long Range Sensors", description: "Detect and analyze distant regions of space.", category: "Exploration", tier: 1, researchTurns: 1, prerequisites: [], isPrimary: true, unlocks: { units: ["pathfinder_exploration_vessel"], upgrades: ["Exploration Speed I"] } },
   { id: "aero_probe_launcher", name: "Aero-Probe Launcher", description: "Launches autonomous probes into hazardous and poorly mapped regions.", category: "Exploration", tier: 1, researchTurns: 1, prerequisites: [], isPrimary: true, unlocks: { units: ["pathfinder_exploration_vessel"] } },
   { id: "sub_light_mapping", name: "Sub Light Mapping", description: "Maps local space without requiring full warp transit.", category: "Exploration", tier: 1, researchTurns: 1, prerequisites: [], isPrimary: true, unlocks: { units: ["pathfinder_exploration_vessel"] } },
   { id: "tachyon_sensor_array", name: "Tachyon Sensor Array", description: "Extends sensor range into regions masked by normal detection limits.", category: "Exploration", tier: 2, researchTurns: 2, prerequisites: ["long_range_sensors"], unlocks: { upgrades: ["Exploration Speed II"] } },
   { id: "deep_space_survey_probe", name: "Deep Space Survey Probe", description: "Deploys durable probes for long-duration resource surveys.", category: "Exploration", tier: 2, researchTurns: 2, prerequisites: ["aero_probe_launcher"], unlocks: { upgrades: ["Resource Finder I"] } },
   { id: "anomaly_analysis_algorithms", name: "Anomaly Analysis Algorithms", description: "Identifies unusual signals, spatial anomalies and ancient sites.", category: "Exploration", tier: 2, researchTurns: 2, prerequisites: ["sub_light_mapping"], unlocks: { upgrades: ["Cost Reducer I", "Cost Reducer II"] } },
-  { id: "relic_matrices", name: "Relic Matrices", description: "Interprets structures and signals associated with ancient civilizations.", category: "Exploration", tier: 3, researchTurns: 3, prerequisites: ["tachyon_sensor_array"], unlocks: { units: [] } },
+  { id: "relic_matrices", name: "Relic Matrices", description: "Interprets structures and signals associated with ancient civilizations.", category: "Exploration", tier: 3, researchTurns: 3, prerequisites: ["tachyon_sensor_array"] },
   { id: "atmospheric_hazard_cartography", name: "Atmospheric Hazard Cartography", description: "Maps hazardous planetary environments and permits discovery of Ancient Lost Technology.", category: "Exploration", tier: 3, researchTurns: 3, prerequisites: ["deep_space_survey_probe"], unlocks: { upgrades: ["Resource Finder II", "Resource Finder III"], abilities: ["ancient_lost_technology"] } },
   { id: "warp_lane_optimization", name: "Warp Lane Optimization", description: "Optimizes exploration routes and reduces travel time.", category: "Exploration", tier: 4, researchTurns: 4, prerequisites: ["anomaly_analysis_algorithms"], unlocks: { upgrades: ["Exploration Speed III"] } },
   { id: "study_ancient_languages", name: "Study Ancient Languages", description: "Deciphers ancient language systems and permits communication with visiting alien traders once the Travel Trade Center exists.", category: "Exploration", tier: 4, researchTurns: 4, prerequisites: ["relic_matrices"], unlocks: { abilities: ["alien_trade_language"] } },
