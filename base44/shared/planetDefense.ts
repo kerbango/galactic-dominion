@@ -1,8 +1,8 @@
-// Planet Defense Rating computation — shared by the frontend (Console
-display) and the backend (processFleets ground-combat Phase 1). The rating
-combines a flat base, defensive-structure contributions, and a garrison
-ground-troop armor contribution. Per-type upgrade multipliers are applied
-so purchased upgrades meaningfully raise the rating.
+// Planet Defense Rating computation — shared by the frontend (Console)
+// display and the backend (processFleets ground-combat Phase 1). The rating
+// combines a flat base, defensive-structure contributions, and a garrison
+// ground-troop armor contribution. Per-type upgrade multipliers are applied
+// so purchased upgrades meaningfully raise the rating.
 
 import { getUnit } from './units.ts';
 import { unitStatMultipliers } from './unitUpgrades.ts';
