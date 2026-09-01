@@ -7,24 +7,23 @@
 // Only existing stats and upgrades are used — no invented values.
 //   • Ship offense  = baseStats.attack × per-type upgrade multiplier
 //   • Ship survival = baseStats.defense + shielding + hull_armor (durability)
-//   • Empire upgrades: plasma_efficiency (Fleet Attack), reinforced_hull_ii +
-//     heavy_armor (Fleet Defense → attacker survivability)
-// Research unlocks these upgrades via the tech tree; no separate research
-// combat modifier exists in the current tech data, so none is applied here.
+//   • Legacy combat upgrade IDs are retained as harmless lookups until their
+//     gameplay definitions are reconciled with the current upgrade catalog.
 
 import { getUnit } from './units.ts';
 import { unitStatMultipliers } from './unitUpgrades.ts';
 import { getEmpireUpgrade } from './empireUpgrades.ts';
 import { computePlanetDefenseRating } from './planetDefense.ts';
 
-// Reads the purchased tier bonus for an empire upgrade from the empire's
-// empire_upgrade_levels map. Returns 0 when not purchased or maxed-beyond.
+// Reads the purchased bonus for an empire upgrade from the current
+// empire_upgrade_levels map. Current empire upgrades are one-time purchases
+// and store their effect directly as `bonus`; older tier-array data is no
+// longer used. Unknown/legacy IDs safely return 0.
 export function empireUpgradeBonus(empireUpgradeLevels, upgradeId) {
   const upgrade = getEmpireUpgrade(upgradeId);
   const lvl = (empireUpgradeLevels || {})[upgradeId] || 0;
   if (lvl <= 0 || !upgrade) return 0;
-  const tier = upgrade.tiers[lvl - 1];
-  return tier ? tier.bonus : 0;
+  return typeof upgrade.bonus === 'number' ? upgrade.bonus : 0;
 }
 
 // A ship is a space-combat vessel when it is not a ground force, defensive
@@ -46,7 +45,8 @@ function shipDurability(unit, mul) {
 
 // Attacker space-combat strength from the deployed ship_manifest. Each
 // warship contributes its attack stat × count × per-type attack upgrade.
-// The plasma_efficiency empire upgrade (Fleet Attack) boosts the total.
+// The legacy plasma_efficiency lookup remains inert because that upgrade is
+// not present in the current empire-upgrade catalog.
 export function computeAttackerSpaceStrength(shipManifest, upgradeLevelsByType, attackerEmpire) {
   let str = 0;
   for (const [unitType, count] of Object.entries(shipManifest || {})) {
@@ -63,7 +63,8 @@ export function computeAttackerSpaceStrength(shipManifest, upgradeLevelsByType, 
 // Defender space-combat strength = Planet Defense Rating (base + orbital
 // defense structures + garrison ground troops) + stationed warship firepower.
 // Reuses computePlanetDefenseRating so there is a single planetary defense
-// calculation. Defender warship attack is boosted by their plasma_efficiency.
+// calculation. The legacy plasma_efficiency lookup is inert with the current
+// upgrade catalog.
 export function computeDefenderSpaceStrength(defenderEmpire, defenderUnitRecords) {
   const pdr = computePlanetDefenseRating(defenderEmpire, defenderUnitRecords);
   let warshipStr = 0;
@@ -78,9 +79,9 @@ export function computeDefenderSpaceStrength(defenderEmpire, defenderUnitRecords
   return Math.round(pdr + warshipStr * (1 + plasma));
 }
 
-// Attacker fleet-defense empire upgrade bonus (reinforced_hull_ii +
-// heavy_armor). Both are "Fleet Defense" and stack additively onto the
-// base survivor rate, improving the attacker's ship survivability.
+// Legacy fleet-defense upgrade lookups. These IDs are not present in the
+// current empire-upgrade catalog, so this remains 0 until those upgrades are
+// deliberately reintroduced with an approved gameplay definition.
 export function attackerFleetDefenseBonus(attackerEmpire) {
   return (
     empireUpgradeBonus(attackerEmpire?.empire_upgrade_levels, 'reinforced_hull_ii') +
@@ -109,7 +110,6 @@ export function allocateFleetSurvivors(shipManifest, upgradeLevelsByType, surviv
   const survivors = {};
   for (const e of entries) survivors[e.type] = e.count;
   if (toLose > 0) {
-    // Least durable first.
     const sorted = [...entries].sort((a, b) => a.dur - b.dur);
     let remaining = toLose;
     for (const e of sorted) {
