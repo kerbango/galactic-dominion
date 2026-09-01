@@ -4,21 +4,15 @@
 // of the defender's space strength, then adds the defender's stationed
 // warships. Attacker strength is computed from the deployed ship_manifest.
 //
-// Only existing stats and upgrades are used — no invented values.
+// Only existing stats and upgrades are used.
 //   • Ship offense  = baseStats.attack × per-type upgrade multiplier
 //   • Ship survival = baseStats.defense + shielding + hull_armor (durability)
-//   • Legacy combat upgrade IDs are retained as harmless lookups until their
-//     gameplay definitions are reconciled with the current upgrade catalog.
 
 import { getUnit } from './units.ts';
 import { unitStatMultipliers } from './unitUpgrades.ts';
 import { getEmpireUpgrade } from './empireUpgrades.ts';
 import { computePlanetDefenseRating } from './planetDefense.ts';
 
-// Reads the purchased bonus for an empire upgrade from the current
-// empire_upgrade_levels map. Current empire upgrades are one-time purchases
-// and store their effect directly as `bonus`; older tier-array data is no
-// longer used. Unknown/legacy IDs safely return 0.
 export function empireUpgradeBonus(empireUpgradeLevels, upgradeId) {
   const upgrade = getEmpireUpgrade(upgradeId);
   const lvl = (empireUpgradeLevels || {})[upgradeId] || 0;
@@ -26,15 +20,10 @@ export function empireUpgradeBonus(empireUpgradeLevels, upgradeId) {
   return typeof upgrade.bonus === 'number' ? upgrade.bonus : 0;
 }
 
-// A ship is a space-combat vessel when it is not a ground force, defensive
-// structure, or transport. (All warship entries in units.ts carry no category.)
 function isWarship(unit) {
   return !!unit && unit.category !== 'ground' && unit.category !== 'defense' && unit.category !== 'transport';
 }
 
-// Per-ship durability — the survivability weight used when allocating losses.
-// Durable hulls (defense + shielding + hull_armor) absorb losses before
-// fragile hulls, so a rare capital ship is not silently rounded to zero.
 function shipDurability(unit, mul) {
   return (
     (unit.baseStats.defense || 0) * (mul.defense || 1) +
@@ -43,10 +32,6 @@ function shipDurability(unit, mul) {
   );
 }
 
-// Attacker space-combat strength from the deployed ship_manifest. Each
-// warship contributes its attack stat × count × per-type attack upgrade.
-// The legacy plasma_efficiency lookup remains inert because that upgrade is
-// not present in the current empire-upgrade catalog.
 export function computeAttackerSpaceStrength(shipManifest, upgradeLevelsByType, attackerEmpire) {
   let str = 0;
   for (const [unitType, count] of Object.entries(shipManifest || {})) {
@@ -56,17 +41,23 @@ export function computeAttackerSpaceStrength(shipManifest, upgradeLevelsByType, 
     const mul = unitStatMultipliers(unitType, (upgradeLevelsByType || {})[unitType] || {});
     str += count * (unit.baseStats.attack || 0) * (mul.attack || 1);
   }
-  const plasma = empireUpgradeBonus(attackerEmpire?.empire_upgrade_levels, 'plasma_efficiency');
-  return Math.round(str * (1 + plasma));
+  return Math.round(str);
 }
 
-// Defender space-combat strength = Planet Defense Rating (base + orbital
-// defense structures + garrison ground troops) + stationed warship firepower.
-// Reuses computePlanetDefenseRating so there is a single planetary defense
-// calculation. The legacy plasma_efficiency lookup is inert with the current
-// upgrade catalog.
 export function computeDefenderSpaceStrength(defenderEmpire, defenderUnitRecords) {
-  const pdr = computePlanetDefenseRating(defenderEmpire, defenderUnitRecords);
+  let pdr = computePlanetDefenseRating(defenderEmpire, defenderUnitRecords);
+
+  // Empire Defense Control Matrix I applies its approved +10% bonus to all
+  // defensive numbers represented by the planetary defense rating. It is
+  // applied here rather than inside planetDefense.ts so the shared PDR display
+  // remains a raw defense breakdown while combat receives the empire-wide
+  // modifier.
+  const defenseBonus = empireUpgradeBonus(
+    defenderEmpire?.empire_upgrade_levels,
+    'empire_defense_control_matrix_i'
+  );
+  pdr = Math.round(pdr * (1 + defenseBonus));
+
   let warshipStr = 0;
   for (const rec of defenderUnitRecords || []) {
     if (!rec.owned_count) continue;
@@ -75,25 +66,13 @@ export function computeDefenderSpaceStrength(defenderEmpire, defenderUnitRecords
     const mul = unitStatMultipliers(rec.unit_type, rec.upgrade_levels || {});
     warshipStr += rec.owned_count * (unit.baseStats.attack || 0) * (mul.attack || 1);
   }
-  const plasma = empireUpgradeBonus(defenderEmpire?.empire_upgrade_levels, 'plasma_efficiency');
-  return Math.round(pdr + warshipStr * (1 + plasma));
+  return Math.round(pdr + warshipStr);
 }
 
-// Legacy fleet-defense upgrade lookups. These IDs are not present in the
-// current empire-upgrade catalog, so this remains 0 until those upgrades are
-// deliberately reintroduced with an approved gameplay definition.
 export function attackerFleetDefenseBonus(attackerEmpire) {
-  return (
-    empireUpgradeBonus(attackerEmpire?.empire_upgrade_levels, 'reinforced_hull_ii') +
-    empireUpgradeBonus(attackerEmpire?.empire_upgrade_levels, 'heavy_armor')
-  );
+  return 0;
 }
 
-// Deterministic, durability-weighted survivor allocation. Given the deployed
-// manifest and a total survivor count, returns { unitType: survivorCount }
-// with losses taken from the LEAST durable types first — so a rare capital
-// ship (e.g. one Dreadnought) survives before fragile escorts are preserved.
-// The returned map only contains types with at least one survivor.
 export function allocateFleetSurvivors(shipManifest, upgradeLevelsByType, survivorCount) {
   const entries = Object.entries(shipManifest || {})
     .filter(([, n]) => n > 0)
@@ -123,10 +102,6 @@ export function allocateFleetSurvivors(shipManifest, upgradeLevelsByType, surviv
   return survivors;
 }
 
-// Per-type losses derived from the manifest and the allocated survivors.
-// { unitType: lostCount } — stored on the Fleet record so the return leg can
-// restore the exact surviving counts and CombatLog can later display losses
-// by type without re-deriving them.
 export function computeFleetLosses(shipManifest, survivorMap) {
   const losses = {};
   for (const [type, count] of Object.entries(shipManifest || {})) {
