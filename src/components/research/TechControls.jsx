@@ -5,8 +5,12 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@
 
 // Search, category filter, and show-only toggle. Pure controls — all
 // filtering is applied by the parent via the visibleIds set passed to the
-// canvas.
-export default function TechControls({ search, setSearch, categoryFilter, setCategoryFilter, showOnly, setShowOnly }) {
+// canvas. Restricted categories are added only after their gate is unlocked.
+export default function TechControls({ search, setSearch, categoryFilter, setCategoryFilter, showOnly, setShowOnly, includeHiddenCategory = false }) {
+  const categories = includeHiddenCategory
+    ? [...CATEGORY_ORDER, 'Blacklisted Alien Technology']
+    : CATEGORY_ORDER;
+
   return (
     <div className="glass-panel rounded-2xl p-3 flex flex-wrap items-center gap-2 md:gap-3">
       <div className="relative flex-1 min-w-[160px]">
@@ -26,7 +30,7 @@ export default function TechControls({ search, setSearch, categoryFilter, setCat
           </SelectTrigger>
           <SelectContent className="bg-slate-900/95 border-slate-700/50 text-slate-100">
             <SelectItem value="All" className="text-sm text-slate-100 h-11">All Categories</SelectItem>
-            {CATEGORY_ORDER.map((c) => (
+            {categories.map((c) => (
               <SelectItem key={c} value={c} className="text-sm text-slate-100 h-11">{c}</SelectItem>
             ))}
           </SelectContent>
