@@ -3,11 +3,27 @@ import { TECH_TREE, normalizePrereqs, getResearchCost } from '../../shared/techT
 
 // Starts researching a technology for the calling player. Validates that the
 // player has an empire, that all prerequisite techs are completed (AND/OR),
-// that the tech isn't already completed, and that no other tech is already in
-// progress (one active research per player). Then validates + deducts the
-// tech's resource cost and persists a researching TechProgress record.
+// that automatic gate prerequisites are satisfied recursively, that the tech
+// isn't already completed, and that no other tech is already in progress.
 const techById = new Map(TECH_TREE.map((t) => [t.id, t]));
 const COST_RESOURCES = ['research_points', 'vrind'];
+
+// Gate technologies are automatic unlock markers and do not receive a
+// TechProgress record. Treat a gate as satisfied when its own prerequisites
+// are satisfied, recursively, so the first real technology behind a hidden
+// gate can actually be researched.
+function isPrerequisiteSatisfied(techId, doneIds, visiting = new Set()) {
+  if (doneIds.has(techId)) return true;
+  const prerequisite = techById.get(techId);
+  if (!prerequisite?.isGate) return false;
+  if (visiting.has(techId)) return false;
+  visiting.add(techId);
+  const { all, any } = normalizePrereqs(prerequisite);
+  const allMet = all.every((id) => isPrerequisiteSatisfied(id, doneIds, visiting));
+  const anyMet = any.length === 0 || any.some((id) => isPrerequisiteSatisfied(id, doneIds, visiting));
+  visiting.delete(techId);
+  return allMet && anyMet;
+}
 
 export default async function(req) {
   try {
@@ -42,8 +58,8 @@ export default async function(req) {
     if (all.length || any.length) {
       const completed = await svc.entities.TechProgress.filter({ created_by_id: user.id, status: 'completed' });
       const doneIds = new Set(completed.map((r) => r.tech_id));
-      const missingAll = all.filter((p) => !doneIds.has(p));
-      const anyMet = any.length === 0 || any.some((p) => doneIds.has(p));
+      const missingAll = all.filter((p) => !isPrerequisiteSatisfied(p, doneIds));
+      const anyMet = any.length === 0 || any.some((p) => isPrerequisiteSatisfied(p, doneIds));
       if (missingAll.length || !anyMet) return Response.json({ error: 'Prerequisites not met.' }, { status: 400 });
     }
 
