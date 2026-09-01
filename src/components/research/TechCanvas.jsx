@@ -53,19 +53,21 @@ export default function TechCanvas({ statusMap, edges, layout, selectedId, onSel
     const rect = containerRef.current.getBoundingClientRect();
     zoomAt(rect.left + rect.width / 2, rect.top + rect.height / 2, factor);
   };
-  const onWheel = (e) => {
-    e.preventDefault();
-    zoomAt(e.clientX, e.clientY, e.deltaY < 0 ? 1.15 : 1 / 1.15);
-  };
+
+  // Wheel input intentionally does not zoom the research map.
   const onPointerDown = (e) => {
-    if (!e.target.dataset || !e.target.dataset.canvasBg) return;
+    // Technology cards are buttons; clicking them should select rather than
+    // start a canvas drag. Any other area of the canvas can be dragged.
+    if (e.target.closest?.('button')) return;
     e.currentTarget.setPointerCapture?.(e.pointerId);
     pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
     if (pointers.current.size === 2) {
       const [p1, p2] = [...pointers.current.values()];
       pinch.current = { dist: Math.hypot(p1.x - p2.x, p1.y - p2.y), zoom: zoomRef.current, pan: { ...panRef.current }, mid: { x: (p1.x + p2.x) / 2, y: (p1.y + p2.y) / 2 } };
       drag.current = null;
-    } else drag.current = { startX: e.clientX, startY: e.clientY, pan: { ...panRef.current } };
+    } else {
+      drag.current = { startX: e.clientX, startY: e.clientY, pan: { ...panRef.current } };
+    }
   };
   const onPointerMove = (e) => {
     if (!pointers.current.has(e.pointerId)) return;
@@ -85,7 +87,12 @@ export default function TechCanvas({ statusMap, edges, layout, selectedId, onSel
       setPan({ x: px - wx * nz, y: py - wy * nz });
       return;
     }
-    if (drag.current) setPan({ x: drag.current.pan.x + (e.clientX - drag.current.startX), y: drag.current.pan.y + (e.clientY - drag.current.startY) });
+    if (drag.current) {
+      setPan({
+        x: drag.current.pan.x + (e.clientX - drag.current.startX),
+        y: drag.current.pan.y + (e.clientY - drag.current.startY),
+      });
+    }
   };
   const endDrag = (e) => {
     pointers.current.delete(e.pointerId);
@@ -114,7 +121,7 @@ export default function TechCanvas({ statusMap, edges, layout, selectedId, onSel
 
   return (
     <div className="relative w-full" style={{ height: 'min(78vh, 760px)' }}>
-      <div ref={containerRef} className="relative w-full h-full overflow-hidden touch-none select-none cursor-grab active:cursor-grabbing" onWheel={onWheel} onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={endDrag} onPointerLeave={endDrag}>
+      <div ref={containerRef} className="relative w-full h-full overflow-hidden touch-none select-none cursor-grab active:cursor-grabbing" onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={endDrag} onPointerLeave={endDrag}>
         <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_50%_45%,rgba(8,47,73,0.3),transparent_55%)]" />
         <div className="absolute origin-top-left" style={{ transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`, width: worldW, height: worldH }}>
           <div data-canvas-bg="1" className="absolute inset-0" style={{
@@ -175,7 +182,7 @@ export default function TechCanvas({ statusMap, edges, layout, selectedId, onSel
       </div>
 
       <div className="absolute left-3 bottom-3 flex items-center gap-2 rounded-md border border-cyan-400/15 bg-[#06111d]/90 px-2.5 py-1.5 text-[9px] font-mono uppercase tracking-widest text-slate-400">
-        <Move className="w-3 h-3 text-cyan-400/70" /> Drag to navigate · Scroll to zoom · {zoom.toFixed(2)}×
+        <Move className="w-3 h-3 text-cyan-400/70" /> Drag to navigate · Use controls to zoom · {zoom.toFixed(2)}×
       </div>
       <div className="absolute right-3 bottom-3 rounded-md border border-cyan-400/15 bg-[#06111d]/90 px-2.5 py-1.5 text-[9px] font-mono uppercase tracking-widest text-slate-500">{visibleTechs.length} visible nodes</div>
       <div className="absolute left-3 top-3 pointer-events-none rounded-md border border-cyan-400/10 bg-[#06111d]/70 px-2.5 py-1 text-[9px] font-mono uppercase tracking-[0.18em] text-cyan-300/45">Research Network · Live</div>
