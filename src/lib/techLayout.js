@@ -16,15 +16,12 @@ let _layout = null;
 
 export function computeLayout(includeHidden = false) {
   if (_layout && _layout.includeHidden === includeHidden) return _layout;
-
   const visibleTechs = TECH_TREE.filter((t) => includeHidden || !t.hidden);
   const byCat = {};
   for (const t of visibleTechs) (byCat[t.category] ||= []).push(t);
-
   const categories = includeHidden
     ? [...CATEGORY_ORDER, ...Object.keys(byCat).filter((c) => !CATEGORY_ORDER.includes(c))]
     : CATEGORY_ORDER;
-
   const catBase = {};
   let y = PAD_TOP;
   for (const cat of categories) {
@@ -37,10 +34,8 @@ export function computeLayout(includeHidden = false) {
     y += bandH;
   }
   const worldH = y + PAD_TOP;
-
   const maxTier = Math.max(1, ...visibleTechs.map((t) => t.tier));
   const worldW = maxTier * COL_W + PAD_LEFT * 2;
-
   const pos = {};
   const stackIdx = {};
   for (const t of visibleTechs) {
@@ -54,7 +49,6 @@ export function computeLayout(includeHidden = false) {
       h: NODE_H,
     };
   }
-
   _layout = { pos, worldW, worldH, catBase, includeHidden };
   return _layout;
 }
@@ -86,28 +80,33 @@ export function getDescendants(id, set = new Set()) {
   return set;
 }
 
-// Derive each tech's effective status from persisted progress records.
-// 'available' is implicit when all prerequisites are completed and no
-// researching/completed record exists. Supports AND (all) and OR (any)
-// prerequisite groups. Sorted so prerequisites resolve before dependents.
+// Resolve prerequisite state recursively rather than by tier ordering. This
+// matters for hidden gate nodes whose prerequisites intentionally come from
+// different branches and tiers.
 export function deriveStatuses(progressMap) {
-  const sorted = [...TECH_TREE].sort((a, b) => a.tier - b.tier);
   const status = {};
-  for (const t of sorted) {
+  const visiting = new Set();
+
+  const resolve = (techId) => {
+    if (status[techId]) return status[techId];
+    const t = byId[techId];
+    if (!t) return "locked";
     const rec = progressMap[t.id];
-    if (rec?.status === "completed") {
-      status[t.id] = "completed";
-      continue;
-    }
-    if (rec?.status === "researching") {
-      status[t.id] = "researching";
-      continue;
-    }
+    if (rec?.status === "completed") return (status[t.id] = "completed");
+    if (rec?.status === "researching") return (status[t.id] = "researching");
+    if (visiting.has(t.id)) return "locked";
+    visiting.add(t.id);
+
     const { all, any } = normalizePrereqs(t);
-    const allMet = all.every((p) => status[p] === "completed");
-    const anyMet = any.length === 0 || any.some((p) => status[p] === "completed");
-    status[t.id] = allMet && anyMet ? "available" : "locked";
-  }
+    const allMet = all.every((p) => resolve(p) === "completed");
+    const anyMet = any.length === 0 || any.some((p) => resolve(p) === "completed");
+    const next = allMet && anyMet ? "available" : "locked";
+    visiting.delete(t.id);
+    status[t.id] = next;
+    return next;
+  };
+
+  for (const t of TECH_TREE) resolve(t.id);
   return status;
 }
 
