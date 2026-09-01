@@ -55,8 +55,8 @@ export default function ShipRoster({ units, unitRecords, completedIds, selectedI
                     <span className={`led ${s.led}`} />
                     <span className="shrink-0 w-10 h-6 flex items-center justify-center">
                       {unlocked ? (
-                        art?.art
-                          ? <Image src={art.art} fittingType="fit" className="w-10 h-6" />
+                        (art?.thumbnail || art?.art)
+                          ? <Image src={art.thumbnail || art.art} fittingType="fit" className="w-10 h-6" />
                           : <ShipSilhouette variant={SILHOUETTE_VARIANT[unitClass(unit)] || 'medium'} className="w-10 h-6" />
                       ) : <Lock className="w-3.5 h-3.5 text-slate-600" />}
                     </span>

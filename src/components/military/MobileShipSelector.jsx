@@ -43,8 +43,8 @@ export default function MobileShipSelector({ units, unitRecords, completedIds, s
               >
                 <div className="h-8 flex items-center justify-center">
                   {unlocked ? (
-                    art?.art
-                      ? <Image src={art.art} fittingType="fit" className="w-full h-8" />
+                    (art?.thumbnail || art?.art)
+                      ? <Image src={art.thumbnail || art.art} fittingType="fit" className="w-full h-8" />
                       : <ShipSilhouette variant={SILHOUETTE_VARIANT[unitClass(unit)] || 'medium'} className="w-full h-8" />
                   ) : <Lock className="w-3.5 h-3.5 text-slate-600 mx-auto" />}
                 </div>
