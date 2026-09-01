@@ -1,23 +1,31 @@
 // Planet Defense Rating computation — shared by the frontend (Console
 display) and the backend (processFleets ground-combat Phase 1). The rating
 combines a flat base, defensive-structure contributions, and a garrison
-ground-troop armor contribution. Per-type upgrade multipliers and the
-empire-wide defense control upgrade are applied so purchased upgrades
-meaningfully raise the rating.
+ground-troop armor contribution. Per-type upgrade multipliers are applied
+so purchased upgrades meaningfully raise the rating.
 
 import { getUnit } from './units.ts';
 import { unitStatMultipliers } from './unitUpgrades.ts';
-import { getEmpireUpgrade } from './empireUpgrades.ts';
 
+// Flat base every empire gets so an undefended planet still has some
+// resistance. Empire upgrade levels (empire_upgrade_levels) can add more
+// once defense-oriented empire upgrades exist.
 const BASE_RATING = 50;
+
+// Fraction of a garrisoned ground unit's armor that counts toward the
+// planet defense rating (troops in foxholes are less effective per-point
+// than a purpose-built bunker).
 const GARRISON_ARMOR_FACTOR = 0.5;
-const EMPIRE_DEFENSE_UPGRADE_ID = 'empire_defense_control_matrix_i';
 
 export function computePlanetDefenseRating(empire, unitRecords) {
   const b = computePlanetDefenseBreakdown(empire, unitRecords);
   return b.total;
 }
 
+// Full breakdown of the Planet Defense Rating by source category. Returns
+// the category subtotals, the grand total, and per-unit contributor lists so
+// the Military dashboard can show exactly where each point of protection
+// comes from (base, defensive structures, garrison troops, research).
 export function computePlanetDefenseBreakdown(empire, unitRecords) {
   const base = BASE_RATING;
   let structures = 0;
@@ -40,15 +48,12 @@ export function computePlanetDefenseBreakdown(empire, unitRecords) {
     }
   }
 
-  const defenseUpgrade = getEmpireUpgrade(EMPIRE_DEFENSE_UPGRADE_ID);
-  const defenseLevel = (empire?.empire_upgrade_levels || {})[EMPIRE_DEFENSE_UPGRADE_ID] || 0;
-  const defenseBonus = defenseUpgrade && defenseLevel > 0 && typeof defenseUpgrade.bonus === 'number'
-    ? defenseUpgrade.bonus
-    : 0;
-  const subtotal = base + structures + garrison;
-  const research = subtotal * defenseBonus;
-  const total = Math.round(subtotal + research);
+  // Research/empire-upgrade bonus — placeholder for future defense-oriented
+  // empire upgrades. Reads empire_upgrade_levels; currently 0 since no
+  // empire upgrade targets planet defense yet.
+  const research = 0;
 
+  const total = Math.round(base + structures + garrison + research);
   return {
     base: Math.round(base),
     structures: Math.round(structures),
@@ -60,6 +65,9 @@ export function computePlanetDefenseBreakdown(empire, unitRecords) {
   };
 }
 
+// Ground assault strength of a deployed manifest. Each ground unit
+// contributes its (attack + armor) × count, scaled by per-type upgrade
+// multipliers. `upgradeLevelsByType` is { unit_type: { upgrade_id: level } }.
 export function computeGroundStrength(groundForces, upgradeLevelsByType) {
   let strength = 0;
   for (const [unitType, count] of Object.entries(groundForces || {})) {
@@ -73,6 +81,8 @@ export function computeGroundStrength(groundForces, upgradeLevelsByType) {
   return Math.round(strength);
 }
 
+// Garrison ground strength for a defender — same formula but computed from
+// the defender's owned ground-unit Unit records (not a deployed manifest).
 export function computeGarrisonStrength(unitRecords) {
   let strength = 0;
   for (const rec of unitRecords || []) {
