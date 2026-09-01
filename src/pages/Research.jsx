@@ -8,16 +8,14 @@ import TechCanvas from '@/components/research/TechCanvas';
 import TechInfoPanel from '@/components/research/TechInfoPanel';
 import TechControls from '@/components/research/TechControls';
 import ActiveResearchPanel from '@/components/research/ActiveResearchPanel';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Microscope } from 'lucide-react';
 import { BASE_TURN_SECONDS } from '@/data/techTree';
 import { formatDuration } from '@/lib/galaxy';
 import { toastSuccess } from '@/lib/toasts';
 
-// Research Nexus — data-driven technology tree. Loads the shared tech
-// dataset and the player's TechProgress records, derives every node's state
-// (researched / available / locked / researching) from that data, and renders
-// a pannable/zoomable graph. Hidden restricted trees are excluded until their
-// explicit gate has been completed.
+// Research Nexus — data-driven technology tree. This page intentionally keeps
+// the existing research state, prerequisites, unlocks, and server actions
+// intact while presenting them as a dedicated sci-fi command interface.
 export default function Research() {
   const { empire, refresh: refreshEmpire } = useEmpire();
   const [progress, setProgress] = useState(null);
@@ -40,7 +38,6 @@ export default function Research() {
   }, []);
 
   useEffect(() => { loadProgress(); }, [loadProgress]);
-
   useEffect(() => {
     const unsub = base44.entities.TechProgress.subscribe(() => { loadProgress(); });
     return unsub;
@@ -113,38 +110,56 @@ export default function Research() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-3 md:px-6 py-6 pb-24 lg:pb-6">
-      <div className="flex flex-col items-center text-center mb-4">
-        <h1 className="font-heading text-2xl md:text-3xl tracking-wide text-white neon-text uppercase">Research Nexus</h1>
-        <p className="text-xs md:text-sm text-muted-foreground font-body mt-1">Chart your empire's technological ascension.</p>
+    <div className="min-h-screen bg-[#02070d] text-slate-100">
+      <div className="max-w-[1600px] mx-auto px-2 sm:px-4 lg:px-6 py-3 lg:py-4 pb-20">
+        <header className="relative overflow-hidden rounded-xl border border-cyan-400/20 bg-[#06111d]/90 shadow-[0_0_35px_rgba(8,145,178,0.08)]">
+          <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(90deg,rgba(34,211,238,0.06),transparent_35%,rgba(14,165,233,0.04))]" />
+          <div className="relative flex items-center justify-between px-4 md:px-6 py-3">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg border border-cyan-400/40 bg-cyan-400/10 flex items-center justify-center shadow-[0_0_18px_rgba(34,211,238,0.18)]">
+                <Microscope className="w-5 h-5 text-cyan-300" />
+              </div>
+              <div>
+                <h1 className="font-heading text-xl md:text-2xl tracking-[0.12em] text-white uppercase">Research Nexus</h1>
+                <p className="text-[9px] md:text-[10px] font-mono tracking-[0.2em] uppercase text-cyan-300/60">Advance your empire · secure your dominion</p>
+              </div>
+            </div>
+            <div className="hidden md:flex items-center gap-5 text-right">
+              <div><p className="text-[9px] font-mono uppercase tracking-widest text-slate-500">Research Points</p><p className="font-mono text-sm text-cyan-200">{Math.floor(empire?.research_points || 0).toLocaleString()}</p></div>
+              <div><p className="text-[9px] font-mono uppercase tracking-widest text-slate-500">Research Speed</p><p className="font-mono text-sm text-emerald-300">+{Math.round(speedBonus * 100)}%</p></div>
+            </div>
+          </div>
+        </header>
+
+        <div className="mt-2"><ActiveResearchPanel /></div>
+
+        <div className="mt-2">
+          <TechControls
+            search={search}
+            setSearch={setSearch}
+            categoryFilter={categoryFilter}
+            setCategoryFilter={setCategoryFilter}
+            showOnly={showOnly}
+            setShowOnly={setShowOnly}
+            includeHiddenCategory={blacklistedUnlocked}
+          />
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_310px] gap-2 mt-2">
+          <div className="relative overflow-hidden rounded-xl border border-cyan-400/20 bg-[#030b13] shadow-[inset_0_0_50px_rgba(8,47,73,0.25)]">
+            <TechCanvas statusMap={statusMap} edges={edges} layout={layout} selectedId={selectedId} onSelect={setSelectedId} visibleIds={filteredIds} />
+          </div>
+          <div className="hidden lg:block min-h-[620px]">
+            <TechInfoPanel tech={selected} statusMap={statusMap} progress={progress} speedBonus={speedBonus} submitting={submitting} error={error} onBeginResearch={beginResearch} onClose={() => setSelectedId(null)} />
+          </div>
+        </div>
+
+        {selected && (
+          <div className="lg:hidden fixed inset-x-0 bottom-0 z-40 max-h-[68vh] overflow-y-auto rounded-t-2xl border-t border-cyan-400/30 bg-[#06111d]/98 p-4 shadow-[0_-12px_40px_rgba(0,0,0,0.55)]">
+            <TechInfoPanel tech={selected} statusMap={statusMap} progress={progress} speedBonus={speedBonus} submitting={submitting} error={error} onBeginResearch={beginResearch} onClose={() => setSelectedId(null)} />
+          </div>
+        )}
       </div>
-
-      <div className="max-w-md mx-auto mb-4"><ActiveResearchPanel /></div>
-
-      <TechControls
-        search={search}
-        setSearch={setSearch}
-        categoryFilter={categoryFilter}
-        setCategoryFilter={setCategoryFilter}
-        showOnly={showOnly}
-        setShowOnly={setShowOnly}
-        includeHiddenCategory={blacklistedUnlocked}
-      />
-
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-4 mt-4">
-        <div className="glass-panel-strong rounded-2xl p-2 md:p-3">
-          <TechCanvas statusMap={statusMap} edges={edges} layout={layout} selectedId={selectedId} onSelect={setSelectedId} visibleIds={filteredIds} />
-        </div>
-        <div className="hidden lg:block h-full">
-          <TechInfoPanel tech={selected} statusMap={statusMap} progress={progress} speedBonus={speedBonus} submitting={submitting} error={error} onBeginResearch={beginResearch} onClose={() => setSelectedId(null)} />
-        </div>
-      </div>
-
-      {selected && (
-        <div className="lg:hidden fixed inset-x-0 bottom-0 z-40 max-h-[62vh] overflow-y-auto glass-panel-strong rounded-t-2xl p-4 border-t border-cyan-400/20">
-          <TechInfoPanel tech={selected} statusMap={statusMap} progress={progress} speedBonus={speedBonus} submitting={submitting} error={error} onBeginResearch={beginResearch} onClose={() => setSelectedId(null)} />
-        </div>
-      )}
     </div>
   );
 }
