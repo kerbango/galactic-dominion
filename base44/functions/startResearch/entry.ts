@@ -21,26 +21,26 @@ export default async function(req) {
 
     const tech = techById.get(techId);
     if (!tech) return Response.json({ error: 'Unknown technology.' }, { status: 400 });
-    if (tech.isGate) {
-      return Response.json({ error: 'This technology is a gate and unlocks automatically when its prerequisites are completed.' }, { status: 400 });
-    }
+    if (tech.isGate) return Response.json({ error: 'This technology is a gate and unlocks automatically when its prerequisites are completed.' }, { status: 400 });
 
     const svc = base44.asServiceRole;
     const empires = await svc.entities.Empire.filter({ created_by_id: user.id });
     const empire = empires[0];
     if (!empire) return Response.json({ error: 'You must found an empire before researching.' }, { status: 400 });
 
-    const existing = await base44.entities.TechProgress.filter({ tech_id: techId });
+    // Scope every progress read to the calling player. Do not rely on RLS for
+    // gameplay correctness: another player's research must never block yours.
+    const existing = await svc.entities.TechProgress.filter({ created_by_id: user.id, tech_id: techId });
     const mine = existing.find((r) => r.tech_id === techId);
-    if (mine && mine.status === 'completed') return Response.json({ error: 'Technology already completed.' }, { status: 400 });
-    if (mine && mine.status === 'researching') return Response.json({ error: 'Already researching this technology.' }, { status: 400 });
+    if (mine?.status === 'completed') return Response.json({ error: 'Technology already completed.' }, { status: 400 });
+    if (mine?.status === 'researching') return Response.json({ error: 'Already researching this technology.' }, { status: 400 });
 
-    const inProgress = await base44.entities.TechProgress.filter({ status: 'researching' });
+    const inProgress = await svc.entities.TechProgress.filter({ created_by_id: user.id, status: 'researching' });
     if (inProgress.length > 0) return Response.json({ error: 'You are already researching another technology.' }, { status: 400 });
 
     const { all, any } = normalizePrereqs(tech);
     if (all.length || any.length) {
-      const completed = await base44.entities.TechProgress.filter({ status: 'completed' });
+      const completed = await svc.entities.TechProgress.filter({ created_by_id: user.id, status: 'completed' });
       const doneIds = new Set(completed.map((r) => r.tech_id));
       const missingAll = all.filter((p) => !doneIds.has(p));
       const anyMet = any.length === 0 || any.some((p) => doneIds.has(p));
