@@ -12,8 +12,16 @@ const OVERRIDES = {
   atmospheric_hazard_cartography: { unlocks: undefined },
   warp_lane_optimization: { unlocks: undefined },
   fold_navigation: { unlocks: { upgrades: ['Exploration Speed IV'] } },
+
+  // Governance upgrades are exposed on the research node that unlocks them.
   centralized_administration: { unlocks: { upgrades: ['Population Growth I', 'Income Upgrade I'] } },
+  empire_data_encryption: { unlocks: { upgrades: ['Secured Fleet Network I', 'Secured Fleet Network II'] } },
+  counter_espionage: { unlocks: { upgrades: ['Anti Spy Network', 'Critical Spy Observation', 'Capture and Interrogate'] } },
+  war_council: { unlocks: { upgrades: ['Alliance Bonus I', 'Alliance Bonus II'] } },
   taxation_doctrine: { unlocks: { upgrades: ['Tax Office I', 'Tax Office II', 'Tax Office III'] } },
+
+  // ECM upgrades all become available from the completed Advanced Detection Grid.
+  advanced_detection_grid: { unlocks: { upgrades: ['ECM Field Matrix I', 'ECM Field Matrix II', 'ECM Field Matrix III'] } },
 
   // Defense structures are real buildable unit records in the current catalog.
   planetary_defense_architecture: { unlocks: { units: ['bunker', 'pdg'] } },
