@@ -24,8 +24,8 @@ export default async function(req) {
     const empire = empires[0];
     if (!empire) return Response.json({ error: 'You must found an empire first.' }, { status: 400 });
 
-    // Server-side tech gate.
-    const completed = await base44.entities.TechProgress.filter({ status: 'completed' });
+    // Server-side tech gate scoped to the current player.
+    const completed = await svc.entities.TechProgress.filter({ created_by_id: user.id, status: 'completed' });
     const doneIds = new Set(completed.map((r) => r.tech_id));
     if (!isEmpireUpgradeAvailable(upgrade, doneIds)) {
       return Response.json({ error: 'Required research not completed.' }, { status: 400 });
