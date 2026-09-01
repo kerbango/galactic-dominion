@@ -1,13 +1,11 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
-import { getEmpireUpgrade, isEmpireUpgradeAvailable, nextEmpireUpgradeTier } from '../../shared/empireUpgrades.ts';
+import { getEmpireUpgrade, isEmpireUpgradeAvailable } from '../../shared/empireUpgrades.ts';
 
 const COST_RESOURCES = ['aetherium_crystal', 'ferrite_titanium', 'energy', 'vrind', 'berentium'];
 
-// Purchases the next tier of a tech-gated empire-wide upgrade. Validates the
-// gating tech is completed (server-side re-check), the current level is
-// below max, then validates + atomically deducts the tier cost and bumps the
-// level stored in the Empire's empire_upgrade_levels map. Effects are
-// combat-oriented and stored for later combat integration.
+// Purchases a single tech-gated empire-wide upgrade.
+// Roman-numeral upgrades are separate permanent purchases; the server
+// re-checks the research gate and prevents duplicate purchases.
 export default async function(req) {
   try {
     const base44 = createClientFromRequest(req);
@@ -34,15 +32,13 @@ export default async function(req) {
     }
 
     const levels = empire.empire_upgrade_levels || {};
-    const currentLevel = levels[upgradeId] || 0;
-    const tier = nextEmpireUpgradeTier(upgrade, currentLevel);
-    if (!tier) {
-      return Response.json({ error: 'Upgrade already at maximum tier.' }, { status: 400 });
+    if ((levels[upgradeId] || 0) >= 1) {
+      return Response.json({ error: 'Upgrade has already been purchased.' }, { status: 400 });
     }
 
     const updates = {};
     for (const res of COST_RESOURCES) {
-      const c = tier.cost[res] || 0;
+      const c = upgrade.cost?.[res] || 0;
       if (c > 0) {
         if ((empire[res] || 0) < c) {
           return Response.json({ error: 'Not enough resources for this upgrade.' }, { status: 400 });
@@ -50,11 +46,12 @@ export default async function(req) {
         updates[res] = (empire[res] || 0) - c;
       }
     }
-    updates.empire_upgrade_levels = { ...levels, [upgradeId]: tier.level };
+
+    updates.empire_upgrade_levels = { ...levels, [upgradeId]: 1 };
     await svc.entities.Empire.update(empire.id, updates);
 
     const fresh = await svc.entities.Empire.get(empire.id);
-    return Response.json({ empire: fresh, level: tier.level, bonus: tier.bonus });
+    return Response.json({ empire: fresh, level: 1, bonus: upgrade.bonus });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
   }
