@@ -3,52 +3,50 @@ import TechIcon from './techIcons';
 import UnlockBadges from './UnlockBadges';
 import { CATEGORIES, isPrimaryTech } from '@/data/techTree';
 
-// Visual state is driven entirely by the derived state string — no per-tech
-// logic. Tailwind classes are literal strings so the purge step keeps them.
 const STATE_STYLES = {
   researched: {
-    border: 'border-emerald-500/80',
-    glow: 'shadow-[0_0_16px_rgba(34,197,94,0.4)]',
-    bg: 'bg-emerald-500/5',
-    icon: '',
+    border: 'border-emerald-400/90',
+    glow: 'shadow-[0_0_20px_rgba(34,197,94,0.24)]',
+    bg: 'bg-[linear-gradient(135deg,rgba(16,185,129,0.12),rgba(2,7,13,0.82))]',
+    icon: 'text-emerald-300',
     text: 'text-emerald-50',
-    label: 'Researched',
-    labelColor: 'text-emerald-400',
-    ring: 'ring-cyan-400/70',
+    label: 'COMPLETE',
+    labelColor: 'text-emerald-300',
+    ring: 'ring-emerald-300/60',
     pin: 'text-emerald-400',
   },
   available: {
-    border: 'border-cyan-400/80',
-    glow: 'shadow-[0_0_16px_rgba(34,211,238,0.4)]',
-    bg: 'bg-cyan-400/5',
-    icon: '',
-    text: 'text-cyan-50',
-    label: 'Available',
-    labelColor: 'text-cyan-300',
-    ring: 'ring-cyan-400/70',
-    pin: 'text-cyan-400',
+    border: 'border-amber-400/90',
+    glow: 'shadow-[0_0_22px_rgba(245,158,11,0.28)]',
+    bg: 'bg-[linear-gradient(135deg,rgba(245,158,11,0.13),rgba(2,7,13,0.86))]',
+    icon: 'text-amber-300',
+    text: 'text-amber-50',
+    label: 'AVAILABLE',
+    labelColor: 'text-amber-300',
+    ring: 'ring-amber-300/70',
+    pin: 'text-amber-400',
   },
   locked: {
-    border: 'border-slate-600/60',
+    border: 'border-slate-600/70',
     glow: '',
-    bg: 'bg-slate-950/60',
-    icon: 'grayscale brightness-75 opacity-60',
-    text: 'text-slate-400',
-    label: 'Locked',
+    bg: 'bg-[linear-gradient(135deg,rgba(30,41,59,0.48),rgba(2,7,13,0.88))]',
+    icon: 'text-slate-500 grayscale opacity-75',
+    text: 'text-slate-300',
+    label: 'LOCKED',
     labelColor: 'text-slate-500',
     ring: 'ring-cyan-400/40',
     pin: 'text-slate-600',
   },
   researching: {
-    border: 'border-slate-200/80',
-    glow: 'shadow-[0_0_20px_rgba(226,232,240,0.5)]',
-    bg: 'bg-slate-200/5',
-    icon: '',
-    text: 'text-slate-100',
-    label: 'Researching',
-    labelColor: 'text-slate-200',
-    ring: 'ring-cyan-400/70',
-    pin: 'text-slate-200',
+    border: 'border-cyan-300/90',
+    glow: 'shadow-[0_0_24px_rgba(34,211,238,0.35)]',
+    bg: 'bg-[linear-gradient(135deg,rgba(34,211,238,0.13),rgba(2,7,13,0.84))]',
+    icon: 'text-cyan-200',
+    text: 'text-white',
+    label: 'IN PROGRESS',
+    labelColor: 'text-cyan-300',
+    ring: 'ring-cyan-300/80',
+    pin: 'text-cyan-300',
   },
 };
 
@@ -57,15 +55,11 @@ export default function TechNode({ tech, state, position, selected, onClick }) {
   const primary = isPrimaryTech(tech);
   const cat = CATEGORIES[tech.category];
   const iconName = tech.icon || cat?.icon || 'Cpu';
-  const w = position.w;
-  const h = position.h;
   const dotCount = primary ? 8 : 6;
 
   const renderPins = (edgeClass) => (
     <div className={`absolute left-2 right-2 ${edgeClass} flex justify-between pointer-events-none ${s.pin}`}>
-      {Array.from({ length: dotCount }).map((_, i) => (
-        <span key={i} className="w-[3px] h-[3px] rounded-full bg-current opacity-80" />
-      ))}
+      {Array.from({ length: dotCount }).map((_, i) => <span key={i} className="w-[3px] h-[3px] rounded-full bg-current opacity-70" />)}
     </div>
   );
 
@@ -73,21 +67,30 @@ export default function TechNode({ tech, state, position, selected, onClick }) {
     <button
       type="button"
       onClick={onClick}
-      style={{ left: position.x, top: position.y, width: w, height: h }}
-      className={`absolute text-left rounded-md border ${s.border} ${s.glow} ${s.bg} backdrop-blur-md px-2 py-1 transition-transform hover:z-20 hover:scale-[1.03] ${selected ? `z-20 ring-2 ${s.ring}` : ''}`}
+      style={{ left: position.x, top: position.y, width: position.w, height: position.h }}
+      className={`absolute text-left rounded-[10px] border ${s.border} ${s.glow} ${s.bg} backdrop-blur-md px-2.5 py-1.5 overflow-hidden transition-all duration-150 hover:z-20 hover:scale-[1.025] hover:brightness-125 ${selected ? `z-20 ring-2 ${s.ring}` : ''}`}
     >
+      <div className="absolute inset-x-0 top-0 h-px bg-cyan-200/25" />
+      <div className="absolute inset-y-1 left-0 w-px bg-white/10" />
       {renderPins('top-0 -translate-y-1/2')}
       {renderPins('bottom-0 translate-y-1/2')}
-      <div className="flex items-center gap-1.5">
-        <TechIcon name={iconName} className={`w-3.5 h-3.5 shrink-0 ${cat?.color || 'text-slate-300'} ${s.icon}`} />
-        <span className="font-mono text-[9px] uppercase tracking-widest text-slate-400/80">T{tech.tier}</span>
-        {primary && <span className="font-mono text-[8px] uppercase tracking-widest text-amber-300/80">★</span>}
-        <UnlockBadges tags={tech.unlockTags} />
-        <span className={`ml-auto font-mono text-[8px] uppercase tracking-widest ${s.labelColor}`}>{s.label}</span>
+      <div className="flex items-center gap-2 h-full min-w-0">
+        <div className={`w-8 h-8 shrink-0 rounded-md border border-white/10 bg-black/20 flex items-center justify-center ${s.icon}`}>
+          <TechIcon name={iconName} className="w-4.5 h-4.5" />
+        </div>
+        <div className="min-w-0 flex-1 h-full flex flex-col justify-center">
+          <div className="flex items-center gap-1.5 min-w-0">
+            <span className="font-mono text-[8px] uppercase tracking-[0.16em] text-slate-500">T{tech.tier}</span>
+            {primary && <span className="font-mono text-[8px] text-amber-300">★ PRIMARY</span>}
+            <UnlockBadges tags={tech.unlockTags} />
+          </div>
+          <p className={`font-heading ${primary ? 'text-[12px]' : 'text-[10px]'} tracking-wide ${s.text} uppercase leading-tight line-clamp-2`}>{tech.name}</p>
+        </div>
+        <div className="shrink-0 text-right flex flex-col items-end gap-0.5">
+          {state === 'locked' ? <span className="text-[10px] text-slate-600">🔒</span> : <span className={`text-[8px] font-mono uppercase tracking-widest ${s.labelColor}`}>{state === 'researched' ? '✓' : state === 'researching' ? '◉' : '◆'}</span>}
+          <span className={`text-[8px] font-mono uppercase tracking-widest ${s.labelColor} whitespace-nowrap`}>{state === 'researched' ? 'COMPLETE' : state === 'researching' ? 'ACTIVE' : state === 'available' ? `${tech.researchTurns || 1} TURNS` : `${tech.researchTurns || 1} TURNS`}</span>
+        </div>
       </div>
-      <p className={`font-heading ${primary ? 'text-[13px]' : 'text-[11px]'} tracking-wide ${s.text} uppercase leading-tight mt-1 line-clamp-2`}>
-        {tech.name}
-      </p>
     </button>
   );
 }
