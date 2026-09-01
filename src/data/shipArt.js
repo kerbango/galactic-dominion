@@ -15,6 +15,7 @@ const SHIP_ART = {
     variants: [
       { id: 'standard', label: 'Standard', art: 'https://media.base44.com/images/public/6a8dedaa90af486a558f758e/0673b09fd_light_frigate_standard_variant.png' },
       { id: 'missile_boat', label: 'Missile Boat', art: 'https://media.base44.com/images/public/6a8dedaa90af486a558f758e/09d8243b1_light_frigate_missile_boat_variant.png' },
+      { id: 'anti_fighter', label: 'Anti-Fighter', art: 'https://media.base44.com/images/public/6a8dedaa90af486a558f758e/0dd132299_light_frigate_anti_fighter_variant.png' },
     ],
   },
 };
