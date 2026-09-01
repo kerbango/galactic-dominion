@@ -1,5 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
-import { TECH_TREE, normalizePrereqs, getResearchCost } from '../../shared/techTree.ts';
+import { TECH_TREE, normalizePrereqs, getResearchCost } from '../../shared/techTreeRuntime.ts';
 
 // Starts researching a technology for the calling player. Validates that the
 // player has an empire, that all prerequisite techs are completed (AND/OR),
@@ -30,20 +30,13 @@ export default async function(req) {
     const empire = empires[0];
     if (!empire) return Response.json({ error: 'You must found an empire before researching.' }, { status: 400 });
 
-    // Owner-only RLS scopes these reads to the caller's own records.
     const existing = await base44.entities.TechProgress.filter({ tech_id: techId });
     const mine = existing.find((r) => r.tech_id === techId);
-    if (mine && mine.status === 'completed') {
-      return Response.json({ error: 'Technology already completed.' }, { status: 400 });
-    }
-    if (mine && mine.status === 'researching') {
-      return Response.json({ error: 'Already researching this technology.' }, { status: 400 });
-    }
+    if (mine && mine.status === 'completed') return Response.json({ error: 'Technology already completed.' }, { status: 400 });
+    if (mine && mine.status === 'researching') return Response.json({ error: 'Already researching this technology.' }, { status: 400 });
 
     const inProgress = await base44.entities.TechProgress.filter({ status: 'researching' });
-    if (inProgress.length > 0) {
-      return Response.json({ error: 'You are already researching another technology.' }, { status: 400 });
-    }
+    if (inProgress.length > 0) return Response.json({ error: 'You are already researching another technology.' }, { status: 400 });
 
     const { all, any } = normalizePrereqs(tech);
     if (all.length || any.length) {
@@ -51,9 +44,7 @@ export default async function(req) {
       const doneIds = new Set(completed.map((r) => r.tech_id));
       const missingAll = all.filter((p) => !doneIds.has(p));
       const anyMet = any.length === 0 || any.some((p) => doneIds.has(p));
-      if (missingAll.length || !anyMet) {
-        return Response.json({ error: 'Prerequisites not met.' }, { status: 400 });
-      }
+      if (missingAll.length || !anyMet) return Response.json({ error: 'Prerequisites not met.' }, { status: 400 });
     }
 
     const cost = getResearchCost(tech);
@@ -61,15 +52,11 @@ export default async function(req) {
     for (const res of COST_RESOURCES) {
       const c = cost[res] || 0;
       if (c > 0) {
-        if ((empire[res] || 0) < c) {
-          return Response.json({ error: 'Not enough resources to begin this research.' }, { status: 400 });
-        }
+        if ((empire[res] || 0) < c) return Response.json({ error: 'Not enough resources to begin this research.' }, { status: 400 });
         updates[res] = (empire[res] || 0) - c;
       }
     }
-    if (Object.keys(updates).length) {
-      await svc.entities.Empire.update(empire.id, updates);
-    }
+    if (Object.keys(updates).length) await svc.entities.Empire.update(empire.id, updates);
 
     const record = await base44.entities.TechProgress.create({
       tech_id: techId,
