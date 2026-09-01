@@ -1,8 +1,5 @@
 import { TECH_TREE, CATEGORY_ORDER, normalizePrereqs, isPrimaryTech } from "@/data/techTree";
 
-// Auto-layout constants. Nodes are arranged in a grid: tiers advance
-// left-to-right, categories occupy vertical bands, and multiple techs in the
-// same category+tier stack vertically. No x/y is hard-coded per tech.
 export const NODE_W = 210;
 export const SUPPORT_W = 176;
 export const NODE_H = 76;
@@ -80,13 +77,9 @@ export function getDescendants(id, set = new Set()) {
   return set;
 }
 
-// Resolve prerequisite state recursively rather than by tier ordering. This
-// matters for hidden gate nodes whose prerequisites intentionally come from
-// different branches and tiers.
 export function deriveStatuses(progressMap) {
   const status = {};
   const visiting = new Set();
-
   const resolve = (techId) => {
     if (status[techId]) return status[techId];
     const t = byId[techId];
@@ -96,7 +89,6 @@ export function deriveStatuses(progressMap) {
     if (rec?.status === "researching") return (status[t.id] = "researching");
     if (visiting.has(t.id)) return "locked";
     visiting.add(t.id);
-
     const { all, any } = normalizePrereqs(t);
     const allMet = all.every((p) => resolve(p) === "completed");
     const anyMet = any.length === 0 || any.some((p) => resolve(p) === "completed");
@@ -105,13 +97,16 @@ export function deriveStatuses(progressMap) {
     status[t.id] = next;
     return next;
   };
-
   for (const t of TECH_TREE) resolve(t.id);
   return status;
 }
 
 export function getTechnologyState(tech, statusMap) {
   const s = statusMap[tech.id];
+  // Gate technologies are automatic unlock markers, never research purchases.
+  // Once their prerequisites are met, present them as completed rather than
+  // offering a misleading Begin Research action.
+  if (tech?.isGate && (s === "available" || s === "completed")) return "researched";
   if (s === "completed") return "researched";
   if (s === "researching") return "researching";
   if (s === "available") return "available";
