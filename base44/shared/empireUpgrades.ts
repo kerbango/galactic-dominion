@@ -16,3 +16,8 @@ const byId = new Map(EMPIRE_UPGRADES.map((u) => [u.id, u])); export const getEmp
 export function isEmpireUpgradeAvailable(upgrade, completedTechIds) { const set = completedTechIds instanceof Set ? completedTechIds : new Set(completedTechIds || []); return Boolean(upgrade && set.has(upgrade.gatingTechId)); }
 export function getAvailableEmpireUpgrades(completedTechIds) { const set = completedTechIds instanceof Set ? completedTechIds : new Set(completedTechIds || []); return EMPIRE_UPGRADES.filter((u) => set.has(u.gatingTechId)); }
 export function canPurchaseEmpireUpgrade(upgrade, purchasedUpgradeIds) { const purchased = purchasedUpgradeIds instanceof Set ? purchasedUpgradeIds : new Set(purchasedUpgradeIds || []); return Boolean(upgrade && !purchased.has(upgrade.id)); }
+// Backward-compatible helper for older Upgrade Page callers. Roman-numeral entries are one-time purchases, so this returns the next unpurchased upgrade in a same-name series.
+export function nextEmpireUpgradeTier(name, purchasedUpgradeIds) {
+  const purchased = purchasedUpgradeIds instanceof Set ? purchasedUpgradeIds : new Set(purchasedUpgradeIds || []);
+  return EMPIRE_UPGRADES.find((u) => u.name.startsWith(`${name} `) && !purchased.has(u.id)) || null;
+}
