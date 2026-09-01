@@ -4,12 +4,8 @@ import { TECH_TREE, normalizePrereqs, getResearchCost } from '../../shared/techT
 // Starts researching a technology for the calling player. Validates that the
 // player has an empire, that all prerequisite techs are completed (AND/OR),
 // that the tech isn't already completed, and that no other tech is already in
-// progress (one active research per player). Then validates + atomically
-// deducts the tech's resource cost (mirroring the market's immediate-deduct
-// pattern — no separate escrow record; the deduction is final at start, so
-// completion needs no financial settlement). Persists a researching
-// TechProgress record; the hourly tick advances progress and flips it to
-// completed.
+// progress (one active research per player). Then validates + deducts the
+// tech's resource cost and persists a researching TechProgress record.
 const techById = new Map(TECH_TREE.map((t) => [t.id, t]));
 const COST_RESOURCES = ['research_points', 'vrind'];
 
@@ -25,6 +21,9 @@ export default async function(req) {
 
     const tech = techById.get(techId);
     if (!tech) return Response.json({ error: 'Unknown technology.' }, { status: 400 });
+    if (tech.isGate) {
+      return Response.json({ error: 'This technology is a gate and unlocks automatically when its prerequisites are completed.' }, { status: 400 });
+    }
 
     const svc = base44.asServiceRole;
     const empires = await svc.entities.Empire.filter({ created_by_id: user.id });
@@ -41,14 +40,11 @@ export default async function(req) {
       return Response.json({ error: 'Already researching this technology.' }, { status: 400 });
     }
 
-    // Only one active research at a time.
     const inProgress = await base44.entities.TechProgress.filter({ status: 'researching' });
     if (inProgress.length > 0) {
       return Response.json({ error: 'You are already researching another technology.' }, { status: 400 });
     }
 
-    // Prerequisites (AND/OR). Every 'all' id must be completed; at least one
-    // 'any' id must be completed (empty any = no OR requirement).
     const { all, any } = normalizePrereqs(tech);
     if (all.length || any.length) {
       const completed = await base44.entities.TechProgress.filter({ status: 'completed' });
@@ -60,8 +56,6 @@ export default async function(req) {
       }
     }
 
-    // Resource cost — validate against the treasury, then deduct atomically
-    // as the service role (same pattern as buyResourceMarket).
     const cost = getResearchCost(tech);
     const updates = {};
     for (const res of COST_RESOURCES) {
