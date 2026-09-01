@@ -22,14 +22,14 @@ export const EMPIRE_UPGRADES = [
   makeUpgrade("Income Upgrade III", "Strictly increases recurring VRIND income.", "imperial_directives", "VRIND Income", 0.05),
 
   makeUpgrade("Resource Finder I", "Increases resources found during exploration.", "deep_space_survey_probe", "Resources Found", 0.05),
-  makeUpgrade("Resource Finder II", "Further increases resources found during exploration.", "atmospheric_hazard_cartography", "Resources Found", 0.05),
-  makeUpgrade("Resource Finder III", "Further increases resources found during exploration.", "atmospheric_hazard_cartography", "Resources Found", 0.05),
+  makeUpgrade("Resource Finder II", "Further increases resources found during exploration.", "atmospheric_hazard_cartography", "Resources Found", 0.10),
+  makeUpgrade("Resource Finder III", "Further increases resources found during exploration.", "atmospheric_hazard_cartography", "Resources Found", 0.00),
 
-  makeUpgrade("Cost Reducer I", "Reduces Exploration Ship energy cost.", "anomaly_analysis_algorithms", "Exploration Energy Cost", -0.05),
-  makeUpgrade("Cost Reducer II", "Further reduces Exploration Ship energy cost.", "warp_lane_optimization", "Exploration Energy Cost", -0.10),
+  makeUpgrade("Cost Reducer I", "Reduces Exploration Ship energy cost by 5%.", "anomaly_analysis_algorithms", "Exploration Energy Cost", -0.05),
+  makeUpgrade("Cost Reducer II", "Reduces Exploration Ship energy cost by 10%.", "anomaly_analysis_algorithms", "Exploration Energy Cost", -0.10),
 
-  makeUpgrade("Exploration Speed I", "Makes exploration 5% faster.", "tachyon_sensor_array", "Exploration Time", -0.05),
-  makeUpgrade("Exploration Speed II", "Makes exploration 10% faster.", "relic_matrices", "Exploration Time", -0.10),
+  makeUpgrade("Exploration Speed I", "Makes exploration 5% faster.", "long_range_sensors", "Exploration Time", -0.05),
+  makeUpgrade("Exploration Speed II", "Makes exploration 10% faster.", "tachyon_sensor_array", "Exploration Time", -0.10),
   makeUpgrade("Exploration Speed III", "Makes exploration 15% faster.", "warp_lane_optimization", "Exploration Time", -0.15),
   makeUpgrade("Exploration Speed IV", "Makes exploration 20% faster.", "fold_navigation", "Exploration Time", -0.20),
 
@@ -39,11 +39,12 @@ export const EMPIRE_UPGRADES = [
 
   makeUpgrade("Empire Defense Control Matrix I", "Increases overall empire defense numbers by 10%.", "planetary_fortress_network", "Empire Defense", 0.10),
 
-  makeUpgrade("Tax Office I", "Increases VRIND income by 5% per hour.", "resource_dominance", "VRIND Income", 0.05),
-  makeUpgrade("Tax Office II", "Increases VRIND income by 10% per hour.", "resource_dominance", "VRIND Income", 0.10),
-  makeUpgrade("Tax Office III", "Increases VRIND income by 15% per hour.", "resource_dominance", "VRIND Income", 0.15),
+  makeUpgrade("Tax Office I", "Increases VRIND income by 5% per hour.", "taxation_doctrine", "VRIND Income", 0.05),
+  makeUpgrade("Tax Office II", "Increases VRIND income by 10% per hour.", "taxation_doctrine", "VRIND Income", 0.10),
+  makeUpgrade("Tax Office III", "Increases VRIND income by 15% per hour.", "taxation_doctrine", "VRIND Income", 0.15),
 
   makeUpgrade("TAX EVASION I", "Completely removes Global Market tax.", "galactic_trade_manipulation_ai", "Global Market Tax", -1.0),
+  makeUpgrade("0 COMM FEE", "Removes all Global Comms fees.", "quantum_entanglement_command_matrix", "Global Comms Fee", -1.0),
 
   makeUpgrade("Alliance Bonus I", "Provides an alliance attack bonus when striking the same enemy.", "war_council", "Alliance Attack", 0.05),
   makeUpgrade("Alliance Bonus II", "Further increases the alliance attack bonus when striking the same enemy.", "war_council", "Alliance Attack", 0.10),
