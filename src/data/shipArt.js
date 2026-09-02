@@ -9,6 +9,7 @@ const SHIP_ART = {
   heavy_scout: { art: 'https://media.base44.com/images/public/6a8dedaa90af486a558f758e/d747b3696_ChatGPTImageSep1202608_51_33PM.png' },
   phase_scout: { art: 'https://media.base44.com/images/public/6a8dedaa90af486a558f758e/26c903876_ChatGPTImageSep1202608_55_20PM.png' },
   light_frigate: { art: 'https://media.base44.com/images/public/6a8dedaa90af486a558f758e/d8049c009_ChatGPTImageSep1202608_57_15PM.png' },
+  medium_frigate: { art: 'https://media.base44.com/images/public/6a8dedaa90af486a558f758e/cd9d89865_ChatGPTImageSep1202608_59_11PM.png' },
 };
 
 export function getShipArt(unitType) {
