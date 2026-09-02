@@ -3,8 +3,8 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
 const REQUIRED_TECH = 'sub_space_relays';
 const TACHYON_TECH = 'tachyon_communications';
 const FREE_TECH = 'quantum_entanglement_command_matrix';
-const MESSAGE_FEE = 25;
-const TACHYON_FEE_MULTIPLIER = 1.5;
+const BASE_MESSAGE_FEE = 50;
+const TACHYON_MESSAGE_FEE = 25;
 
 export default async function(req) {
   try {
@@ -36,11 +36,14 @@ export default async function(req) {
       }, { status: 403 });
     }
 
-    // Base transmission fee is 25 VRIND. Tachyon Communications adds 50% (37.5 VRIND).
-    // Quantum Entanglement Command Matrix overrides all transmission fees to zero.
-    const feeWaived = researched.has(FREE_TECH);
-    const tachyonActive = researched.has(TACHYON_TECH);
-    const fee = feeWaived ? 0 : Math.round(MESSAGE_FEE * (tachyonActive ? TACHYON_FEE_MULTIPLIER : 1));
+    // Sub-space Relays unlocks Comms at 50 VRIND per message.
+    // Tachyon Communications reduces the fee to 25 VRIND.
+    // Quantum Entanglement Command Matrix removes the fee entirely.
+    const fee = researched.has(FREE_TECH)
+      ? 0
+      : researched.has(TACHYON_TECH)
+        ? TACHYON_MESSAGE_FEE
+        : BASE_MESSAGE_FEE;
     const currentVrind = Number(empire.vrind || 0);
 
     if (currentVrind < fee) {
@@ -65,8 +68,8 @@ export default async function(req) {
       message: saved,
       vrind_charged: fee,
       vrind_remaining: Number(updatedEmpire?.vrind ?? currentVrind),
-      fee_waived: feeWaived,
-      tachyon_surcharge_active: tachyonActive && !feeWaived,
+      fee_waived: fee === 0,
+      tachyon_fee_reduced: researched.has(TACHYON_TECH) && !researched.has(FREE_TECH),
     });
   } catch (error) {
     return Response.json({ error: error.message || 'Failed to send transmission.' }, { status: 500 });
