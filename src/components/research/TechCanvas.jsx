@@ -143,7 +143,7 @@ export default function TechCanvas({ statusMap, edges, layout, selectedId, onSel
   useEffect(() => {
     if (size.w > 0 && size.h > 0) fitToScreen();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [worldW, worldH]);
+  }, [worldW, worldH, size.w, size.h]);
 
   return (
     <div className="relative w-full" style={{ height: 'min(82vh, 900px)' }}>
