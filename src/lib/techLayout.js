@@ -1,78 +1,120 @@
 import { TECH_TREE, CATEGORY_ORDER, normalizePrereqs, isPrimaryTech } from "@/data/techTree";
 import { RESEARCH_TEST_MODE } from "../../base44/shared/testMode";
 
-// Strategic research map: categories are columns and research tiers progress
-// downward. This keeps each discipline visually self-contained while making
-// the full tree readable without the previous giant stacked category wall.
-export const NODE_W = 190;
-export const SUPPORT_W = 176;
-export const NODE_H = 76;
-export const NODE_GAP_Y = 12;
-export const CATEGORY_W = 320;
-export const TIER_H = 108;
-export const TIER_GAP = 14;
-export const ROW_CAPACITY = 3;
-export const PAD_LEFT = 34;
-export const PAD_TOP = 72;
-export const BAND_PAD = 24;
+// Research Nexus graph layout. The map now reads like a true technology
+// progression: research moves left -> right through tiers, while technologies
+// branch vertically. Categories provide the color language rather than rigid
+// vertical category columns.
+export const NODE_W = 198;
+export const PRIMARY_W = 214;
+export const NODE_H = 72;
+export const NODE_GAP_Y = 14;
+export const TIER_W = 300;
+export const TIER_GAP = 0;
+export const PAD_LEFT = 72;
+export const PAD_TOP = 86;
+export const PAD_RIGHT = 120;
+export const PAD_BOTTOM = 110;
+
+export const CATEGORY_THEME = {
+  Defense: {
+    accent: '#f59e0b',
+    bright: '#fbbf24',
+    soft: 'rgba(245,158,11,0.14)',
+    line: 'rgba(245,158,11,0.92)',
+    icon: 'text-amber-300',
+  },
+  'Economy and Resources': {
+    accent: '#22c55e',
+    bright: '#4ade80',
+    soft: 'rgba(34,197,94,0.14)',
+    line: 'rgba(74,222,128,0.92)',
+    icon: 'text-emerald-300',
+  },
+  'Fleet Research': {
+    accent: '#38bdf8',
+    bright: '#67e8f9',
+    soft: 'rgba(56,189,248,0.14)',
+    line: 'rgba(56,189,248,0.92)',
+    icon: 'text-sky-300',
+  },
+  Exploration: {
+    accent: '#ef4444',
+    bright: '#fb7185',
+    soft: 'rgba(239,68,68,0.14)',
+    line: 'rgba(248,113,113,0.94)',
+    icon: 'text-red-300',
+  },
+  'Empire Governance': {
+    accent: '#a855f7',
+    bright: '#c084fc',
+    soft: 'rgba(168,85,247,0.14)',
+    line: 'rgba(192,132,252,0.92)',
+    icon: 'text-violet-300',
+  },
+  'Blacklisted Alien Technology': {
+    accent: '#ec4899',
+    bright: '#f472b6',
+    soft: 'rgba(236,72,153,0.16)',
+    line: 'rgba(244,114,182,0.95)',
+    icon: 'text-pink-300',
+  },
+};
 
 let _layout = null;
 
 export function computeLayout(includeHidden = false) {
   if (_layout && _layout.includeHidden === includeHidden) return _layout;
+
   const visibleTechs = TECH_TREE.filter((t) => includeHidden || !t.hidden);
-  const byCat = {};
-  for (const t of visibleTechs) (byCat[t.category] ||= []).push(t);
+  const byTier = {};
   const categories = includeHidden
-    ? [...CATEGORY_ORDER, ...Object.keys(byCat).filter((c) => !CATEGORY_ORDER.includes(c))]
+    ? [...CATEGORY_ORDER, ...Object.keys(Object.fromEntries(visibleTechs.map((t) => [t.category, true]))).filter((c) => !CATEGORY_ORDER.includes(c))]
     : CATEGORY_ORDER;
-  const catBase = {};
-  categories.forEach((cat, index) => { catBase[cat] = PAD_LEFT + index * CATEGORY_W; });
-  // Hidden blacklisted research uses real tier 1-5 positions. The gate itself
-  // is tier 0 and is placed in a dedicated header row so the entire branch is
-  // visible instead of being clipped above the first normal tier.
+
+  for (const t of visibleTechs) (byTier[t.tier] ||= []).push(t);
+
   const maxTier = Math.max(1, ...visibleTechs.map((t) => t.tier));
   const minTier = includeHidden && visibleTechs.some((t) => t.tier === 0) ? 0 : 1;
-  // Each tier is a horizontal band. A discipline gets up to three cards per
-  // row, with compact cards when a branch has three siblings. This mirrors the
-  // reference layout while guaranteeing cards never overlap one another.
-  const tierHeights = {};
-  for (let tier = minTier; tier <= maxTier; tier++) {
-    const maxCount = Math.max(1, ...categories.map((cat) => (byCat[cat] || []).filter((t) => t.tier === tier).length));
-    const rows = Math.ceil(maxCount / ROW_CAPACITY);
-    tierHeights[tier] = Math.max(TIER_H, rows * NODE_H + Math.max(0, rows - 1) * NODE_GAP_Y + TIER_GAP * 2);
+
+  // Stable vertical lanes keep the tree readable while allowing each tier to
+  // contain several branches. Category order establishes the visual hierarchy.
+  const laneBase = {};
+  const laneHeight = {};
+  let yCursor = PAD_TOP;
+  for (const category of categories) {
+    const count = visibleTechs.filter((t) => t.category === category).length;
+    const height = Math.max(120, Math.min(760, count * (NODE_H + NODE_GAP_Y) + 54));
+    laneBase[category] = yCursor;
+    laneHeight[category] = height;
+    yCursor += height;
   }
-  const tierTop = {};
-  let cursorY = PAD_TOP;
-  for (let tier = minTier; tier <= maxTier; tier++) {
-    tierTop[tier] = cursorY;
-    cursorY += tierHeights[tier];
-  }
-  const worldW = categories.length * CATEGORY_W + PAD_LEFT * 2;
-  const worldH = cursorY + PAD_TOP;
+
   const pos = {};
-  const stackIdx = {};
+  const tierGroups = {};
   for (const t of visibleTechs) {
-    const key = t.category + "|" + t.tier;
-    const i = stackIdx[key] || 0;
-    stackIdx[key] = i + 1;
-    const primary = isPrimaryTech(t);
-    const categoryIndex = Math.max(0, categories.indexOf(t.category));
     const tier = Math.max(minTier, t.tier);
-    const tierCount = (byCat[t.category] || []).filter((x) => x.tier === tier).length;
-    const rowCount = Math.ceil(tierCount / ROW_CAPACITY);
-    const row = Math.floor(i / ROW_CAPACITY);
-    const col = i % ROW_CAPACITY;
-    const cols = Math.min(ROW_CAPACITY, tierCount);
-    const cellW = (CATEGORY_W - 24) / cols;
-    const nodeWidth = tierCount >= 3 ? Math.min(primary ? 116 : 104, cellW - 6) : tierCount === 2 ? Math.min(primary ? 158 : 142, cellW - 6) : Math.min(primary ? NODE_W : SUPPORT_W, cellW - 6);
-    const cellLeft = PAD_LEFT + categoryIndex * CATEGORY_W + 12 + col * cellW;
-    const x = cellLeft + (cellW - nodeWidth) / 2;
-    const contentH = rowCount * NODE_H + Math.max(0, rowCount - 1) * NODE_GAP_Y;
-    const y = tierTop[tier] + (tierHeights[tier] - contentH) / 2 + row * (NODE_H + NODE_GAP_Y);
-    pos[t.id] = { x, y, w: nodeWidth, h: NODE_H };
+    const key = `${t.category}|${tier}`;
+    (tierGroups[key] ||= []).push(t);
   }
-  _layout = { pos, worldW, worldH, catBase, categories, includeHidden };
+
+  for (const t of visibleTechs) {
+    const tier = Math.max(minTier, t.tier);
+    const group = tierGroups[`${t.category}|${tier}`] || [t];
+    const index = group.findIndex((x) => x.id === t.id);
+    const total = group.length;
+    const blockH = total * NODE_H + Math.max(0, total - 1) * NODE_GAP_Y;
+    const laneY = laneBase[t.category];
+    const y = laneY + Math.max(24, (laneHeight[t.category] - blockH) / 2) + index * (NODE_H + NODE_GAP_Y);
+    const primary = isPrimaryTech(t);
+    const w = primary ? PRIMARY_W : NODE_W;
+    const x = PAD_LEFT + tier * TIER_W;
+    pos[t.id] = { x, y, w, h: NODE_H };
+  }
+
+  const worldW = PAD_LEFT + (maxTier + 1) * TIER_W + PAD_RIGHT;
+  const worldH = yCursor + PAD_BOTTOM;
+  _layout = { pos, worldW, worldH, categories, includeHidden, laneBase, laneHeight, maxTier, minTier };
   return _layout;
 }
 
@@ -104,9 +146,7 @@ export function getDescendants(id, set = new Set()) {
 }
 
 export function deriveStatuses(progressMap) {
-  if (RESEARCH_TEST_MODE) {
-    return Object.fromEntries(TECH_TREE.map((t) => [t.id, "completed"]));
-  }
+  if (RESEARCH_TEST_MODE) return Object.fromEntries(TECH_TREE.map((t) => [t.id, "completed"]));
   const status = {};
   const visiting = new Set();
   const resolve = (techId) => {
@@ -132,9 +172,6 @@ export function deriveStatuses(progressMap) {
 
 export function getTechnologyState(tech, statusMap) {
   const s = statusMap[tech.id];
-  // Gate technologies are automatic unlock markers, never research purchases.
-  // Once their prerequisites are met, present them as completed rather than
-  // offering a misleading Begin Research action.
   if (tech?.isGate && (s === "available" || s === "completed")) return "researched";
   if (s === "completed") return "researched";
   if (s === "researching") return "researching";
@@ -155,8 +192,9 @@ export function getEdges(includeHidden = false) {
   return edges;
 }
 
+// Completed incoming paths intentionally disappear. The map's visual energy
+// belongs to the research frontier, not to history already conquered.
 export function getConnectionState(fromState, toState) {
-  if (fromState === "researched" && toState === "researched") return "completed";
   if (fromState === "researched" && (toState === "available" || toState === "researching")) return "active";
   if (fromState === "researched" && toState === "locked") return "dormant";
   return "inactive";
