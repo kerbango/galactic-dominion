@@ -10,7 +10,7 @@
     "owned_count": {
       "type": "number",
       "title": "Owned Count",
-      "description": "Number of ships of this type the player owns.",
+      "description": "Number of completed ships of this type the player owns.",
       "default": 0,
       "minimum": 0
     },
@@ -18,14 +18,21 @@
       "type": "string",
       "format": "date-time",
       "title": "Construction Start Date",
-      "description": "ISO timestamp when the current build started. Null when no build is in progress. One active construction per unit type."
+      "description": "ISO timestamp when the currently active build started. Null when no ship is actively building."
     },
     "construction_turns": {
       "type": "number",
       "title": "Construction Turns",
-      "description": "Snapshot of the unit's buildTurns at start. Completion = start_date + construction_turns * BASE_TURN_SECONDS.",
+      "description": "Snapshot of the active ship's buildTurns at start. Completion = start_date + construction_turns * BASE_TURN_SECONDS.",
       "default": 1,
       "minimum": 1
+    },
+    "construction_queue": {
+      "type": "number",
+      "title": "Construction Queue",
+      "description": "Number of additional ships of this type already paid for and waiting to be constructed after the active ship.",
+      "default": 0,
+      "minimum": 0
     },
     "upgrade_levels": {
       "type": "object",
