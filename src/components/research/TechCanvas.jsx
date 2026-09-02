@@ -110,7 +110,7 @@ export default function TechCanvas({ statusMap, edges, layout, selectedId, onSel
 
   return (
     <div className="relative w-full" style={{ height: 'min(84vh, 980px)' }}>
-      <style>{`@keyframes nexusFlow { to { stroke-dashoffset: -28; } } @keyframes nexusPulse { 0%,100% { opacity:.65; } 50% { opacity:1; } } @keyframes nexusScan { from { transform:translateX(-100%); } to { transform:translateX(100%); } }`}</style>
+      <style>{`@keyframes nexusFlow { to { stroke-dashoffset: -28; } } @keyframes nexusPulse { 0%,100% { opacity:.6; } 50% { opacity:1; } } @keyframes nexusScan { from { transform:translateX(-100%); } to { transform:translateX(100%); } } .nexus-edge { transition: opacity 600ms ease-in-out, stroke-width 600ms ease-in-out; }`}</style>
       <div ref={containerRef} className="relative w-full h-full overflow-hidden touch-none select-none cursor-grab active:cursor-grabbing" onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={endDrag} onPointerCancel={endDrag}>
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_45%_40%,rgba(15,23,42,0.45),transparent_58%)]" />
         <div className="absolute origin-top-left" style={{ transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`, width: worldW, height: worldH }}>
@@ -154,20 +154,19 @@ export default function TechCanvas({ statusMap, edges, layout, selectedId, onSel
               const ft = TECH_TREE.find((t) => t.id === ed.from), tt = TECH_TREE.find((t) => t.id === ed.to);
               const fs = getTechnologyState(ft || { id: ed.from }, statusMap), ts = getTechnologyState(tt || { id: ed.to }, statusMap);
               const cs = getConnectionState(fs, ts);
-              if (cs === 'inactive') return null;
+              if (cs !== 'active') return null;
               const theme = CATEGORY_THEME[tt?.category] || CATEGORY_THEME['Fleet Research'];
               const x1 = from.x + from.w, y1 = from.y + from.h / 2;
               const x2 = to.x, y2 = to.y + to.h / 2;
               const gap = Math.max(34, (x2 - x1) / 2);
               const d = `M ${x1} ${y1} C ${x1 + gap * .55} ${y1}, ${x2 - gap * .55} ${y2}, ${x2} ${y2}`;
               const selected = selectedId && (ed.from === selectedId || ed.to === selectedId);
-              const isActive = cs === 'active';
               const stroke = theme.line;
               return (
                 <g key={`${ed.from}-${ed.to}-${i}`} style={{ color: stroke }}>
-                  {isActive && <path d={d} fill="none" stroke={stroke} strokeWidth={8} opacity={0.10} filter="url(#nexusGlow)" />}
-                  <path d={d} fill="none" stroke={stroke} strokeWidth={isActive ? LINE_WIDTH.active : LINE_WIDTH.dormant} opacity={isActive ? 0.95 : 0.22} strokeLinecap="round" strokeDasharray={isActive ? '2 12' : '3 16'} style={isActive ? { animation: 'nexusFlow .8s linear infinite' } : undefined} markerEnd={isActive ? 'url(#nexusArrow)' : undefined} />
-                  {isActive && <circle r={4} fill={theme.bright} filter="url(#nexusGlow)"><animateMotion dur="1.7s" repeatCount="indefinite" path={d} /></circle>}
+                  <path d={d} fill="none" stroke={stroke} strokeWidth={8} opacity={0.10} filter="url(#nexusGlow)" className="nexus-edge" style={{ animation: 'nexusPulse 2s ease-in-out infinite' }} />
+                  <path d={d} fill="none" stroke={stroke} strokeWidth={LINE_WIDTH.active} strokeLinecap="round" strokeDasharray="2 12" className="nexus-edge" style={{ animation: 'nexusFlow .8s linear infinite, nexusPulse 2s ease-in-out infinite' }} markerEnd="url(#nexusArrow)" />
+                  <circle r={4} fill={theme.bright} filter="url(#nexusGlow)"><animateMotion dur="1.7s" repeatCount="indefinite" path={d} /></circle>
                   {selected && <path d={d} fill="none" stroke="#fff" strokeWidth="1" opacity=".55" strokeDasharray="1 8" />}
                 </g>
               );
