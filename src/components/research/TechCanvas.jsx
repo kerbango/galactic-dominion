@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect, useMemo } from 'react';
 import { ZoomIn, ZoomOut, Maximize, Crosshair, Move } from 'lucide-react';
 import TechNode from './TechNode';
-import { TECH_TREE } from '@/data/techTree';
+import { TECH_TREE, CATEGORY_ORDER } from '@/data/techTree';
 import { getTechnologyState, getConnectionState } from '@/lib/techLayout';
 
 const LINE_COLORS = {
@@ -119,6 +119,13 @@ export default function TechCanvas({ statusMap, edges, layout, selectedId, onSel
     return p.x + p.w + pad >= viewLeft && p.x - pad <= viewLeft + viewW && p.y + p.h + pad >= viewTop && p.y - pad <= viewTop + viewH;
   }), [pos, visibleIds, viewLeft, viewTop, viewW, viewH]);
 
+  const categoryBands = useMemo(() => CATEGORY_ORDER.map((category, index) => {
+    const start = layout.catBase?.[category] ?? 0;
+    const nextCategory = CATEGORY_ORDER[index + 1];
+    const end = nextCategory ? (layout.catBase?.[nextCategory] ?? start + 300) : layout.worldH - 56;
+    return { category, start, end, count: TECH_TREE.filter((t) => t.category === category && (!t.hidden || true)).length };
+  }), [layout]);
+
   return (
     <div className="relative w-full" style={{ height: 'min(78vh, 760px)' }}>
       <div ref={containerRef} className="relative w-full h-full overflow-hidden touch-none select-none cursor-grab active:cursor-grabbing" onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={endDrag} onPointerLeave={endDrag}>
@@ -130,6 +137,20 @@ export default function TechCanvas({ statusMap, edges, layout, selectedId, onSel
             backgroundSize: '32px 32px, 32px 32px, 100% 100%',
           }} />
           <div data-canvas-bg="1" className="absolute inset-x-0 top-0 h-10 border-b border-cyan-400/10 bg-gradient-to-b from-cyan-400/[0.03] to-transparent" />
+          {categoryBands.map(({ category, start, end, count }) => (
+            <div
+              key={category}
+              data-canvas-bg="1"
+              className="absolute pointer-events-none"
+              style={{ left: 24, top: start + 7, width: worldW - 48, height: Math.max(80, end - start - 14) }}
+            >
+              <div className="flex items-center gap-2 border-b border-cyan-400/10 pb-1.5">
+                <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.22em] text-cyan-300/75">{category}</span>
+                <span className="font-mono text-[8px] uppercase tracking-widest text-slate-600">{count} technologies</span>
+                <span className="flex-1 h-px bg-gradient-to-r from-cyan-400/15 to-transparent" />
+              </div>
+            </div>
+          ))}
           <svg className="absolute inset-0 pointer-events-none" width={worldW} height={worldH} style={{ overflow: 'visible', zIndex: 1 }}>
             <defs>
               <filter id="cwGlow"><feGaussianBlur stdDeviation="3" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
