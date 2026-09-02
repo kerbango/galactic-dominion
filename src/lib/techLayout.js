@@ -1,14 +1,18 @@
 import { TECH_TREE, CATEGORY_ORDER, normalizePrereqs, isPrimaryTech } from "@/data/techTree";
 import { RESEARCH_TEST_MODE } from "../../base44/shared/testMode";
 
+// Strategic research map: categories are columns and research tiers progress
+// downward. This keeps each discipline visually self-contained while making
+// the full tree readable without the previous giant stacked category wall.
 export const NODE_W = 210;
 export const SUPPORT_W = 176;
 export const NODE_H = 76;
 export const NODE_GAP_Y = 14;
-export const COL_W = 270;
-export const BAND_PAD = 44;
-export const PAD_LEFT = 64;
-export const PAD_TOP = 56;
+export const CATEGORY_W = 330;
+export const TIER_H = 112;
+export const PAD_LEFT = 34;
+export const PAD_TOP = 72;
+export const BAND_PAD = 24;
 
 let _layout = null;
 
@@ -21,29 +25,29 @@ export function computeLayout(includeHidden = false) {
     ? [...CATEGORY_ORDER, ...Object.keys(byCat).filter((c) => !CATEGORY_ORDER.includes(c))]
     : CATEGORY_ORDER;
   const catBase = {};
-  let y = PAD_TOP;
-  for (const cat of categories) {
-    catBase[cat] = y;
-    const techs = byCat[cat] || [];
-    const perTier = {};
-    for (const t of techs) perTier[t.tier] = (perTier[t.tier] || 0) + 1;
-    const maxStack = Math.max(1, ...Object.values(perTier));
-    const bandH = maxStack * (NODE_H + NODE_GAP_Y) + BAND_PAD;
-    y += bandH;
-  }
-  const worldH = y + PAD_TOP;
+  categories.forEach((cat, index) => { catBase[cat] = PAD_TOP + index * CATEGORY_W; });
   const maxTier = Math.max(1, ...visibleTechs.map((t) => t.tier));
-  const worldW = maxTier * COL_W + PAD_LEFT * 2;
+  const worldW = categories.length * CATEGORY_W + PAD_LEFT * 2;
+  const worldH = PAD_TOP + maxTier * TIER_H + PAD_TOP;
   const pos = {};
   const stackIdx = {};
   for (const t of visibleTechs) {
     const key = t.category + "|" + t.tier;
     const i = stackIdx[key] || 0;
     stackIdx[key] = i + 1;
+    const primary = isPrimaryTech(t);
+    const categoryIndex = Math.max(0, categories.indexOf(t.category));
+    const tier = Math.max(1, t.tier);
+    // Multiple nodes at the same tier share the row without overlapping.
+    // Primary nodes are centered; supporting nodes fan slightly around them.
+    const rowCount = (byCat[t.category] || []).filter((x) => x.tier === t.tier).length;
+    const rowWidth = rowCount * SUPPORT_W + Math.max(0, rowCount - 1) * 10;
+    const nodeWidth = primary ? NODE_W : SUPPORT_W;
+    const offsetX = Math.max(10, (CATEGORY_W - rowWidth) / 2);
     pos[t.id] = {
-      x: PAD_LEFT + Math.max(0, t.tier - 1) * COL_W,
-      y: catBase[t.category] + BAND_PAD / 2 + i * (NODE_H + NODE_GAP_Y),
-      w: isPrimaryTech(t) ? NODE_W : SUPPORT_W,
+      x: PAD_LEFT + categoryIndex * CATEGORY_W + offsetX + i * (SUPPORT_W + 10) + (rowCount === 1 ? (SUPPORT_W - nodeWidth) / 2 : 0),
+      y: PAD_TOP + (tier - 1) * TIER_H + (TIER_H - NODE_H) / 2,
+      w: nodeWidth,
       h: NODE_H,
     };
   }
