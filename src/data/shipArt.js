@@ -18,6 +18,14 @@ const SHIP_ART = {
       { id: 'anti_fighter', label: 'Anti-Fighter', art: 'https://media.base44.com/images/public/6a8dedaa90af486a558f758e/0dd132299_light_frigate_anti_fighter_variant.png' },
     ],
   },
+  // Scout and frigate assets uploaded during the fleet-art pass are registered
+  // here so the existing Military roster/inspection UI can display them directly.
+  medium_frigate: {
+    art: 'https://media.base44.com/images/public/6a8dedaa90af486a558f758e/medium_frigate.png',
+  },
+  heavy_frigate: {
+    art: 'https://media.base44.com/images/public/6a8dedaa90af486a558f758e/heavy_frigate.png',
+  },
 };
 
 export function getShipArt(unitType) {
