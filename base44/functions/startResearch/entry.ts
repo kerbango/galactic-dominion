@@ -52,7 +52,14 @@ export default async function(req) {
     if (mine?.status === 'researching') return Response.json({ error: 'Already researching this technology.' }, { status: 400 });
 
     const inProgress = await svc.entities.TechProgress.filter({ created_by_id: user.id, status: 'researching' });
-    if (inProgress.length > 0) return Response.json({ error: 'You are already researching another technology.' }, { status: 400 });
+    const researchSlots = (empire.parallel_research_level || 0) >= 1 ? 2 : 1;
+    if (inProgress.length >= researchSlots) {
+      return Response.json({
+        error: researchSlots > 1
+          ? `All ${researchSlots} research slots are currently occupied.`
+          : 'You are already researching another technology.'
+      }, { status: 400 });
+    }
 
     const { all, any } = normalizePrereqs(tech);
     if (all.length || any.length) {
