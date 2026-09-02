@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Handshake, Plus, Loader2, Trash2, ShieldAlert } from 'lucide-react';
+import { Handshake, Plus, Loader2, Trash2, ShieldAlert, LockKeyhole } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
 import { useEmpire } from '@/lib/EmpireContext';
@@ -7,14 +7,17 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 
-// Alliance creation page. Currently admin-only — the nav link and route are
-// hidden from regular players. Admins can found alliances (name + charter)
-// and disband them. The Alliance entity itself is open for future player use.
+const REQUIRED_TECH = 'diplomatic_decree';
+
+// Alliance creation is unlocked by completing Diplomatic Decree.
+// The server-side createAlliance function re-checks this gate so it cannot be bypassed.
 export default function Alliance() {
   const { user } = useAuth();
   const { empire } = useEmpire();
   const [alliances, setAlliances] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [researchLoading, setResearchLoading] = useState(true);
+  const [hasDiplomaticDecree, setHasDiplomaticDecree] = useState(false);
   const [name, setName] = useState('');
   const [desc, setDesc] = useState('');
   const [busy, setBusy] = useState(false);
@@ -33,18 +36,32 @@ export default function Alliance() {
     }
   };
 
+  const loadResearchGate = async () => {
+    try {
+      const records = await base44.entities.TechProgress.list('-updated_date', 500);
+      setHasDiplomaticDecree(records.some((r) => r.tech_id === REQUIRED_TECH && r.status === 'completed'));
+    } catch {
+      setHasDiplomaticDecree(false);
+    } finally {
+      setResearchLoading(false);
+    }
+  };
+
   useEffect(() => {
     load();
+    loadResearchGate();
   }, []);
 
   const handleCreate = async () => {
+    if (!hasDiplomaticDecree) {
+      return setMsg('Diplomatic Decree must be researched before founding an alliance.');
+    }
     if (!name.trim()) return setMsg('Enter an alliance name.');
     setBusy(true); setMsg('');
     try {
-      await base44.entities.Alliance.create({
+      await base44.functions.invoke('createAlliance', {
         alliance_name: name.trim(),
         description: desc.trim(),
-        founder_name: empire?.empire_name || user?.full_name || 'Overlord',
       });
       setName(''); setDesc('');
       setMsg('Alliance founded.');
@@ -77,13 +94,28 @@ export default function Alliance() {
         </p>
       </div>
 
-      <div className="glass-panel rounded-2xl p-4 flex items-center gap-2 mb-6 text-xs text-orange-500 font-bold">
-        <ShieldAlert className="w-3.5 h-3.5 shrink-0" />
-        <p>RESTRICTED — Alliance founding is currently limited to the Overlord. Player access coming soon.</p>
-      </div>
+      {researchLoading ? (
+        <div className="glass-panel rounded-2xl p-4 flex items-center justify-center mb-6">
+          <Loader2 className="w-4 h-4 text-cyan-300 animate-spin" />
+        </div>
+      ) : !hasDiplomaticDecree ? (
+        <div className="glass-panel rounded-2xl p-4 flex items-start gap-3 mb-6 text-xs text-orange-400 font-bold">
+          <LockKeyhole className="w-4 h-4 shrink-0 mt-0.5" />
+          <div>
+            <p>ALLIANCE FOUNDING LOCKED</p>
+            <p className="text-orange-300/70 font-normal mt-1">
+              Research <span className="font-bold text-orange-300">Diplomatic Decree</span> in the Research Nexus to establish the legal authority for formal alliances.
+            </p>
+          </div>
+        </div>
+      ) : (
+        <div className="glass-panel rounded-2xl p-4 flex items-center gap-2 mb-6 text-xs text-emerald-300 font-bold">
+          <Handshake className="w-3.5 h-3.5 shrink-0" />
+          <p>DIPLOMATIC DECREE ACTIVE — Your empire may now found alliances.</p>
+        </div>
+      )}
 
-      {/* Creation form — admin-only founding tool */}
-      {isAdmin && (
+      {hasDiplomaticDecree && (
       <div className="glass-panel rounded-2xl p-5 mb-8">
         <div className="flex items-center gap-2 mb-4">
           <Plus className="w-4 h-4 text-cyan-300" />
@@ -105,7 +137,6 @@ export default function Alliance() {
       </div>
       )}
 
-      {/* Existing alliances */}
       <h2 className="font-heading text-sm tracking-[0.3em] text-cyan-200/80 uppercase mb-4">Active Alliances</h2>
       {loading ? (
         <div className="flex items-center justify-center py-10">
