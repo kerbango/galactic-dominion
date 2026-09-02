@@ -4,7 +4,18 @@ import { unitClass } from '@/lib/unitClasses';
 import { isUnitUnlocked } from '@/data/units';
 import { getShipArt } from '@/data/shipArt';
 import ShipSilhouette, { SILHOUETTE_VARIANT } from './ShipSilhouette';
-import { Image } from '@/components/ui/image';
+const ShipImage = ({ src, alt, className }) => (
+  <img
+    src={src}
+    alt={alt}
+    className={className}
+    loading="eager"
+    decoding="async"
+    onError={(e) => {
+      e.currentTarget.style.display = 'none';
+    }}
+  />
+);
 
 // Mobile-only ship selector: prev/next arrows flanking a horizontal scroll
 // strip of ship thumbnails. Touch-friendly, keeps artwork large on phone.
@@ -44,7 +55,7 @@ export default function MobileShipSelector({ units, unitRecords, completedIds, s
                 <div className="h-8 flex items-center justify-center">
                   {unlocked ? (
                     (art?.thumbnail || art?.art)
-                      ? <Image src={art.thumbnail || art.art} fittingType="fit" className="w-full h-8" />
+                      ? <ShipImage src={art.thumbnail || art.art} alt={unit.name} className="w-full h-8 object-contain" />
                       : <ShipSilhouette variant={SILHOUETTE_VARIANT[unitClass(unit)] || 'medium'} className="w-full h-8" />
                   ) : <Lock className="w-3.5 h-3.5 text-slate-600 mx-auto" />}
                 </div>
