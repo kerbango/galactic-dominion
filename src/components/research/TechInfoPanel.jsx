@@ -66,6 +66,15 @@ export default function TechInfoPanel({ tech, statusMap, progress, speedBonus = 
       </div>
       <p className="text-[13px] leading-relaxed text-orange-400 font-body mt-3">{tech.description}</p>
 
+      {tech.id === 'tachyon_communications' && (
+        <div className="mt-3 rounded-md border border-orange-400/25 bg-orange-400/5 px-3 py-2">
+          <p className="text-[10px] font-mono uppercase tracking-widest text-orange-300">Comms Effect</p>
+          <p className="text-[11px] leading-relaxed text-orange-200/90 mt-1">
+            Increases the standard Comms transmission fee by <span className="font-bold text-orange-300">50%</span>: <span className="font-bold">50 → 75 VRIND</span> per message. This surcharge is overridden when Quantum Entanglement Command Matrix makes transmissions free.
+          </p>
+        </div>
+      )}
+
       <SectionTitle icon={<Coins className="w-3 h-3" />}>Research Cost</SectionTitle>
       <div className="grid grid-cols-2 gap-1.5 mt-2">
         {costEntries.map(([k, v]) => <div key={k} className="flex items-center justify-between rounded-md bg-[#02070d]/80 border border-slate-800/80 px-2.5 py-1.5"><span className="text-[10px] font-mono text-slate-500 uppercase">{RES_LABELS[k] || k}</span><span className="text-[11px] font-mono text-cyan-200">{Math.floor(v).toLocaleString()}</span></div>)}
