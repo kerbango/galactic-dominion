@@ -5,11 +5,14 @@ import { Radio, Loader2, Send, Megaphone, VolumeX, Ban as BanIcon, LockKeyhole }
 import MessageItem from '@/components/comms/MessageItem';
 
 const REQUIRED_TECH = 'sub_space_relays';
+const TACHYON_TECH = 'tachyon_communications';
 const FREE_TECH = 'quantum_entanglement_command_matrix';
 const MESSAGE_FEE = 50;
+const TACHYON_MESSAGE_FEE = 75;
 
 // Global comms channel. Access requires Sub-space Relays.
-// Before Quantum Entanglement Command Matrix, each transmission costs 50 VRIND.
+// Tachyon Communications increases each transmission from 50 to 75 VRIND.
+// Quantum Entanglement Command Matrix removes the transmission fee entirely.
 export default function Comms() {
   const [messages, setMessages] = useState([]);
   const [draft, setDraft] = useState('');
@@ -20,6 +23,7 @@ export default function Comms() {
   const [sending, setSending] = useState(false);
   const [hasEmpire, setHasEmpire] = useState(true);
   const [hasRelayTech, setHasRelayTech] = useState(false);
+  const [hasTachyonTech, setHasTachyonTech] = useState(false);
   const [hasQuantumTech, setHasQuantumTech] = useState(false);
   const [researchLoading, setResearchLoading] = useState(true);
   const [announce, setAnnounce] = useState(false);
@@ -47,6 +51,7 @@ export default function Comms() {
         );
         if (active) {
           setHasRelayTech(completed.has(REQUIRED_TECH));
+          setHasTachyonTech(completed.has(TACHYON_TECH));
           setHasQuantumTech(completed.has(FREE_TECH));
         }
 
@@ -155,7 +160,7 @@ export default function Comms() {
   const userMap = new Map(users.map((u) => [u.id, u]));
   const pinned = messages.filter((m) => m.pinned);
   const regular = messages.filter((m) => !m.pinned);
-  const fee = hasQuantumTech ? 0 : MESSAGE_FEE;
+  const fee = hasQuantumTech ? 0 : (hasTachyonTech ? TACHYON_MESSAGE_FEE : MESSAGE_FEE);
 
   return (
     <div className="max-w-3xl mx-auto px-4 md:px-8 py-8 flex flex-col h-[calc(100vh-160px)]">
@@ -219,7 +224,11 @@ export default function Comms() {
             </div>
             <div className="flex items-center justify-between text-[10px] font-mono uppercase tracking-widest px-1">
               <span className={fee > 0 ? 'text-orange-300/80' : 'text-emerald-300/80'}>
-                {fee > 0 ? `${MESSAGE_FEE} VRIND per transmission` : 'Transmission fees waived — Quantum Entanglement Command Matrix active'}
+                {fee === 0
+                  ? 'Transmission fees waived — Quantum Entanglement Command Matrix active'
+                  : hasTachyonTech
+                    ? `${fee} VRIND per transmission — Tachyon Communications +50%`
+                    : `${MESSAGE_FEE} VRIND per transmission`}
               </span>
               {msg && <span className="text-cyan-200/80 normal-case tracking-normal">{msg}</span>}
             </div>
