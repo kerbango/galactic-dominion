@@ -8,8 +8,10 @@ export const NODE_W = 210;
 export const SUPPORT_W = 176;
 export const NODE_H = 76;
 export const NODE_GAP_Y = 14;
-export const CATEGORY_W = 330;
-export const TIER_H = 112;
+export const CATEGORY_W = 380;
+export const TIER_H = 96;
+export const TIER_GAP = 18;
+export const ROW_CAPACITY = 2;
 export const PAD_LEFT = 34;
 export const PAD_TOP = 72;
 export const BAND_PAD = 24;
@@ -25,10 +27,25 @@ export function computeLayout(includeHidden = false) {
     ? [...CATEGORY_ORDER, ...Object.keys(byCat).filter((c) => !CATEGORY_ORDER.includes(c))]
     : CATEGORY_ORDER;
   const catBase = {};
-  categories.forEach((cat, index) => { catBase[cat] = PAD_TOP + index * CATEGORY_W; });
+  categories.forEach((cat, index) => { catBase[cat] = PAD_LEFT + index * CATEGORY_W; });
   const maxTier = Math.max(1, ...visibleTechs.map((t) => t.tier));
+  // Each tier row expands only as much as its busiest category needs. Nodes
+  // use a two-column grid inside each discipline, preventing wide branches
+  // (such as Empire Governance tier 4) from overlapping or escaping the lane.
+  const tierHeights = {};
+  for (let tier = 1; tier <= maxTier; tier++) {
+    const maxCount = Math.max(1, ...categories.map((cat) => (byCat[cat] || []).filter((t) => t.tier === tier).length));
+    const rows = Math.ceil(maxCount / ROW_CAPACITY);
+    tierHeights[tier] = Math.max(TIER_H, rows * NODE_H + Math.max(0, rows - 1) * NODE_GAP_Y + TIER_GAP * 2);
+  }
+  const tierTop = {};
+  let cursorY = PAD_TOP;
+  for (let tier = 1; tier <= maxTier; tier++) {
+    tierTop[tier] = cursorY;
+    cursorY += tierHeights[tier];
+  }
   const worldW = categories.length * CATEGORY_W + PAD_LEFT * 2;
-  const worldH = PAD_TOP + maxTier * TIER_H + PAD_TOP;
+  const worldH = cursorY + PAD_TOP;
   const pos = {};
   const stackIdx = {};
   for (const t of visibleTechs) {
@@ -38,18 +55,16 @@ export function computeLayout(includeHidden = false) {
     const primary = isPrimaryTech(t);
     const categoryIndex = Math.max(0, categories.indexOf(t.category));
     const tier = Math.max(1, t.tier);
-    // Multiple nodes at the same tier share the row without overlapping.
-    // Primary nodes are centered; supporting nodes fan slightly around them.
-    const rowCount = (byCat[t.category] || []).filter((x) => x.tier === t.tier).length;
-    const rowWidth = rowCount * SUPPORT_W + Math.max(0, rowCount - 1) * 10;
+    const rowCount = Math.ceil(((byCat[t.category] || []).filter((x) => x.tier === tier).length) / ROW_CAPACITY);
+    const row = Math.floor(i / ROW_CAPACITY);
+    const col = i % ROW_CAPACITY;
     const nodeWidth = primary ? NODE_W : SUPPORT_W;
-    const offsetX = Math.max(10, (CATEGORY_W - rowWidth) / 2);
-    pos[t.id] = {
-      x: PAD_LEFT + categoryIndex * CATEGORY_W + offsetX + i * (SUPPORT_W + 10) + (rowCount === 1 ? (SUPPORT_W - nodeWidth) / 2 : 0),
-      y: PAD_TOP + (tier - 1) * TIER_H + (TIER_H - NODE_H) / 2,
-      w: nodeWidth,
-      h: NODE_H,
-    };
+    const cellW = (CATEGORY_W - 30) / ROW_CAPACITY;
+    const cellLeft = PAD_LEFT + categoryIndex * CATEGORY_W + 15 + col * cellW;
+    const x = cellLeft + (cellW - nodeWidth) / 2;
+    const contentH = rowCount * NODE_H + Math.max(0, rowCount - 1) * NODE_GAP_Y;
+    const y = tierTop[tier] + (tierHeights[tier] - contentH) / 2 + row * (NODE_H + NODE_GAP_Y);
+    pos[t.id] = { x, y, w: nodeWidth, h: NODE_H };
   }
   _layout = { pos, worldW, worldH, catBase, includeHidden };
   return _layout;
