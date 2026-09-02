@@ -70,7 +70,7 @@ export default function TechInfoPanel({ tech, statusMap, progress, speedBonus = 
         <div className="mt-3 rounded-md border border-orange-400/25 bg-orange-400/5 px-3 py-2">
           <p className="text-[10px] font-mono uppercase tracking-widest text-orange-300">Comms Effect</p>
           <p className="text-[11px] leading-relaxed text-orange-200/90 mt-1">
-            Increases the standard Comms transmission fee by <span className="font-bold text-orange-300">50%</span>: <span className="font-bold">50 → 75 VRIND</span> per message. This surcharge is overridden when Quantum Entanglement Command Matrix makes transmissions free.
+            Reduces the standard Comms transmission fee from <span className="font-bold text-orange-300">50 VRIND</span> to <span className="font-bold text-emerald-300">25 VRIND</span> per message. Quantum Entanglement Command Matrix later removes the transmission fee entirely.
           </p>
         </div>
       )}
