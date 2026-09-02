@@ -100,7 +100,14 @@ export default function TechCanvas({ statusMap, edges, layout, selectedId, onSel
     if (pointers.current.size < 2) pinch.current = null;
     if (pointers.current.size === 0) drag.current = null;
   };
-  const reset = () => { setZoom(0.85); setPan({ x: 24, y: 16 }); };
+  const fitToScreen = () => {
+    const rect = containerRef.current?.getBoundingClientRect();
+    if (!rect || !worldW || !worldH) return;
+    const nz = Math.max(0.2, Math.min(1.15, Math.min((rect.width - 28) / worldW, (rect.height - 28) / worldH)));
+    setZoom(nz);
+    setPan({ x: Math.max(14, (rect.width - worldW * nz) / 2), y: Math.max(14, (rect.height - worldH * nz) / 2) });
+  };
+  const reset = () => fitToScreen();
   const centerSelected = () => {
     if (!selectedId || !pos[selectedId]) return;
     const p = pos[selectedId];
@@ -126,7 +133,7 @@ export default function TechCanvas({ statusMap, edges, layout, selectedId, onSel
   })), []);
 
   return (
-    <div className="relative w-full" style={{ height: 'min(78vh, 760px)' }}>
+    <div className="relative w-full" style={{ height: 'min(82vh, 900px)' }}>
       <div ref={containerRef} className="relative w-full h-full overflow-hidden touch-none select-none cursor-grab active:cursor-grabbing" onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={endDrag} onPointerLeave={endDrag}>
         <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_50%_45%,rgba(8,47,73,0.3),transparent_55%)]" />
         <div className="absolute origin-top-left" style={{ transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`, width: worldW, height: worldH }}>
@@ -205,7 +212,7 @@ export default function TechCanvas({ statusMap, edges, layout, selectedId, onSel
         <button onClick={() => zoomCenter(1.3)} className="w-9 h-9 rounded-md border border-cyan-400/20 bg-[#06111d]/90 flex items-center justify-center text-cyan-200 hover:text-white hover:border-cyan-300/50 transition-colors" title="Zoom in"><ZoomIn className="w-4 h-4" /></button>
         <button onClick={() => zoomCenter(1 / 1.3)} className="w-9 h-9 rounded-md border border-cyan-400/20 bg-[#06111d]/90 flex items-center justify-center text-cyan-200 hover:text-white transition-colors" title="Zoom out"><ZoomOut className="w-4 h-4" /></button>
         <button onClick={centerSelected} disabled={!selectedId} className="w-9 h-9 rounded-md border border-cyan-400/20 bg-[#06111d]/90 flex items-center justify-center text-cyan-200 hover:text-white disabled:opacity-30 transition-colors" title="Center on selected"><Crosshair className="w-4 h-4" /></button>
-        <button onClick={reset} className="w-9 h-9 rounded-md border border-cyan-400/20 bg-[#06111d]/90 flex items-center justify-center text-cyan-200 hover:text-white transition-colors" title="Reset view"><Maximize className="w-4 h-4" /></button>
+        <button onClick={fitToScreen} className="w-9 h-9 rounded-md border border-cyan-400/20 bg-[#06111d]/90 flex items-center justify-center text-cyan-200 hover:text-white transition-colors" title="Fit entire technology tree"><Maximize className="w-4 h-4" /></button>
       </div>
 
       <div className="absolute left-3 bottom-3 flex items-center gap-2 rounded-md border border-cyan-400/15 bg-[#06111d]/90 px-2.5 py-1.5 text-[9px] font-mono uppercase tracking-widest text-slate-400">
