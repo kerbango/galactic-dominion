@@ -26,7 +26,7 @@ export default function TechCanvas({ statusMap, edges, layout, selectedId, onSel
   const pinch = useRef(null);
   const zoomRef = useRef(zoom); zoomRef.current = zoom;
   const panRef = useRef(pan); panRef.current = pan;
-  const { pos, worldW, worldH } = layout;
+  const { pos, worldW, worldH, categories = CATEGORY_ORDER } = layout;
 
   useEffect(() => {
     const el = containerRef.current;
@@ -126,11 +126,16 @@ export default function TechCanvas({ statusMap, edges, layout, selectedId, onSel
     return p.x + p.w + pad >= viewLeft && p.x - pad <= viewLeft + viewW && p.y + p.h + pad >= viewTop && p.y - pad <= viewTop + viewH;
   }), [pos, visibleIds, viewLeft, viewTop, viewW, viewH]);
 
-  const categoryBands = useMemo(() => CATEGORY_ORDER.map((category, index) => ({
+  const categoryBands = useMemo(() => categories.map((category, index) => ({
     category,
     index,
-    count: TECH_TREE.filter((t) => t.category === category && !t.hidden).length,
-  })), []);
+    count: TECH_TREE.filter((t) => t.category === category && (!t.hidden || categories.length > CATEGORY_ORDER.length)).length,
+  })), [categories]);
+
+  useEffect(() => {
+    if (size.w > 0 && size.h > 0) fitToScreen();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [worldW, worldH]);
 
   return (
     <div className="relative w-full" style={{ height: 'min(82vh, 900px)' }}>
