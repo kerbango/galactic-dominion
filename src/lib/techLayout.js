@@ -62,7 +62,6 @@ export function computeLayout(includeHidden = false) {
     const cols = Math.min(ROW_CAPACITY, tierCount);
     const cellW = (CATEGORY_W - 24) / cols;
     const nodeWidth = tierCount >= 3 ? Math.min(primary ? 116 : 104, cellW - 6) : tierCount === 2 ? Math.min(primary ? 158 : 142, cellW - 6) : Math.min(primary ? NODE_W : SUPPORT_W, cellW - 6);
-    const rowWidth = cols * cellW;
     const cellLeft = PAD_LEFT + categoryIndex * CATEGORY_W + 12 + col * cellW;
     const x = cellLeft + (cellW - nodeWidth) / 2;
     const contentH = rowCount * NODE_H + Math.max(0, rowCount - 1) * NODE_GAP_Y;
