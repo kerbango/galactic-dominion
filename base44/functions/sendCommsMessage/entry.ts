@@ -3,7 +3,7 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
 const REQUIRED_TECH = 'sub_space_relays';
 const TACHYON_TECH = 'tachyon_communications';
 const FREE_TECH = 'quantum_entanglement_command_matrix';
-const MESSAGE_FEE = 50;
+const MESSAGE_FEE = 25;
 const TACHYON_FEE_MULTIPLIER = 1.5;
 
 export default async function(req) {
@@ -36,7 +36,7 @@ export default async function(req) {
       }, { status: 403 });
     }
 
-    // Tachyon Communications increases the normal 50 VRIND transmission fee by 50%.
+    // Base transmission fee is 25 VRIND. Tachyon Communications adds 50% (37.5 VRIND).
     // Quantum Entanglement Command Matrix overrides all transmission fees to zero.
     const feeWaived = researched.has(FREE_TECH);
     const tachyonActive = researched.has(TACHYON_TECH);
