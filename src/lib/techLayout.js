@@ -72,7 +72,7 @@ export function computeLayout(includeHidden = false) {
     const y = tierTop[tier] + (tierHeights[tier] - contentH) / 2 + row * (NODE_H + NODE_GAP_Y);
     pos[t.id] = { x, y, w: nodeWidth, h: NODE_H };
   }
-  _layout = { pos, worldW, worldH, catBase, includeHidden };
+  _layout = { pos, worldW, worldH, catBase, categories, includeHidden };
   return _layout;
 }
 
