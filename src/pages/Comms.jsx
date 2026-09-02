@@ -7,12 +7,13 @@ import MessageItem from '@/components/comms/MessageItem';
 const REQUIRED_TECH = 'sub_space_relays';
 const TACHYON_TECH = 'tachyon_communications';
 const FREE_TECH = 'quantum_entanglement_command_matrix';
-const MESSAGE_FEE = 25;
-const TACHYON_MESSAGE_FEE = 38;
+const MESSAGE_FEE = 50;
+const TACHYON_MESSAGE_FEE = 25;
 
 // Global comms channel. Access requires Sub-space Relays.
-// Base transmission fee is 25 VRIND; Tachyon Communications increases it by 50% to 38 VRIND.
-// Quantum Entanglement Command Matrix removes the transmission fee entirely.
+// Sub-space Relays: 50 VRIND per transmission.
+// Tachyon Communications: reduces the fee to 25 VRIND.
+// Quantum Entanglement Command Matrix: removes the transmission fee entirely.
 export default function Comms() {
   const [messages, setMessages] = useState([]);
   const [draft, setDraft] = useState('');
@@ -227,7 +228,7 @@ export default function Comms() {
                 {fee === 0
                   ? 'Transmission fees waived — Quantum Entanglement Command Matrix active'
                   : hasTachyonTech
-                    ? `${fee} VRIND per transmission — Tachyon Communications +50%`
+                    ? `${fee} VRIND per transmission — Tachyon Communications reduces cost`
                     : `${MESSAGE_FEE} VRIND per transmission`}
               </span>
               {msg && <span className="text-cyan-200/80 normal-case tracking-normal">{msg}</span>}
