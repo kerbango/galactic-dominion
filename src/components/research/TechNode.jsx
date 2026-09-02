@@ -55,6 +55,8 @@ export default function TechNode({ tech, state, position, selected, onClick }) {
   const primary = isPrimaryTech(tech);
   const cat = CATEGORIES[tech.category];
   const iconName = tech.icon || cat?.icon || 'Cpu';
+  const compact = position.w < 125;
+  const narrow = position.w < 150;
   const dotCount = primary ? 8 : 6;
 
   const renderPins = (edgeClass) => (
@@ -74,21 +76,22 @@ export default function TechNode({ tech, state, position, selected, onClick }) {
       <div className="absolute inset-y-1 left-0 w-px bg-white/10" />
       {renderPins('top-0 -translate-y-1/2')}
       {renderPins('bottom-0 translate-y-1/2')}
-      <div className="flex items-center gap-2 h-full min-w-0">
-        <div className={`w-8 h-8 shrink-0 rounded-md border border-white/10 bg-black/20 flex items-center justify-center ${s.icon}`}>
-          <TechIcon name={iconName} className="w-4.5 h-4.5" />
+      <div className={`flex items-center ${compact ? 'gap-1' : 'gap-2'} h-full min-w-0`}>
+        <div className={`${compact ? 'w-6 h-6' : narrow ? 'w-7 h-7' : 'w-8 h-8'} shrink-0 rounded-md border border-white/10 bg-black/20 flex items-center justify-center ${s.icon}`}>
+          <TechIcon name={iconName} className={compact ? 'w-3.5 h-3.5' : 'w-4.5 h-4.5'} />
         </div>
         <div className="min-w-0 flex-1 h-full flex flex-col justify-center">
-          <div className="flex items-center gap-1.5 min-w-0">
+          {!compact && <div className="flex items-center gap-1.5 min-w-0">
             <span className="font-mono text-[8px] uppercase tracking-[0.16em] text-slate-500">T{tech.tier}</span>
             {primary && <span className="font-mono text-[8px] text-amber-300">★ PRIMARY</span>}
             <UnlockBadges tags={tech.unlockTags} />
-          </div>
-          <p className={`font-heading ${primary ? 'text-[12px]' : 'text-[10px]'} tracking-wide ${s.text} uppercase leading-tight line-clamp-2`}>{tech.name}</p>
+          </div>}
+          {compact && <span className="font-mono text-[7px] uppercase tracking-[0.12em] text-slate-500">T{tech.tier}</span>}
+          <p className={`font-heading ${primary ? (compact ? 'text-[9px]' : 'text-[12px]') : (compact ? 'text-[8px]' : 'text-[10px]')} tracking-wide ${s.text} uppercase leading-tight line-clamp-2`}>{tech.name}</p>
         </div>
         <div className="shrink-0 text-right flex flex-col items-end gap-0.5">
-          {state === 'locked' ? <span className="text-[10px] text-slate-600">🔒</span> : <span className={`text-[8px] font-mono uppercase tracking-widest ${s.labelColor}`}>{state === 'researched' ? '✓' : state === 'researching' ? '◉' : '◆'}</span>}
-          <span className={`text-[8px] font-mono uppercase tracking-widest ${s.labelColor} whitespace-nowrap`}>{state === 'researched' ? 'COMPLETE' : state === 'researching' ? 'ACTIVE' : state === 'available' ? `${tech.researchTurns || 1} TURNS` : `${tech.researchTurns || 1} TURNS`}</span>
+          {state === 'locked' ? <span className="text-[10px] text-slate-600">🔒</span> : <span className={`${compact ? 'text-[7px]' : 'text-[8px]'} font-mono uppercase tracking-widest ${s.labelColor}`}>{state === 'researched' ? '✓' : state === 'researching' ? '◉' : '◆'}</span>}
+          {!compact && <span className="text-[8px] font-mono uppercase tracking-widest whitespace-nowrap text-slate-500">{state === 'researched' ? 'COMPLETE' : `${tech.researchTurns || 1} TURNS`}</span>}
         </div>
       </div>
     </button>
