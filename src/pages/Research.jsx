@@ -12,6 +12,7 @@ import { Loader2, Microscope } from 'lucide-react';
 import { BASE_TURN_SECONDS } from '@/data/techTree';
 import { formatDuration } from '@/lib/galaxy';
 import { toastSuccess } from '@/lib/toasts';
+import { RESEARCH_TEST_MODE } from '../../base44/shared/testMode';
 
 // Research Nexus — data-driven technology tree. This page intentionally keeps
 // the existing research state, prerequisites, unlocks, and server actions
@@ -46,7 +47,9 @@ export default function Research() {
 
   const statusMap = useMemo(() => (progress ? deriveStatuses(progress) : {}), [progress]);
   const completedIds = useMemo(
-    () => new Set(Object.entries(progress || {}).filter(([, r]) => r?.status === 'completed').map(([id]) => id)),
+    () => RESEARCH_TEST_MODE
+      ? new Set(TECH_TREE.map((t) => t.id))
+      : new Set(Object.entries(progress || {}).filter(([, r]) => r?.status === 'completed').map(([id]) => id)),
     [progress]
   );
   const blacklistedUnlocked = useMemo(
