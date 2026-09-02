@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useEmpire } from '@/lib/EmpireContext';
 import { useCycleRefresh } from '@/hooks/useCycleRefresh';
+import ParallelResearchUpgrade from '@/components/upgrades/ParallelResearchUpgrade';
 import ResearchSpeedUpgrade from '@/components/upgrades/ResearchSpeedUpgrade';
 import ResearchPointsProduction from '@/components/upgrades/ResearchPointsProduction';
 import EmpireUpgradeCard from '@/components/upgrades/EmpireUpgradeCard';
@@ -74,6 +75,7 @@ export default function Upgrades() {
         <BonusDashboard completedIds={completedIds} />
 
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 mb-6">
+          <ParallelResearchUpgrade />
           {EMPIRE_UPGRADES.map((upgrade) => (
             <EmpireUpgradeCard
               key={upgrade.id}
