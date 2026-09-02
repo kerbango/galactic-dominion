@@ -6,7 +6,7 @@
 const SHIP_ART = {
   light_scout: { art: 'https://media.base44.com/images/public/6a8dedaa90af486a558f758e/a2b4325eb_ChatGPTImageSep1202608_49_22PM.png' },
   medium_scout: { art: 'https://media.base44.com/images/public/6a8dedaa90af486a558f758e/34fc84737_ChatGPTImageSep1202608_50_27PM.png' },
-  heavy_scout: { art: 'https://media.base44.com/images/public/6a8dedaa90af486a558f758e/c4aa71c97_heavyscout.png' },
+  heavy_scout: { art: 'https://media.base44.com/images/public/6a8dedaa90af486a558f758e/d747b3696_ChatGPTImageSep1202608_51_33PM.png' },
   phase_scout: { art: 'https://media.base44.com/images/public/6a8dedaa90af486a558f758e/70f1e681a_ChatGPTImageAug31202609_06_09AM.png' },
 };
 
