@@ -5,7 +5,6 @@ import { isUnitUnlocked } from '@/data/units';
 import { getShipArt } from '@/data/shipArt';
 import { SILHOUETTE_VARIANT } from './ShipSilhouette';
 import ShipSilhouette from './ShipSilhouette';
-import { Image } from '@/components/ui/image';
 
 const STATUS = {
   locked: { led: 'led-dim', label: 'Locked', text: 'text-slate-500' },
