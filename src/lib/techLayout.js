@@ -1,4 +1,5 @@
 import { TECH_TREE, CATEGORY_ORDER, normalizePrereqs, isPrimaryTech } from "@/data/techTree";
+import { RESEARCH_TEST_MODE } from "../../base44/shared/testMode";
 
 export const NODE_W = 210;
 export const SUPPORT_W = 176;
@@ -78,6 +79,9 @@ export function getDescendants(id, set = new Set()) {
 }
 
 export function deriveStatuses(progressMap) {
+  if (RESEARCH_TEST_MODE) {
+    return Object.fromEntries(TECH_TREE.map((t) => [t.id, "completed"]));
+  }
   const status = {};
   const visiting = new Set();
   const resolve = (techId) => {
