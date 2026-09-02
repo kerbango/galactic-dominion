@@ -2,7 +2,7 @@ import React, { useRef, useState, useEffect, useMemo } from 'react';
 import { ZoomIn, ZoomOut, Maximize, Crosshair, Move } from 'lucide-react';
 import TechNode from './TechNode';
 import { TECH_TREE, CATEGORY_ORDER } from '@/data/techTree';
-import { getTechnologyState, getConnectionState } from '@/lib/techLayout';
+import { getTechnologyState, getConnectionState, CATEGORY_W, PAD_LEFT } from '@/lib/techLayout';
 
 const LINE_COLORS = {
   completed: 'rgba(34,197,94,0.95)',
@@ -141,7 +141,7 @@ export default function TechCanvas({ statusMap, edges, layout, selectedId, onSel
               key={category}
               data-canvas-bg="1"
               className="absolute pointer-events-none rounded-xl border border-cyan-400/10 bg-cyan-950/[0.035]"
-              style={{ left: 10 + index * 330, top: 58, width: 310, height: worldH - 82 }}
+              style={{ left: PAD_LEFT + index * CATEGORY_W + 10, top: 58, width: CATEGORY_W - 20, height: worldH - 82 }}
             >
               <div className="absolute left-3 right-3 top-3 flex items-center gap-2 border-b border-cyan-400/15 pb-2">
                 <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-cyan-300/80">{category}</span>
@@ -151,7 +151,7 @@ export default function TechCanvas({ statusMap, edges, layout, selectedId, onSel
           ))}
           <div data-canvas-bg="1" className="absolute left-0 right-0 top-0 flex pointer-events-none" style={{ height: 58 }}>
             {categoryBands.map(({ category, index }) => (
-              <div key={category} className="font-mono text-[8px] uppercase tracking-[0.2em] text-slate-600" style={{ width: 330, paddingLeft: 22, paddingTop: 18 }}>DISCIPLINE {String(index + 1).padStart(2, '0')}</div>
+              <div key={category} className="font-mono text-[8px] uppercase tracking-[0.2em] text-slate-600" style={{ width: CATEGORY_W, paddingLeft: 22, paddingTop: 18 }}>DISCIPLINE {String(index + 1).padStart(2, '0')}</div>
             ))}
           </div>
           <svg className="absolute inset-0 pointer-events-none" width={worldW} height={worldH} style={{ overflow: 'visible', zIndex: 1 }}>
@@ -168,17 +168,16 @@ export default function TechCanvas({ statusMap, edges, layout, selectedId, onSel
               const fs = getTechnologyState(TECH_TREE.find((t) => t.id === ed.from) || { id: ed.from }, statusMap);
               const ts = getTechnologyState(TECH_TREE.find((t) => t.id === ed.to) || { id: ed.to }, statusMap);
               const cs = getConnectionState(fs, ts);
-              const x1 = from.x + from.w;
-              const y1 = from.y + from.h / 2;
-              const x2 = to.x;
-              const y2 = to.y + to.h / 2;
-              const sameColumn = Math.abs(x2 - x1) < 8;
-              const midY = y1 + (y2 - y1) / 2;
-              const gap = Math.max(28, Math.abs(x2 - x1) / 2);
-              const midX = x1 + (x2 >= x1 ? gap : -gap);
+              const sameColumn = Math.abs((from.x + from.w / 2) - (to.x + to.w / 2)) < CATEGORY_W * 0.35;
+              const x1 = from.x + from.w / 2;
+              const y1 = from.y + from.h;
+              const x2 = to.x + to.w / 2;
+              const y2 = to.y;
+              const midY = y1 + Math.max(18, (y2 - y1) / 2);
               const d = sameColumn
-                ? `M ${x1} ${y1} C ${x1 + 22} ${y1 + 20}, ${x2 + 22} ${y2 - 20}, ${x2} ${y2}`
-                : `M ${x1} ${y1} L ${midX} ${y1} L ${midX} ${y2} L ${x2} ${y2}`;
+                ? `M ${x1} ${y1} C ${x1} ${midY}, ${x2} ${midY}, ${x2} ${y2}`
+                : `M ${x1} ${y1} L ${x1} ${y1 + 18} L ${x2} ${y1 + 18} L ${x2} ${y2}`;
+              const midX = (x1 + x2) / 2;
               const flow = cs === 'completed' || cs === 'active';
               const isSel = selectedId && (ed.from === selectedId || ed.to === selectedId);
               const stroke = isSel ? 'rgba(165,243,252,1)' : LINE_COLORS[cs];
