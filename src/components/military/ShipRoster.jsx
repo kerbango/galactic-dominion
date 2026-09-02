@@ -15,6 +15,19 @@ const STATUS = {
 
 const CLASS_ORDER = ['Scouts','Explorers','Frigates','Destroyers','Cruisers','Carriers','Capital','Support','Transport','Ground Forces','Defense'];
 
+const ShipImage = ({ src, alt, className }) => (
+  <img
+    src={src}
+    alt={alt}
+    className={className}
+    loading="eager"
+    decoding="async"
+    onError={(e) => {
+      e.currentTarget.style.display = 'none';
+    }}
+  />
+);
+
 // Left rail: ships grouped by class with thumbnail, name, status LED and
 // owned count. Strong tactical selection state. Desktop only (mobile uses
 // MobileShipSelector).
@@ -56,7 +69,7 @@ export default function ShipRoster({ units, unitRecords, completedIds, selectedI
                     <span className="shrink-0 w-10 h-6 flex items-center justify-center">
                       {unlocked ? (
                         (art?.thumbnail || art?.art)
-                          ? <Image src={art.thumbnail || art.art} fittingType="fit" className="w-10 h-6" />
+                          ? <ShipImage src={art.thumbnail || art.art} alt={unit.name} className="w-10 h-6 object-contain" />
                           : <ShipSilhouette variant={SILHOUETTE_VARIANT[unitClass(unit)] || 'medium'} className="w-10 h-6" />
                       ) : <Lock className="w-3.5 h-3.5 text-slate-600" />}
                     </span>
