@@ -7,11 +7,11 @@ import MessageItem from '@/components/comms/MessageItem';
 const REQUIRED_TECH = 'sub_space_relays';
 const TACHYON_TECH = 'tachyon_communications';
 const FREE_TECH = 'quantum_entanglement_command_matrix';
-const MESSAGE_FEE = 50;
-const TACHYON_MESSAGE_FEE = 75;
+const MESSAGE_FEE = 25;
+const TACHYON_MESSAGE_FEE = 38;
 
 // Global comms channel. Access requires Sub-space Relays.
-// Tachyon Communications increases each transmission from 50 to 75 VRIND.
+// Base transmission fee is 25 VRIND; Tachyon Communications increases it by 50% to 38 VRIND.
 // Quantum Entanglement Command Matrix removes the transmission fee entirely.
 export default function Comms() {
   const [messages, setMessages] = useState([]);
