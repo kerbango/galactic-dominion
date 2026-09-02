@@ -4,14 +4,14 @@ import { RESEARCH_TEST_MODE } from "../../base44/shared/testMode";
 // Strategic research map: categories are columns and research tiers progress
 // downward. This keeps each discipline visually self-contained while making
 // the full tree readable without the previous giant stacked category wall.
-export const NODE_W = 210;
+export const NODE_W = 190;
 export const SUPPORT_W = 176;
 export const NODE_H = 76;
-export const NODE_GAP_Y = 14;
-export const CATEGORY_W = 380;
-export const TIER_H = 96;
-export const TIER_GAP = 18;
-export const ROW_CAPACITY = 2;
+export const NODE_GAP_Y = 12;
+export const CATEGORY_W = 320;
+export const TIER_H = 108;
+export const TIER_GAP = 14;
+export const ROW_CAPACITY = 3;
 export const PAD_LEFT = 34;
 export const PAD_TOP = 72;
 export const BAND_PAD = 24;
@@ -29,9 +29,9 @@ export function computeLayout(includeHidden = false) {
   const catBase = {};
   categories.forEach((cat, index) => { catBase[cat] = PAD_LEFT + index * CATEGORY_W; });
   const maxTier = Math.max(1, ...visibleTechs.map((t) => t.tier));
-  // Each tier row expands only as much as its busiest category needs. Nodes
-  // use a two-column grid inside each discipline, preventing wide branches
-  // (such as Empire Governance tier 4) from overlapping or escaping the lane.
+  // Each tier is a horizontal band. A discipline gets up to three cards per
+  // row, with compact cards when a branch has three siblings. This mirrors the
+  // reference layout while guaranteeing cards never overlap one another.
   const tierHeights = {};
   for (let tier = 1; tier <= maxTier; tier++) {
     const maxCount = Math.max(1, ...categories.map((cat) => (byCat[cat] || []).filter((t) => t.tier === tier).length));
@@ -55,12 +55,15 @@ export function computeLayout(includeHidden = false) {
     const primary = isPrimaryTech(t);
     const categoryIndex = Math.max(0, categories.indexOf(t.category));
     const tier = Math.max(1, t.tier);
-    const rowCount = Math.ceil(((byCat[t.category] || []).filter((x) => x.tier === tier).length) / ROW_CAPACITY);
+    const tierCount = (byCat[t.category] || []).filter((x) => x.tier === tier).length;
+    const rowCount = Math.ceil(tierCount / ROW_CAPACITY);
     const row = Math.floor(i / ROW_CAPACITY);
     const col = i % ROW_CAPACITY;
-    const nodeWidth = primary ? NODE_W : SUPPORT_W;
-    const cellW = (CATEGORY_W - 30) / ROW_CAPACITY;
-    const cellLeft = PAD_LEFT + categoryIndex * CATEGORY_W + 15 + col * cellW;
+    const cols = Math.min(ROW_CAPACITY, tierCount);
+    const cellW = (CATEGORY_W - 24) / cols;
+    const nodeWidth = tierCount >= 3 ? Math.min(primary ? 116 : 104, cellW - 6) : tierCount === 2 ? Math.min(primary ? 158 : 142, cellW - 6) : Math.min(primary ? NODE_W : SUPPORT_W, cellW - 6);
+    const rowWidth = cols * cellW;
+    const cellLeft = PAD_LEFT + categoryIndex * CATEGORY_W + 12 + col * cellW;
     const x = cellLeft + (cellW - nodeWidth) / 2;
     const contentH = rowCount * NODE_H + Math.max(0, rowCount - 1) * NODE_GAP_Y;
     const y = tierTop[tier] + (tierHeights[tier] - contentH) / 2 + row * (NODE_H + NODE_GAP_Y);
