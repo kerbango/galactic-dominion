@@ -3,6 +3,7 @@ import { Lock, Crosshair, FileSpreadsheet, Eye, Layers3 } from 'lucide-react';
 import { unitClass, unitClassLabel, unitRole } from '@/lib/unitClasses';
 import { getShipArt } from '@/data/shipArt';
 import ShipSilhouette, { SILHOUETTE_VARIANT } from './ShipSilhouette';
+import { Image } from '@/components/ui/image';
 
 // Military ship inspection panel. Ship artwork is loaded directly from the
 // registered Base44 CDN URLs so the game does not depend on image transforms.
@@ -42,9 +43,9 @@ export default function ShipVisualization({ unit, unlocked, className = '' }) {
         <div className="absolute inset-0 flex items-center justify-center p-10 pb-20">
           {unlocked ? (
             showSchematic && art?.schematic ? (
-              <img src={art.schematic} alt={`${unit.name} technical blueprint`} className="object-contain w-full max-w-[560px] max-h-[340px]" loading="eager" />
+              <Image src={art.schematic} fittingType="fit" alt={`${unit.name} technical blueprint`} className="w-full max-w-[560px] h-[340px]" loading="eager" />
             ) : displayArt ? (
-              <img src={displayArt} alt={`${unit.name}${activeVariant ? ` ${activeVariant.label}` : ''}`} className={imageClass} loading="eager" />
+              <Image src={displayArt} fittingType="fit" alt={`${unit.name}${activeVariant ? ` ${activeVariant.label}` : ''}`} className={imageClass} loading="eager" />
             ) : (
               <ShipSilhouette variant={fallbackVariant} wireframe={showSchematic} className="w-full max-w-[440px] animate-float-slow" />
             )
@@ -60,12 +61,12 @@ export default function ShipVisualization({ unit, unlocked, className = '' }) {
           <div className="absolute bottom-3 left-3 right-3 z-20 flex items-end gap-2 pointer-events-auto">
             {art?.thumbnail && (
               <button type="button" title="Base hull" onClick={() => setSelectedVariant(null)} className={`shrink-0 w-16 h-12 rounded-md border bg-slate-950/90 p-1 transition ${!activeVariant ? 'border-cyan-300/80 ring-1 ring-cyan-400/30' : 'border-cyan-400/20 hover:border-cyan-300/50'}`}>
-                <img src={art.thumbnail} alt="Base hull" className="w-full h-full object-contain" loading="eager" />
+                <Image src={art.thumbnail} fittingType="fit" alt="Base hull" className="w-full h-full" loading="eager" />
               </button>
             )}
             {variants.map((v) => (
               <button key={v.id} type="button" title={v.label} onClick={() => setSelectedVariant(v.id)} className={`shrink-0 w-16 h-12 rounded-md border bg-slate-950/90 p-1 transition ${activeVariant?.id === v.id ? 'border-cyan-300/80 ring-1 ring-cyan-400/30' : 'border-cyan-400/20 hover:border-cyan-300/50'}`}>
-                <img src={v.art} alt={v.label} className="w-full h-full object-contain" loading="eager" />
+                <Image src={v.art} fittingType="fit" alt={v.label} className="w-full h-full" loading="eager" />
               </button>
             ))}
             {variants.length > 0 && <div className="ml-auto hidden sm:flex items-center gap-1 rounded-md border border-cyan-400/15 bg-slate-950/80 px-2 py-1 text-[8px] font-mono uppercase tracking-widest text-cyan-200/55"><Layers3 className="w-3 h-3" /> {variants.length} variants</div>}
