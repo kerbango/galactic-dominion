@@ -83,8 +83,12 @@ export function computeLayout(includeHidden = false) {
   const laneHeight = {};
   let yCursor = PAD_TOP;
   for (const category of categories) {
-    const count = visibleTechs.filter((t) => t.category === category).length;
-    const height = Math.max(120, Math.min(760, count * (NODE_H + NODE_GAP_Y) + 54));
+    const tierCounts = [];
+    for (let tier = minTier; tier <= maxTier; tier++) {
+      tierCounts.push(visibleTechs.filter((t) => t.category === category && t.tier === tier).length);
+    }
+    const busiestTier = Math.max(1, ...tierCounts);
+    const height = Math.max(142, Math.min(760, busiestTier * (NODE_H + NODE_GAP_Y) + 76));
     laneBase[category] = yCursor;
     laneHeight[category] = height;
     yCursor += height;
