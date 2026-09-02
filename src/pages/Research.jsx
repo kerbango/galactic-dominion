@@ -130,6 +130,7 @@ export default function Research() {
             <div className="hidden md:flex items-center gap-5 text-right">
               <div><p className="text-[9px] font-mono uppercase tracking-widest text-slate-500">Research Points</p><p className="font-mono text-sm text-cyan-200">{Math.floor(empire?.research_points || 0).toLocaleString()}</p></div>
               <div><p className="text-[9px] font-mono uppercase tracking-widest text-slate-500">Research Speed</p><p className="font-mono text-sm text-emerald-300">+{Math.round(speedBonus * 100)}%</p></div>
+              <div><p className="text-[9px] font-mono uppercase tracking-widest text-slate-500">Research Slots</p><p className="font-mono text-sm text-amber-300">{Math.min(2, Math.max(1, empire?.parallel_research_level >= 1 ? 2 : 1))}</p></div>
             </div>
           </div>
         </header>
