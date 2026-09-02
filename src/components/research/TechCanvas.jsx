@@ -12,6 +12,14 @@ const LINE_COLORS = {
 };
 const LINE_WIDTH = { completed: 2.6, active: 2.6, dormant: 1.9, inactive: 1.5 };
 const ARROW_FOR = { completed: 'url(#cwArrowGreen)', active: 'url(#cwArrowCyan)', dormant: 'url(#cwArrowGrey)', inactive: '' };
+const CATEGORY_THEME = {
+  'Defense': ['rgba(248,113,113,0.30)', 'rgba(127,29,29,0.07)', 'rgba(248,113,113,0.12)'],
+  'Economy and Resources': ['rgba(250,204,21,0.30)', 'rgba(113,63,18,0.07)', 'rgba(250,204,21,0.10)'],
+  'Fleet Research': ['rgba(34,211,238,0.30)', 'rgba(8,47,73,0.08)', 'rgba(34,211,238,0.10)'],
+  'Exploration': ['rgba(192,132,252,0.30)', 'rgba(88,28,135,0.07)', 'rgba(192,132,252,0.10)'],
+  'Empire Governance': ['rgba(74,222,128,0.30)', 'rgba(20,83,45,0.07)', 'rgba(74,222,128,0.10)'],
+  'Blacklisted Alien Technology': ['rgba(244,63,94,0.42)', 'rgba(127,29,29,0.12)', 'rgba(244,63,94,0.16)'],
+};
 
 // Pannable / zoomable graph surface. Research behavior and edge logic are
 // unchanged; connectors are rendered as a dedicated network layer so every
@@ -152,12 +160,20 @@ export default function TechCanvas({ statusMap, edges, layout, selectedId, onSel
             <div
               key={category}
               data-canvas-bg="1"
-              className="absolute pointer-events-none rounded-xl border border-cyan-400/10 bg-cyan-950/[0.035]"
-              style={{ left: PAD_LEFT + index * CATEGORY_W + 10, top: 58, width: CATEGORY_W - 20, height: worldH - 82 }}
+              className="absolute pointer-events-none rounded-2xl border overflow-hidden"
+              style={{
+                left: PAD_LEFT + index * CATEGORY_W + 8,
+                top: 58,
+                width: CATEGORY_W - 16,
+                height: worldH - 82,
+                borderColor: CATEGORY_THEME[category]?.[0] || 'rgba(34,211,238,0.12)',
+                backgroundColor: CATEGORY_THEME[category]?.[1] || 'rgba(2,7,13,0.35)',
+                boxShadow: `inset 0 0 55px ${CATEGORY_THEME[category]?.[2] || 'rgba(34,211,238,0.06)'}`,
+              }}
             >
               <div className="absolute left-3 right-3 top-3 flex items-center gap-2 border-b border-cyan-400/15 pb-2">
-                <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-cyan-300/80">{category}</span>
-                <span className="font-mono text-[8px] uppercase tracking-widest text-slate-600">{count}</span>
+                <span className="font-heading text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-100">{category}</span>
+                <span className="font-mono text-[8px] uppercase tracking-widest text-slate-500">{count} TECH</span>
               </div>
             </div>
           ))}
