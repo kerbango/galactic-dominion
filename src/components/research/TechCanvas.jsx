@@ -119,12 +119,11 @@ export default function TechCanvas({ statusMap, edges, layout, selectedId, onSel
     return p.x + p.w + pad >= viewLeft && p.x - pad <= viewLeft + viewW && p.y + p.h + pad >= viewTop && p.y - pad <= viewTop + viewH;
   }), [pos, visibleIds, viewLeft, viewTop, viewW, viewH]);
 
-  const categoryBands = useMemo(() => CATEGORY_ORDER.map((category, index) => {
-    const start = layout.catBase?.[category] ?? 0;
-    const nextCategory = CATEGORY_ORDER[index + 1];
-    const end = nextCategory ? (layout.catBase?.[nextCategory] ?? start + 300) : layout.worldH - 56;
-    return { category, start, end, count: TECH_TREE.filter((t) => t.category === category && (!t.hidden || true)).length };
-  }), [layout]);
+  const categoryBands = useMemo(() => CATEGORY_ORDER.map((category, index) => ({
+    category,
+    index,
+    count: TECH_TREE.filter((t) => t.category === category && !t.hidden).length,
+  })), []);
 
   return (
     <div className="relative w-full" style={{ height: 'min(78vh, 760px)' }}>
@@ -137,20 +136,24 @@ export default function TechCanvas({ statusMap, edges, layout, selectedId, onSel
             backgroundSize: '32px 32px, 32px 32px, 100% 100%',
           }} />
           <div data-canvas-bg="1" className="absolute inset-x-0 top-0 h-10 border-b border-cyan-400/10 bg-gradient-to-b from-cyan-400/[0.03] to-transparent" />
-          {categoryBands.map(({ category, start, end, count }) => (
+          {categoryBands.map(({ category, index, count }) => (
             <div
               key={category}
               data-canvas-bg="1"
-              className="absolute pointer-events-none"
-              style={{ left: 24, top: start + 7, width: worldW - 48, height: Math.max(80, end - start - 14) }}
+              className="absolute pointer-events-none rounded-xl border border-cyan-400/10 bg-cyan-950/[0.035]"
+              style={{ left: 10 + index * 330, top: 58, width: 310, height: worldH - 82 }}
             >
-              <div className="flex items-center gap-2 border-b border-cyan-400/10 pb-1.5">
-                <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.22em] text-cyan-300/75">{category}</span>
-                <span className="font-mono text-[8px] uppercase tracking-widest text-slate-600">{count} technologies</span>
-                <span className="flex-1 h-px bg-gradient-to-r from-cyan-400/15 to-transparent" />
+              <div className="absolute left-3 right-3 top-3 flex items-center gap-2 border-b border-cyan-400/15 pb-2">
+                <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-cyan-300/80">{category}</span>
+                <span className="font-mono text-[8px] uppercase tracking-widest text-slate-600">{count}</span>
               </div>
             </div>
           ))}
+          <div data-canvas-bg="1" className="absolute left-0 right-0 top-0 flex pointer-events-none" style={{ height: 58 }}>
+            {categoryBands.map(({ category, index }) => (
+              <div key={category} className="font-mono text-[8px] uppercase tracking-[0.2em] text-slate-600" style={{ width: 330, paddingLeft: 22, paddingTop: 18 }}>DISCIPLINE {String(index + 1).padStart(2, '0')}</div>
+            ))}
+          </div>
           <svg className="absolute inset-0 pointer-events-none" width={worldW} height={worldH} style={{ overflow: 'visible', zIndex: 1 }}>
             <defs>
               <filter id="cwGlow"><feGaussianBlur stdDeviation="3" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
@@ -169,9 +172,13 @@ export default function TechCanvas({ statusMap, edges, layout, selectedId, onSel
               const y1 = from.y + from.h / 2;
               const x2 = to.x;
               const y2 = to.y + to.h / 2;
-              const gap = Math.max(24, x2 - x1);
-              const midX = x1 + gap / 2;
-              const d = `M ${x1} ${y1} L ${midX} ${y1} L ${midX} ${y2} L ${x2} ${y2}`;
+              const sameColumn = Math.abs(x2 - x1) < 8;
+              const midY = y1 + (y2 - y1) / 2;
+              const gap = Math.max(28, Math.abs(x2 - x1) / 2);
+              const midX = x1 + (x2 >= x1 ? gap : -gap);
+              const d = sameColumn
+                ? `M ${x1} ${y1} C ${x1 + 22} ${y1 + 20}, ${x2 + 22} ${y2 - 20}, ${x2} ${y2}`
+                : `M ${x1} ${y1} L ${midX} ${y1} L ${midX} ${y2} L ${x2} ${y2}`;
               const flow = cs === 'completed' || cs === 'active';
               const isSel = selectedId && (ed.from === selectedId || ed.to === selectedId);
               const stroke = isSel ? 'rgba(165,243,252,1)' : LINE_COLORS[cs];
