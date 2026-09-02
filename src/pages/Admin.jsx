@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import AdminBackground from "@/components/AdminBackground";
 import AdminTickets from "@/components/admin/AdminTickets";
+import GlobalResetPanel from "@/components/admin/GlobalResetPanel";
 import SiteFooter from "@/components/SiteFooter";
 
 const RESOURCES = [
@@ -267,6 +268,8 @@ export default function Admin() {
         </div>
         {msg && <p className="mt-4 text-sm text-cyan-200/80">{msg}</p>}
       </div>
+
+      <GlobalResetPanel />
 
       {/* Empire registry */}
       <h2 className="font-heading text-sm tracking-[0.3em] text-cyan-200/80 uppercase mb-4">Empire Registry</h2>
