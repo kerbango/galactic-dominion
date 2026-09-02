@@ -4,7 +4,7 @@
 // never a random or unrelated image. Add entries here as art becomes
 // available — no UI changes required.
 const SHIP_ART = {
-  light_scout: { art: 'https://media.base44.com/images/public/6a8dedaa90af486a558f758e/fa07a0737_lightscout.png' },
+  light_scout: { art: 'https://media.base44.com/images/public/6a8dedaa90af486a558f758e/a2b4325eb_ChatGPTImageSep1202608_49_22PM.png' },
   medium_scout: { art: 'https://media.base44.com/images/public/6a8dedaa90af486a558f758e/e5dbf0c69_mediumscout.png' },
   heavy_scout: { art: 'https://media.base44.com/images/public/6a8dedaa90af486a558f758e/c4aa71c97_heavyscout.png' },
   phase_scout: { art: 'https://media.base44.com/images/public/6a8dedaa90af486a558f758e/70f1e681a_ChatGPTImageAug31202609_06_09AM.png' },
