@@ -28,19 +28,23 @@ export function computeLayout(includeHidden = false) {
     : CATEGORY_ORDER;
   const catBase = {};
   categories.forEach((cat, index) => { catBase[cat] = PAD_LEFT + index * CATEGORY_W; });
+  // Hidden blacklisted research uses real tier 1-5 positions. The gate itself
+  // is tier 0 and is placed in a dedicated header row so the entire branch is
+  // visible instead of being clipped above the first normal tier.
   const maxTier = Math.max(1, ...visibleTechs.map((t) => t.tier));
+  const minTier = includeHidden && visibleTechs.some((t) => t.tier === 0) ? 0 : 1;
   // Each tier is a horizontal band. A discipline gets up to three cards per
   // row, with compact cards when a branch has three siblings. This mirrors the
   // reference layout while guaranteeing cards never overlap one another.
   const tierHeights = {};
-  for (let tier = 1; tier <= maxTier; tier++) {
+  for (let tier = minTier; tier <= maxTier; tier++) {
     const maxCount = Math.max(1, ...categories.map((cat) => (byCat[cat] || []).filter((t) => t.tier === tier).length));
     const rows = Math.ceil(maxCount / ROW_CAPACITY);
     tierHeights[tier] = Math.max(TIER_H, rows * NODE_H + Math.max(0, rows - 1) * NODE_GAP_Y + TIER_GAP * 2);
   }
   const tierTop = {};
   let cursorY = PAD_TOP;
-  for (let tier = 1; tier <= maxTier; tier++) {
+  for (let tier = minTier; tier <= maxTier; tier++) {
     tierTop[tier] = cursorY;
     cursorY += tierHeights[tier];
   }
@@ -54,7 +58,7 @@ export function computeLayout(includeHidden = false) {
     stackIdx[key] = i + 1;
     const primary = isPrimaryTech(t);
     const categoryIndex = Math.max(0, categories.indexOf(t.category));
-    const tier = Math.max(1, t.tier);
+    const tier = Math.max(minTier, t.tier);
     const tierCount = (byCat[t.category] || []).filter((x) => x.tier === tier).length;
     const rowCount = Math.ceil(tierCount / ROW_CAPACITY);
     const row = Math.floor(i / ROW_CAPACITY);
