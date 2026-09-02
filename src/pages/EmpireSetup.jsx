@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
+import { useEmpire } from '@/lib/EmpireContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -8,6 +9,7 @@ import { Crown, Flag, Loader2, Rocket } from 'lucide-react';
 
 export default function EmpireSetup() {
   const navigate = useNavigate();
+  const { refresh } = useEmpire();
   const [empireName, setEmpireName] = useState('');
   const [rulerName, setRulerName] = useState('');
   const [error, setError] = useState('');
@@ -30,6 +32,7 @@ export default function EmpireSetup() {
         ruler_name: rulerName.trim(),
       });
       if (!res?.data?.empire) throw new Error('Failed to place your empire.');
+      await refresh();
       navigate('/profile');
     } catch (err) {
       setError(err.message || 'Failed to found your empire.');
