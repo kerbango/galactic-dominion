@@ -62,9 +62,10 @@ export const CATEGORY_THEME = {
 };
 
 let _layout = null;
+const LAYOUT_VERSION = 3;
 
 export function computeLayout(includeHidden = false) {
-  if (_layout && _layout.includeHidden === includeHidden) return _layout;
+  if (_layout && _layout.includeHidden === includeHidden && _layout.version === LAYOUT_VERSION) return _layout;
 
   const visibleTechs = TECH_TREE.filter((t) => includeHidden || !t.hidden);
   const byTier = {};
@@ -88,10 +89,13 @@ export function computeLayout(includeHidden = false) {
       tierCounts.push(visibleTechs.filter((t) => t.category === category && t.tier === tier).length);
     }
     const busiestTier = Math.max(1, ...tierCounts);
-    const height = Math.max(142, Math.min(760, busiestTier * (NODE_H + NODE_GAP_Y) + 76));
+    // Every discipline gets a hard vertical boundary and a real gutter.
+    // This prevents a newly revealed Blacklisted lane from ever rendering
+    // underneath the preceding Empire Governance lane.
+    const height = Math.max(142, Math.min(980, busiestTier * (NODE_H + NODE_GAP_Y) + 92));
     laneBase[category] = yCursor;
     laneHeight[category] = height;
-    yCursor += height;
+    yCursor += height + 28;
   }
 
   const pos = {};
@@ -118,7 +122,7 @@ export function computeLayout(includeHidden = false) {
 
   const worldW = PAD_LEFT + (maxTier + 1) * TIER_W + PAD_RIGHT;
   const worldH = yCursor + PAD_BOTTOM;
-  _layout = { pos, worldW, worldH, categories, includeHidden, laneBase, laneHeight, maxTier, minTier };
+  _layout = { pos, worldW, worldH, categories, includeHidden, laneBase, laneHeight, maxTier, minTier, version: LAYOUT_VERSION };
   return _layout;
 }
 
