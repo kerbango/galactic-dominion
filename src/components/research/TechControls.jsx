@@ -1,6 +1,7 @@
 import React from 'react';
 import { Search, Filter } from 'lucide-react';
 import { CATEGORY_ORDER } from '@/data/techTree';
+import { CATEGORY_THEME } from '@/lib/techLayout';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 
 // Presentation-only controls for the research canvas. Filtering behavior is
@@ -18,13 +19,17 @@ export default function TechControls({ search, setSearch, categoryFilter, setCat
           onClick={() => setCategoryFilter('All')}
           className={`shrink-0 px-4 md:px-6 py-3 text-[10px] md:text-xs font-mono uppercase tracking-[0.14em] border-r border-cyan-400/10 transition-all ${categoryFilter === 'All' ? 'text-cyan-100 bg-cyan-400/10 shadow-[inset_0_-2px_0_rgba(34,211,238,0.9)]' : 'text-slate-500 hover:text-slate-200 hover:bg-white/[0.02]'}`}
         >All Research</button>
-        {categories.map((c) => (
-          <button
-            key={c}
-            onClick={() => setCategoryFilter(c)}
-            className={`shrink-0 px-4 md:px-6 py-3 text-[10px] md:text-xs font-mono uppercase tracking-[0.14em] border-r border-cyan-400/10 transition-all ${categoryFilter === c ? 'text-cyan-100 bg-cyan-400/10 shadow-[inset_0_-2px_0_rgba(34,211,238,0.9)]' : 'text-slate-500 hover:text-slate-200 hover:bg-white/[0.02]'}`}
-          >{c}</button>
-        ))}
+        {categories.map((c) => {
+          const theme = CATEGORY_THEME[c];
+          return (
+            <button
+              key={c}
+              onClick={() => setCategoryFilter(c)}
+              style={categoryFilter === c ? { color: theme?.bright, background: theme?.soft, boxShadow: `inset 0 -2px 0 ${theme?.bright || '#38bdf8'}` } : undefined}
+              className="shrink-0 px-4 md:px-6 py-3 text-[10px] md:text-xs font-mono uppercase tracking-[0.14em] border-r border-cyan-400/10 transition-all text-slate-500 hover:text-slate-100 hover:bg-white/[0.02]"
+            ><span className="inline-block w-1.5 h-1.5 rounded-full mr-2 align-middle" style={{ background: theme?.accent || '#38bdf8', boxShadow: `0 0 7px ${theme?.accent || '#38bdf8'}` }} />{c}</button>
+          );
+        })}
       </div>
 
       <div className="p-2 flex flex-wrap items-center gap-2">
