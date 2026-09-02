@@ -45,6 +45,14 @@ export default function TechCanvas({ statusMap, edges, layout, selectedId, onSel
     zoomAt(rect.left + rect.width / 2, rect.top + rect.height / 2, factor);
   };
 
+  const onWheel = (e) => {
+    // Zoom the tree centered on the cursor instead of scrolling the page.
+    if (Math.abs(e.deltaY) < 1) return;
+    e.preventDefault();
+    const factor = e.deltaY < 0 ? 1.15 : 1 / 1.15;
+    zoomAt(e.clientX, e.clientY, factor);
+  };
+
   const onPointerDown = (e) => {
     if (e.target.closest?.('button')) return;
     e.currentTarget.setPointerCapture?.(e.pointerId);
@@ -111,7 +119,7 @@ export default function TechCanvas({ statusMap, edges, layout, selectedId, onSel
   return (
     <div className="relative w-full" style={{ height: 'min(84vh, 980px)' }}>
       <style>{`@keyframes nexusFlow { to { stroke-dashoffset: -28; } } @keyframes nexusPulse { 0%,100% { opacity:.6; } 50% { opacity:1; } } @keyframes nexusScan { from { transform:translateX(-100%); } to { transform:translateX(100%); } } .nexus-edge { transition: opacity 600ms ease-in-out, stroke-width 600ms ease-in-out; }`}</style>
-      <div ref={containerRef} className="relative w-full h-full overflow-hidden touch-none select-none cursor-grab active:cursor-grabbing" onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={endDrag} onPointerCancel={endDrag}>
+      <div ref={containerRef} className="relative w-full h-full overflow-hidden touch-none select-none cursor-grab active:cursor-grabbing" onWheel={onWheel} onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={endDrag} onPointerCancel={endDrag}>
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_45%_40%,rgba(15,23,42,0.45),transparent_58%)]" />
         <div className="absolute origin-top-left" style={{ transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`, width: worldW, height: worldH }}>
           <div className="absolute inset-0" style={{ backgroundColor: '#01050a', backgroundImage: 'radial-gradient(circle at 20% 20%, rgba(56,189,248,.045), transparent 28%), radial-gradient(circle at 80% 70%, rgba(168,85,247,.04), transparent 30%), linear-gradient(rgba(148,163,184,.035) 1px, transparent 1px), linear-gradient(90deg, rgba(148,163,184,.035) 1px, transparent 1px)', backgroundSize: '100% 100%,100% 100%,36px 36px,36px 36px' }} />
