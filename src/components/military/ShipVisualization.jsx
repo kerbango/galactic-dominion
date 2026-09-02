@@ -21,7 +21,7 @@ export default function ShipVisualization({ unit, unlocked, className = '' }) {
   const variants = art?.variants || [];
   const activeVariant = variants.find((v) => v.id === selectedVariant) || null;
   const displayArt = activeVariant?.art || art?.art;
-  const imageClass = 'object-contain w-full max-w-[440px] h-[280px] md:h-[320px] animate-float-slow';
+  const imageClass = 'w-full h-full object-cover';
 
   return (
     <div className={`glass-panel-strong rounded-2xl flex flex-col overflow-hidden ${className}`}>
@@ -40,12 +40,12 @@ export default function ShipVisualization({ unit, unlocked, className = '' }) {
           <span className="command-label">Holographic Inspection</span>
         </div>
 
-        <div className="absolute inset-0 flex items-center justify-center p-10 pb-20">
+        <div className="absolute inset-0 flex items-center justify-center">
           {unlocked ? (
             showSchematic && art?.schematic ? (
               <img src={art.schematic} alt={`${unit.name} technical blueprint`} className="object-contain w-full max-w-[560px] max-h-[340px]" loading="eager" decoding="async" />
             ) : displayArt ? (
-              <img src={displayArt} alt={`${unit.name}${activeVariant ? ` ${activeVariant.label}` : ''}`} className={imageClass + ' object-contain'} loading="eager" decoding="async" />
+              <img src={displayArt} alt={`${unit.name}${activeVariant ? ` ${activeVariant.label}` : ''}`} className={imageClass} loading="eager" decoding="async" />
             ) : (
               <ShipSilhouette variant={fallbackVariant} wireframe={showSchematic} className="w-full max-w-[440px] animate-float-slow" />
             )
