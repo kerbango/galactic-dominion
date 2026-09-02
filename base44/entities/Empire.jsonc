@@ -91,6 +91,13 @@
       "title": "Martial Law Cooldown Until",
       "description": "ISO timestamp until which martial law cannot be reactivated. Null when ready."
     },
+    "parallel_research_level": {
+      "type": "number",
+      "title": "Parallel Research Level",
+      "description": "Purchased tier that increases the number of technologies that may be researched simultaneously. Level 0 = 1 slot; level 1 = 2 slots.",
+      "default": 0,
+      "minimum": 0
+    },
     "research_speed_level": {
       "type": "number",
       "title": "Research Speed Level",
