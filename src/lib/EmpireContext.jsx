@@ -14,7 +14,15 @@ export function EmpireProvider({ children }) {
   const [empire, setEmpire] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const refresh = useCallback(async () => {
+  // Accepts an optional override empire (e.g. the freshly created record
+  // returned by placeEmpire) so callers can set state without a re-fetch
+  // round-trip that may lag and bounce the player back to /setup.
+  const refresh = useCallback(async (override) => {
+    if (override) {
+      setEmpire(override);
+      setLoading(false);
+      return;
+    }
     try {
       const me = await base44.auth.me();
       if (!me) { setEmpire(null); return; }

@@ -32,8 +32,8 @@ export default function EmpireSetup() {
         ruler_name: rulerName.trim(),
       });
       if (!res?.data?.empire) throw new Error('Failed to place your empire.');
-      await refresh();
-      navigate('/profile');
+      await refresh(res.data.empire);
+      navigate('/map');
     } catch (err) {
       setError(err.message || 'Failed to found your empire.');
     } finally {
