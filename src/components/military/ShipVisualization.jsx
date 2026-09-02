@@ -43,7 +43,7 @@ export default function ShipVisualization({ unit, unlocked, className = '' }) {
         <div className="absolute inset-0 flex items-center justify-center">
           {unlocked ? (
             showSchematic && art?.schematic ? (
-              <img src={art.schematic} alt={`${unit.name} technical blueprint`} className="object-contain w-full max-w-[560px] max-h-[340px]" loading="eager" decoding="async" />
+              <img src={art.schematic} alt={`${unit.name} technical blueprint`} className="w-full h-full object-cover" loading="eager" decoding="async" />
             ) : displayArt ? (
               <img src={displayArt} alt={`${unit.name}${activeVariant ? ` ${activeVariant.label}` : ''}`} className={imageClass} loading="eager" decoding="async" />
             ) : (
