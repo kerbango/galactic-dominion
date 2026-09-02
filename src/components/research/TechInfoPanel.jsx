@@ -64,7 +64,7 @@ export default function TechInfoPanel({ tech, statusMap, progress, speedBonus = 
       <div className={`mt-3 inline-flex items-center gap-1.5 font-mono text-[9px] uppercase tracking-[0.16em] ${sl.color}`}>
         <sl.Icon className={`w-3.5 h-3.5 ${state === 'researching' ? 'animate-spin' : ''}`} /> {sl.text}
       </div>
-      <p className="text-xs leading-relaxed text-slate-400 font-body mt-3">{tech.description}</p>
+      <p className="text-[13px] leading-relaxed text-orange-400 font-body mt-3">{tech.description}</p>
 
       <SectionTitle icon={<Coins className="w-3 h-3" />}>Research Cost</SectionTitle>
       <div className="grid grid-cols-2 gap-1.5 mt-2">
