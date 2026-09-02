@@ -1,6 +1,7 @@
 // Runtime unit view used while the authored unit catalog is being reconciled
 // with the research tree. The canonical units.ts remains the source dataset.
 import { UNITS as BASE_UNITS } from './units.ts';
+import { RESEARCH_TEST_MODE } from './testMode.ts';
 
 const GATE_OVERRIDES = {
   carrier: 'carrier_architecture',
@@ -73,6 +74,7 @@ const UNIT_MAP = new Map(UNITS.map((unit) => [unit.id, unit]));
 export function getUnit(id) { return UNIT_MAP.get(id); }
 export function isUnitUnlocked(unit, completedIds) {
   if (!unit) return false;
+  if (RESEARCH_TEST_MODE) return true;
   const completed = completedIds instanceof Set ? completedIds : new Set(completedIds || []);
   if (unit.gatingTechIdsAny?.length) return unit.gatingTechIdsAny.some((id) => completed.has(id));
   if (!unit.gatingTechId) return true;
