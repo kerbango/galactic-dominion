@@ -2,96 +2,63 @@ import React from 'react';
 import TechIcon from './techIcons';
 import UnlockBadges from './UnlockBadges';
 import { CATEGORIES, isPrimaryTech } from '@/data/techTree';
+import { CATEGORY_THEME } from '@/lib/techLayout';
 
-const STATE_STYLES = {
-  researched: {
-    border: 'border-emerald-400/90',
-    glow: 'shadow-[0_0_20px_rgba(34,197,94,0.24)]',
-    bg: 'bg-[linear-gradient(135deg,rgba(16,185,129,0.12),rgba(2,7,13,0.82))]',
-    icon: 'text-emerald-300',
-    text: 'text-emerald-50',
-    label: 'COMPLETE',
-    labelColor: 'text-emerald-300',
-    ring: 'ring-emerald-300/60',
-    pin: 'text-emerald-400',
-  },
-  available: {
-    border: 'border-amber-400/90',
-    glow: 'shadow-[0_0_22px_rgba(245,158,11,0.28)]',
-    bg: 'bg-[linear-gradient(135deg,rgba(245,158,11,0.13),rgba(2,7,13,0.86))]',
-    icon: 'text-amber-300',
-    text: 'text-amber-50',
-    label: 'AVAILABLE',
-    labelColor: 'text-amber-300',
-    ring: 'ring-amber-300/70',
-    pin: 'text-amber-400',
-  },
-  locked: {
-    border: 'border-slate-600/70',
-    glow: '',
-    bg: 'bg-[linear-gradient(135deg,rgba(30,41,59,0.48),rgba(2,7,13,0.88))]',
-    icon: 'text-slate-500 grayscale opacity-75',
-    text: 'text-slate-300',
-    label: 'LOCKED',
-    labelColor: 'text-slate-500',
-    ring: 'ring-cyan-400/40',
-    pin: 'text-slate-600',
-  },
-  researching: {
-    border: 'border-cyan-300/90',
-    glow: 'shadow-[0_0_24px_rgba(34,211,238,0.35)]',
-    bg: 'bg-[linear-gradient(135deg,rgba(34,211,238,0.13),rgba(2,7,13,0.84))]',
-    icon: 'text-cyan-200',
-    text: 'text-white',
-    label: 'IN PROGRESS',
-    labelColor: 'text-cyan-300',
-    ring: 'ring-cyan-300/80',
-    pin: 'text-cyan-300',
-  },
+const STATE_LABEL = {
+  researched: 'RESEARCHED',
+  available: 'AVAILABLE',
+  researching: 'IN PROGRESS',
+  locked: 'LOCKED',
 };
 
 export default function TechNode({ tech, state, position, selected, onClick }) {
-  const s = STATE_STYLES[state] || STATE_STYLES.locked;
   const primary = isPrimaryTech(tech);
   const cat = CATEGORIES[tech.category];
+  const theme = CATEGORY_THEME[tech.category] || CATEGORY_THEME['Fleet Research'];
   const iconName = tech.icon || cat?.icon || 'Cpu';
-  const compact = position.w < 125;
-  const narrow = position.w < 150;
-  const dotCount = primary ? 8 : 6;
-
-  const renderPins = (edgeClass) => (
-    <div className={`absolute left-2 right-2 ${edgeClass} flex justify-between pointer-events-none ${s.pin}`}>
-      {Array.from({ length: dotCount }).map((_, i) => <span key={i} className="w-[3px] h-[3px] rounded-full bg-current opacity-70" />)}
-    </div>
-  );
+  const locked = state === 'locked';
+  const active = state === 'available' || state === 'researching';
 
   return (
     <button
       type="button"
       onClick={onClick}
-      style={{ left: position.x, top: position.y, width: position.w, height: position.h }}
-      className={`absolute text-left rounded-[10px] border ${s.border} ${s.glow} ${s.bg} backdrop-blur-md px-2.5 py-1.5 overflow-hidden transition-all duration-150 hover:z-20 hover:scale-[1.025] hover:brightness-125 ${selected ? `z-20 ring-2 ${s.ring}` : ''}`}
+      style={{
+        left: position.x,
+        top: position.y,
+        width: position.w,
+        height: position.h,
+        '--accent': theme.accent,
+        '--bright': theme.bright,
+        '--soft': theme.soft,
+      }}
+      className={`absolute text-left group rounded-xl border backdrop-blur-xl overflow-hidden transition-all duration-200 ${locked ? 'opacity-55 grayscale-[0.35]' : ''} ${active ? 'hover:scale-[1.035] hover:brightness-125' : 'hover:scale-[1.02]'} ${selected ? 'z-30 ring-2 ring-white/80' : 'z-10'}`}
     >
-      <div className="absolute inset-x-0 top-0 h-px bg-cyan-200/25" />
-      <div className="absolute inset-y-1 left-0 w-px bg-white/10" />
-      {renderPins('top-0 -translate-y-1/2')}
-      {renderPins('bottom-0 translate-y-1/2')}
-      <div className={`flex items-center ${compact ? 'gap-1' : 'gap-2'} h-full min-w-0`}>
-        <div className={`${compact ? 'w-6 h-6' : narrow ? 'w-7 h-7' : 'w-8 h-8'} shrink-0 rounded-md border border-white/10 bg-black/20 flex items-center justify-center ${s.icon}`}>
-          <TechIcon name={iconName} className={compact ? 'w-3.5 h-3.5' : 'w-4.5 h-4.5'} />
+      <div className="absolute inset-0" style={{ background: `linear-gradient(135deg, ${theme.soft}, rgba(2,7,13,0.94) 70%)` }} />
+      <div className="absolute inset-x-0 top-0 h-[2px]" style={{ background: `linear-gradient(90deg, transparent, ${theme.bright}, transparent)` }} />
+      <div className="absolute inset-y-0 left-0 w-[3px]" style={{ background: theme.accent, boxShadow: active ? `0 0 12px ${theme.bright}` : 'none' }} />
+      {primary && <div className="absolute -inset-px rounded-xl pointer-events-none" style={{ boxShadow: `inset 0 0 0 1px ${theme.bright}, 0 0 ${active ? 26 : 12}px ${theme.accent}55` }} />}
+      {state === 'researching' && <div className="absolute inset-0 pointer-events-none opacity-50" style={{ background: `linear-gradient(90deg, transparent, ${theme.bright}18, transparent)`, animation: 'techScan 1.8s linear infinite' }} />}
+
+      <div className="relative flex items-center h-full gap-2.5 px-3">
+        <div className="shrink-0 flex items-center justify-center rounded-lg border bg-black/35" style={{ width: primary ? 42 : 36, height: primary ? 42 : 36, borderColor: `${theme.accent}88`, color: locked ? '#64748b' : theme.bright, boxShadow: active ? `0 0 16px ${theme.accent}30` : 'none' }}>
+          <TechIcon name={iconName} className={primary ? 'w-5 h-5' : 'w-[18px] h-[18px]'} />
         </div>
-        <div className="min-w-0 flex-1 h-full flex flex-col justify-center">
-          {!compact && <div className="flex items-center gap-1.5 min-w-0">
-            <span className="font-mono text-[8px] uppercase tracking-[0.16em] text-slate-500">T{tech.tier}</span>
-            {primary && <span className="font-mono text-[8px] text-amber-300">★ PRIMARY</span>}
-            <UnlockBadges tags={tech.unlockTags} />
-          </div>}
-          {compact && <span className="font-mono text-[7px] uppercase tracking-[0.12em] text-slate-500">T{tech.tier}</span>}
-          <p className={`font-heading ${primary ? (compact ? 'text-[9px]' : 'text-[12px]') : (compact ? 'text-[8px]' : 'text-[10px]')} tracking-wide ${s.text} uppercase leading-tight line-clamp-2`}>{tech.name}</p>
+
+        <div className="min-w-0 flex-1 flex flex-col justify-center">
+          <div className="flex items-center gap-1.5 mb-0.5 min-w-0">
+            <span className="font-mono text-[8px] uppercase tracking-[0.18em]" style={{ color: locked ? '#64748b' : theme.bright }}>T{tech.tier}</span>
+            {primary && <span className="font-mono text-[8px] uppercase tracking-widest text-amber-300">★ PRIMARY</span>}
+            {tech.unlockTags?.includes('blacklisted') && <span className="font-mono text-[8px] uppercase tracking-widest text-pink-300">BLACKLISTED</span>}
+          </div>
+          <p className={`font-heading uppercase tracking-wide leading-tight line-clamp-2 ${primary ? 'text-[11px]' : 'text-[10px]'} ${locked ? 'text-slate-400' : 'text-slate-100'}`}>{tech.name}</p>
+          {!locked && <div className="flex items-center gap-1.5 mt-1 min-w-0"><span className="text-[7px] font-mono uppercase tracking-widest" style={{ color: theme.bright }}>{STATE_LABEL[state]}</span><UnlockBadges tags={tech.unlockTags} /></div>}
         </div>
-        <div className="shrink-0 text-right flex flex-col items-end gap-0.5">
-          {state === 'locked' ? <span className="text-[10px] text-slate-600">🔒</span> : <span className={`${compact ? 'text-[7px]' : 'text-[8px]'} font-mono uppercase tracking-widest ${s.labelColor}`}>{state === 'researched' ? '✓' : state === 'researching' ? '◉' : '◆'}</span>}
-          {!compact && <span className="text-[8px] font-mono uppercase tracking-widest whitespace-nowrap text-slate-500">{state === 'researched' ? 'COMPLETE' : `${tech.researchTurns || 1} TURNS`}</span>}
+
+        <div className="shrink-0 flex flex-col items-center gap-1">
+          <span className="w-6 h-6 rounded-full border flex items-center justify-center text-xs font-bold" style={{ borderColor: `${theme.accent}99`, color: state === 'researched' ? '#4ade80' : state === 'researching' ? theme.bright : state === 'available' ? '#fbbf24' : '#64748b', background: 'rgba(0,0,0,.3)' }}>
+            {state === 'researched' ? '✓' : state === 'researching' ? '◉' : state === 'available' ? '◆' : '🔒'}
+          </span>
         </div>
       </div>
     </button>
