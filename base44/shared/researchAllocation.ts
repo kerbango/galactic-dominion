@@ -17,12 +17,24 @@ export function clampResearchPool(current, population) {
   return Math.min(max, Math.max(0, Number(current) || 0));
 }
 
-// Research cost is intentionally substantial. Tier I begins at 500 RP and
-// each successive tier adds another 500 RP. Tier VIII capstones therefore cost
-// 4,000 RP before any special/forbidden-tech surcharge.
+// Research cost is a steep exponential: Tier I = 500 RP, doubling every tier.
+// Tier IV = 4,000, Tier VI = 16,000, Tier VIII = 64,000 before any surcharge.
+// Blacklisted / forbidden techs cost substantially more than same-tier
+// conventional techs.
+export const BLACKLISTED_RP_SURCHARGE = 3;
+
 export function researchPointsCostForTier(tier) {
   const t = Math.max(1, Math.floor(Number(tier) || 1));
-  return t * 500;
+  return 500 * Math.pow(2, t - 1);
+}
+
+export function researchPointsCostForTech(tech) {
+  const base = researchPointsCostForTier(tech?.tier || 1);
+  const tags = tech?.unlockTags;
+  if (Array.isArray(tags) && tags.includes('blacklisted')) {
+    return Math.round(base * BLACKLISTED_RP_SURCHARGE);
+  }
+  return base;
 }
 
 export function allocationTotal(records, excludeId = null) {

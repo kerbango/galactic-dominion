@@ -2,7 +2,7 @@
 // while applying research-to-upgrade, unit-gate, and economy-branch corrections.
 import { TECH_TREE as BASE_TECH_TREE, normalizePrereqs, defaultResearchCost as baseDefaultResearchCost, getResearchCost as baseGetResearchCost, isPrimaryTech, getUnlocks } from './techTree.ts';
 import { ECONOMY_TECH_TREE, ECONOMY_TECH_IDS } from './economyTechTree.ts';
-import { researchPointsCostForTier } from './researchAllocation.ts';
+import { researchPointsCostForTech } from './researchAllocation.ts';
 
 const OVERRIDES = {
   planetary_growth_economics: { unlocks: undefined },
@@ -66,14 +66,14 @@ export const TECH_TREE = [...baseRuntimeTree, ...ECONOMY_TECH_TREE];
 export { ECONOMY_TECH_IDS };
 export const DEFENSE_TECH_IDS = new Set(TECH_TREE.filter((t) => t.category === 'Defense').map((t) => t.id));
 
-// Research Points are now the primary long-term research investment. Keep all
-// existing resource costs intact, but add a tier-scaled RP requirement so a
-// high-tier technology cannot be rushed for a trivial amount of research.
+// Research Points are the primary long-term research investment. The RP cost
+// follows a steep exponential curve (single source of truth in
+// researchAllocation.ts) with a surcharge for blacklisted / forbidden techs.
 export function getResearchCost(tech) {
   const base = baseGetResearchCost(tech) || {};
   return {
     ...base,
-    research_points: researchPointsCostForTier(tech?.tier || 1),
+    research_points: researchPointsCostForTech(tech),
   };
 }
 
@@ -81,7 +81,7 @@ export function defaultResearchCost(tech) {
   const base = baseDefaultResearchCost(tech) || {};
   return {
     ...base,
-    research_points: researchPointsCostForTier(tech?.tier || 1),
+    research_points: researchPointsCostForTech(tech),
   };
 }
 

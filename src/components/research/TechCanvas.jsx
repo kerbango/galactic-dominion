@@ -7,7 +7,7 @@ import { getTechnologyState, getConnectionState, TIER_W, PAD_LEFT, PAD_TOP, CATE
 
 const LINE_WIDTH = { active: 2.8, dormant: 1.15, inactive: 0 };
 
-export default function TechCanvas({ statusMap, edges, layout, selectedId, onSelect, visibleIds }) {
+export default function TechCanvas({ statusMap, edges, layout, selectedId, onSelect, visibleIds, progress }) {
   const containerRef = useRef(null);
   const [zoom, setZoom] = useState(0.72);
   const [pan, setPan] = useState({ x: 20, y: 20 });
@@ -179,7 +179,7 @@ export default function TechCanvas({ statusMap, edges, layout, selectedId, onSel
           </div>
 
           <div className="absolute inset-0" style={{ zIndex: 8 }}>
-            {visibleTechs.map((t) => <TechNode key={t.id} tech={t} state={getTechnologyState(t, statusMap)} position={pos[t.id]} selected={selectedId === t.id} onClick={() => onSelect(t.id)} />)}
+            {visibleTechs.map((t) => <TechNode key={t.id} tech={t} state={getTechnologyState(t, statusMap)} position={pos[t.id]} selected={selectedId === t.id} onClick={() => onSelect(t.id)} progress={progress?.[t.id]} />)}
           </div>
         </div>
       </div>

@@ -1,7 +1,7 @@
 import React from 'react';
 import TechIcon from './techIcons';
 import UnlockBadges from './UnlockBadges';
-import { CATEGORIES, isPrimaryTech } from '@/data/techTree';
+import { CATEGORIES, isPrimaryTech, getResearchCost } from '@/data/techTree';
 import { CATEGORY_THEME } from '@/lib/techLayout';
 
 const STATE_LABEL = {
@@ -11,9 +11,15 @@ const STATE_LABEL = {
   locked: 'LOCKED',
 };
 
-export default function TechNode({ tech, state, position, selected, onClick }) {
+export default function TechNode({ tech, state, position, selected, onClick, progress }) {
   const primary = isPrimaryTech(tech);
   const cat = CATEGORIES[tech.category];
+  const rpCost = getResearchCost(tech)?.research_points || 0;
+  const rec = progress;
+  const allocated = Math.max(0, Math.min(100, Number(rec?.allocation_percent) || 0));
+  const required = Math.max(1, Number(rec?.research_points_required) || rpCost);
+  const invested = Math.min(required, Math.max(0, Number(rec?.research_points_invested) || 0));
+  const rpPct = required ? Math.min(100, (invested / required) * 100) : 0;
   const theme = CATEGORY_THEME[tech.category] || CATEGORY_THEME['Fleet Research'];
   const iconName = tech.icon || cat?.icon || 'Cpu';
   const locked = state === 'locked';
@@ -48,11 +54,13 @@ export default function TechNode({ tech, state, position, selected, onClick }) {
         <div className="min-w-0 flex-1 flex flex-col justify-center">
           <div className="flex items-center gap-1.5 mb-0.5 min-w-0">
             <span className="font-mono text-[8px] uppercase tracking-[0.18em]" style={{ color: locked ? '#64748b' : theme.bright }}>T{tech.tier}</span>
+            <span className="font-mono text-[7px] uppercase tracking-widest px-1 rounded-sm" style={{ color: locked ? '#475569' : '#67e8f9', background: locked ? 'rgba(71,85,105,0.12)' : 'rgba(34,211,238,0.10)' }}>{Math.round(rpCost).toLocaleString()} RP</span>
             {primary && <span className="font-mono text-[8px] uppercase tracking-widest text-amber-300">★ PRIMARY</span>}
             {tech.unlockTags?.includes('blacklisted') && <span className="font-mono text-[8px] uppercase tracking-widest text-pink-300">BLACKLISTED</span>}
           </div>
           <p className={`font-heading uppercase tracking-wide leading-tight line-clamp-2 ${primary ? 'text-[11px]' : 'text-[10px]'} ${locked ? 'text-slate-400' : 'text-slate-100'}`}>{tech.name}</p>
           {!locked && <div className="flex items-center gap-1.5 mt-1 min-w-0"><span className="text-[7px] font-mono uppercase tracking-widest" style={{ color: theme.bright }}>{STATE_LABEL[state]}</span><UnlockBadges tags={tech.unlockTags} /></div>}
+          {state === 'researching' && <div className="mt-1"><div className="flex items-center justify-between text-[7px] font-mono"><span style={{ color: theme.bright }}>{allocated}% alloc</span><span className="text-slate-400">{Math.floor(rpPct)}%</span></div><div className="mt-0.5 h-[3px] rounded-full bg-slate-900/80 overflow-hidden"><div className="h-full rounded-full" style={{ width: `${rpPct}%`, background: theme.bright }} /></div></div>}
         </div>
 
         <div className="shrink-0 flex flex-col items-center gap-1">
