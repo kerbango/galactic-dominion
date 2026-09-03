@@ -1,216 +1,87 @@
 // Galactic Dominion — Economy & Resources production rules.
-// Production is expressed as a multiplier on the base hourly resource rate.
-// Only completed research nodes contribute. Roman-numeral entries are Upgrade
-// Page purchases and are intentionally handled by the research node's unlock
-// definition rather than as separate research here.
+// Rates are hourly production rates when the base rate is 1/hour.
+// Research-node effects and purchased Roman-numeral upgrade effects compound.
 
-const has = (done, id) => done.has(id);
-
-function mult(done, id, value) {
-  return has(done, id) ? value : 1;
-}
-
-export function economyProductionRates(doneIds) {
+export function economyProductionRates(doneIds, upgradeLevels = {}) {
   const done = doneIds instanceof Set ? doneIds : new Set(doneIds || []);
+  const level = (id) => Number(upgradeLevels[id] || 0);
+  const has = (id) => done.has(id);
 
   let ferrite = 1;
   let energy = 1;
   let berentium = 1;
   let aetherium = 0;
 
-  // T1 N1 — Mining and Resource Generation.
-  ferrite *= mult(done, 'resource_administration', 1.10);
-  energy *= mult(done, 'resource_administration', 1.10);
+  if (has('mining_resource_generation')) { ferrite *= 1.10; energy *= 1.10; }
+  if (has('sub_surface_mining')) { ferrite *= 1.20; berentium *= 1.02; }
+  if (has('deep_core_extraction')) { ferrite *= 1.25; berentium *= 1.10; }
+  if (has('planetary_solar_harness')) energy *= 1.50;
+  if (has('intra_system_automated_mining')) { ferrite *= 2.00; berentium *= 1.75; }
 
-  // Planet Mining I/II/III: 15%, 20%, 25% total at each purchased tier.
-  // These are upgrade-page effects; apply the highest completed tier.
-  if (has(done, 'resource_administration')) ferrite *= 1.10;
+  // T4 N1 introduces Aetherium Crystal at 0.10/hour.
+  if (has('tectonic_shaft_mining')) { ferrite *= 1.50; berentium *= 1.40; aetherium = 0.10; }
+  if (has('thermal_core_fracturing')) { ferrite *= 1.35; berentium *= 1.50; aetherium *= 1.10; }
+  if (has('orbit_solar_reflector')) energy *= 1.75;
+  if (has('intra_system_freighter_capacity')) { ferrite *= 1.25; berentium *= 1.25; aetherium *= 1.10; }
 
-  // T2 N1 — Sub Surface Mining.
-  if (has(done, 'industrial_expansion')) {
-    ferrite *= 1.20;
-    berentium *= 1.02;
+  if (has('magma_seam_extraction')) { ferrite *= 1.40; berentium *= 1.75; aetherium *= 1.15; energy *= 1.10; }
+  if (has('core_plasma_excavation')) { ferrite *= 1.25; berentium *= 1.60; aetherium *= 1.15; energy *= 1.15; }
+  if (has('orbital_energy_relay')) energy *= 2.00;
+  if (has('orbit_cargo_rails')) { ferrite *= 2.00; berentium *= 2.00; }
+  if (has('asteroid_harpooning')) { ferrite *= 1.75; berentium *= 1.75; aetherium *= 2.00; }
+  if (has('orbital_slag_production')) { ferrite *= 1.10; berentium *= 1.10; aetherium *= 1.10; }
+
+  if (has('gravimetric_core_harvesting')) { ferrite *= 1.25; berentium *= 1.25; aetherium *= 1.25; }
+  if (has('atmosphere_ion_harvesting')) energy *= 1.02;
+  if (has('mass_driver_sling')) { ferrite *= 1.10; berentium *= 1.10; aetherium *= 1.10; }
+  if (has('laser_ablation_mining')) { ferrite *= 1.25; berentium *= 1.25; aetherium *= 1.50; }
+  if (has('zero_point_extraction')) energy *= 2.00;
+
+  // Roman-numeral upgrade page effects.
+  if (level('planet_mining_iii') > 0) ferrite *= 1.25;
+  else if (level('planet_mining_ii') > 0) ferrite *= 1.20;
+  else if (level('planet_mining_i') > 0) ferrite *= 1.15;
+
+  if (level('solar_energy_farm_ii') > 0) energy *= 1.20;
+  else if (level('solar_energy_farm_i') > 0) energy *= 1.15;
+
+  if (level('core_mining_iv') > 0) { ferrite *= 1.25; berentium *= 1.25; }
+  else if (level('core_mining_iii') > 0) { ferrite *= 1.20; berentium *= 1.20; }
+  else if (level('core_mining_ii') > 0) { ferrite *= 1.10; berentium *= 1.10; }
+  else if (level('core_mining_i') > 0) { ferrite *= 1.05; berentium *= 1.05; }
+
+  if (level('deep_core_syphon_iii') > 0) { ferrite *= 1.45; berentium *= 1.45; }
+  else if (level('deep_core_syphon_ii') > 0) { ferrite *= 1.35; berentium *= 1.35; }
+  else if (level('deep_core_syphon_i') > 0) { ferrite *= 1.25; berentium *= 1.25; }
+
+  if (level('orbital_miners_iii') > 0) { ferrite *= 3; berentium *= 2; }
+
+  if (level('adv_energy_collection_ii') > 0) energy *= 1.75;
+  if (level('adv_energy_collection_iii') > 0) energy *= 1.75;
+  if (level('adv_energy_connection_iv') > 0) energy *= 2.50;
+
+  const plasmaLevels = Math.min(2, Math.max(0, level('plasma_extraction_ii') > 0 ? 2 : level('plasma_extraction_i') > 0 ? 1 : 0));
+  if (plasmaLevels) {
+    const m = Math.pow(1.50, plasmaLevels);
+    ferrite *= m; energy *= m; berentium *= m; aetherium *= m;
   }
 
-  // T3 N1 — Deep Core Extraction.
-  if (has(done, 'advanced_mining_network')) {
-    ferrite *= 1.25;
-    berentium *= 1.10;
-  }
+  if (level('cargo_rails_i') > 0) { ferrite *= 2; berentium *= 2; }
+  if (level('asteroid_hostler') > 0) { ferrite *= 1.5; berentium *= 1.5; aetherium *= 1.5; }
 
-  // T3 N3 — Intra System automated Mining.
-  if (has(done, 'galactic_trade')) {
-    // This node is represented by the existing stable research ID in the
-    // current tree. Its large production bonus is intentionally isolated here
-    // so the tech dataset can be replaced without changing tick math.
-    ferrite *= 2.00;
-    berentium *= 1.75;
-  }
+  const scoop = level('debris_scoop_ii') > 0 ? 1.35 : level('debris_scoop_i') > 0 ? 1.25 : 1;
+  ferrite *= scoop; berentium *= scoop; aetherium *= scoop;
+  const gravity = level('gravity_furnace_ii') > 0 ? 1.15 : level('gravity_furnace_i') > 0 ? 1.10 : 1;
+  ferrite *= gravity; berentium *= gravity; aetherium *= gravity;
+  const sling = level('advanced_sling_mining_ii') > 0 ? 1.25 : level('advanced_sling_mining_i') > 0 ? 1.15 : 1;
+  ferrite *= sling; berentium *= sling; aetherium *= sling;
 
-  // T4 N1 — Tectonic Shaft Mining introduces Aetherium Crystal production.
-  if (has(done, 'tectonic_shaft_mining')) {
-    ferrite *= 1.50;
-    berentium *= 1.40;
-    aetherium = 0.10;
-  }
+  if (level('laser_ablator_i') > 0) { ferrite *= 2; berentium *= 2; aetherium *= 2; }
 
-  // T4 N2 — Thermal Core Fracturing.
-  if (has(done, 'thermal_core_fracturing')) {
-    ferrite *= 1.35;
-    berentium *= 1.50;
-    aetherium *= 1.10;
-  }
+  // T6 N5 Zero-G Refinery and T7 N1 Stellar Corona Skimming are conversion
+  // systems, not passive production. Their conversion ratios are handled by
+  // their respective systems and do not alter the hourly collection rate.
 
-  // T4 N3 — Orbit Solar Reflector.
-  if (has(done, 'orbit_solar_reflector')) energy *= 1.75;
-
-  // T4 N4 — Intra System Freighter Capacity.
-  if (has(done, 'intra_system_freighter_capacity')) {
-    ferrite *= 1.25;
-    berentium *= 1.25;
-    aetherium *= 1.10;
-  }
-
-  // T5 N1 — Magma Seam Extraction.
-  if (has(done, 'magma_seam_extraction')) {
-    ferrite *= 1.40;
-    berentium *= 1.75;
-    aetherium *= 1.15;
-    energy *= 1.10;
-  }
-
-  // T5 N2 — Core Plasma Excavation + Plasma Extraction I/II.
-  if (has(done, 'core_plasma_excavation')) {
-    ferrite *= 1.25;
-    berentium *= 1.60;
-    aetherium *= 1.15;
-    energy *= 1.15;
-    // Each Plasma Extraction upgrade adds +50% to all resource production.
-    // Upgrade purchases are represented in empire_upgrade_levels, so the
-    // tick function applies those separately.
-  }
-
-  // T5 N3 — Orbital Energy Relay.
-  if (has(done, 'orbital_energy_relay')) energy *= 2.00;
-
-  // T5 N4 — Orbit Cargo Rails.
-  if (has(done, 'orbit_cargo_rails')) {
-    ferrite *= 2.00;
-    berentium *= 2.00;
-  }
-
-  // T5 N5 — Asteroid Harpooning.
-  if (has(done, 'asteroid_harpooning')) {
-    ferrite *= 1.75;
-    berentium *= 1.75;
-    aetherium *= 2.00;
-  }
-
-  // T5 N6 — Orbital Slag Production.
-  if (has(done, 'orbital_slag_production')) {
-    ferrite *= 1.10;
-    berentium *= 1.10;
-    aetherium *= 1.10;
-  }
-
-  // T6 N1 — Gravimetric Core Harvesting.
-  if (has(done, 'gravimetric_core_harvesting')) {
-    ferrite *= 1.25;
-    berentium *= 1.25;
-    aetherium *= 1.25;
-  }
-
-  // T6 N2 — Atmosphere Ion Harvesting.
-  if (has(done, 'atmosphere_ion_harvesting')) energy *= 1.02;
-
-  // T6 N3 — Mass Driver Sling.
-  if (has(done, 'mass_driver_sling')) {
-    ferrite *= 1.10;
-    berentium *= 1.10;
-    aetherium *= 1.10;
-  }
-
-  // T6 N4 — Laser Ablation Mining.
-  if (has(done, 'laser_ablation_mining')) {
-    ferrite *= 1.25;
-    berentium *= 1.25;
-    aetherium *= 1.50;
-  }
-
-  // T7 N2 — Zero-Point Extraction.
-  if (has(done, 'zero_point_extraction')) energy *= 2.00;
-
-  // T8 N1 — Dyson Sphere. Global x5 collection multiplier.
-  if (has(done, 'dyson_sphere')) {
-    ferrite *= 5;
-    energy *= 5;
-    berentium *= 5;
-    aetherium *= 5;
-  }
-
+  if (has('dyson_sphere')) { ferrite *= 5; energy *= 5; berentium *= 5; aetherium *= 5; }
   return { ferrite, energy, berentium, aetherium };
-}
-
-// Upgrade-page effects that compound on the production generated by the
-// corresponding research nodes. Roman-numeral upgrades are stored in the
-// empire's empire_upgrade_levels map.
-export function economyUpgradeProductionMultiplier(levels = {}) {
-  const l = (id) => Number(levels[id] || 0);
-  const out = { ferrite: 1, energy: 1, berentium: 1, aetherium: 1 };
-
-  // Planet Mining I/II/III — 15/20/25% total at the selected tier.
-  if (l('planet_mining_iii') > 0) out.ferrite *= 1.25;
-  else if (l('planet_mining_ii') > 0) out.ferrite *= 1.20;
-  else if (l('planet_mining_i') > 0) out.ferrite *= 1.15;
-
-  // Solar Energy Farm I/II — 15/20% total.
-  if (l('solar_energy_farm_ii') > 0) out.energy *= 1.20;
-  else if (l('solar_energy_farm_i') > 0) out.energy *= 1.15;
-
-  // Core Mining I/II/III/IV — +5/+10/+20/+25% per tier.
-  const coreMining = [0, 0.05, 0.10, 0.20, 0.25][Math.min(4, Math.max(0, l('core_mining_iv') ? 4 : l('core_mining_iii') ? 3 : l('core_mining_ii') ? 2 : l('core_mining_i') ? 1 : 0))];
-  if (coreMining) { out.ferrite *= 1 + coreMining; out.berentium *= 1 + coreMining; }
-
-  // Deep Core Syphon I/II/III — +25/+35/+45%.
-  const syphon = l('deep_core_syphon_iii') > 0 ? 0.45 : l('deep_core_syphon_ii') > 0 ? 0.35 : l('deep_core_syphon_i') > 0 ? 0.25 : 0;
-  if (syphon) { out.ferrite *= 1 + syphon; out.berentium *= 1 + syphon; }
-
-  // Orbital Miners III — triple Ferrite and double Berentium.
-  if (l('orbital_miners_iii') > 0) { out.ferrite *= 3; out.berentium *= 2; }
-
-  // Plasma Extraction I/II — each +50% to all four resources.
-  const plasma = Math.min(2, Math.max(0, l('plasma_extraction_ii') ? 2 : l('plasma_extraction_i') ? 1 : 0));
-  if (plasma) {
-    const m = Math.pow(1.5, plasma);
-    out.ferrite *= m; out.energy *= m; out.berentium *= m; out.aetherium *= m;
-  }
-
-  // ADV ENERGY CONNECTION IV is a large energy boost: +150%.
-  if (l('adv_energy_connection_iv') > 0) out.energy *= 2.50;
-
-  // Cargo Rails I doubles Ferrite and Berentium production.
-  if (l('cargo_rails_i') > 0) { out.ferrite *= 2; out.berentium *= 2; }
-
-  // Asteroid Hostler +50% to non-energy resources.
-  if (l('asteroid_hostler') > 0) { out.ferrite *= 1.5; out.berentium *= 1.5; out.aetherium *= 1.5; }
-
-  // Debris Scoop I/II — +25/+35%.
-  const scoop = l('debris_scoop_ii') > 0 ? 0.35 : l('debris_scoop_i') > 0 ? 0.25 : 0;
-  if (scoop) { out.ferrite *= 1 + scoop; out.berentium *= 1 + scoop; out.aetherium *= 1 + scoop; }
-
-  // Gravity Furnace I/II — +10/+15%, using the highest purchased tier.
-  const gravity = l('gravity_furnace_ii') > 0 ? 0.15 : l('gravity_furnace_i') > 0 ? 0.10 : 0;
-  if (gravity) { out.ferrite *= 1 + gravity; out.berentium *= 1 + gravity; out.aetherium *= 1 + gravity; }
-
-  // Advanced Sling Mining I/II — +15/+25%.
-  const sling = l('advanced_sling_mining_ii') > 0 ? 0.25 : l('advanced_sling_mining_i') > 0 ? 0.15 : 0;
-  if (sling) { out.ferrite *= 1 + sling; out.berentium *= 1 + sling; out.aetherium *= 1 + sling; }
-
-  // Laser Ablator I doubles non-energy resources.
-  if (l('laser_ablator_i') > 0) { out.ferrite *= 2; out.berentium *= 2; out.aetherium *= 2; }
-
-  // Zero-Point Extraction upgrade is represented by its research node in
-  // this tree; no separate Roman upgrade was specified.
-
-  return out;
 }
