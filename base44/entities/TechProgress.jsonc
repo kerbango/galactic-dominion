@@ -2,58 +2,20 @@
   "name": "TechProgress",
   "type": "object",
   "properties": {
-    "tech_id": {
-      "type": "string",
-      "title": "Tech ID",
-      "description": "The technology being researched (matches an id in the tech tree dataset)."
-    },
-    "status": {
-      "type": "string",
-      "title": "Status",
-      "description": "researching = in progress, completed = finished. 'available' is implicit (no record).",
-      "enum": [
-        "researching",
-        "completed"
-      ],
-      "default": "researching"
-    },
-    "progress": {
-      "type": "number",
-      "title": "Progress",
-      "description": "Display-only snapshot of turns completed. Completion is driven by start_date + research_turns and the player's live speed bonus, not by this field.",
-      "default": 0,
-      "minimum": 0
-    },
-    "research_turns": {
-      "type": "number",
-      "title": "Research Turns",
-      "description": "Snapshot of the tech's researchTurns at start. Completion = start_date + research_turns * BASE_TURN_SECONDS * (1 - speedBonus).",
-      "default": 1,
-      "minimum": 1
-    },
-    "start_date": {
-      "type": "string",
-      "format": "date-time",
-      "title": "Start Date",
-      "description": "ISO timestamp when research began. Legacy records without this fall back to created_date."
-    }
+    "tech_id": { "type": "string", "title": "Tech ID", "description": "The technology being researched (matches an id in the tech tree dataset)." },
+    "status": { "type": "string", "title": "Status", "description": "researching = in progress, completed = finished.", "enum": ["researching", "completed"], "default": "researching" },
+    "progress": { "type": "number", "title": "Progress", "description": "Legacy/display progress field retained for compatibility. RP progress is tracked by research_points_invested.", "default": 0, "minimum": 0 },
+    "research_turns": { "type": "number", "title": "Research Turns", "description": "Legacy research-time snapshot retained for compatibility with existing records and UI.", "default": 1, "minimum": 1 },
+    "start_date": { "type": "string", "format": "date-time", "title": "Start Date", "description": "ISO timestamp when research began." },
+    "research_points_required": { "type": "number", "title": "Research Points Required", "description": "Total Research Points required to complete this technology." },
+    "research_points_invested": { "type": "number", "title": "Research Points Invested", "description": "Research Points already invested into this technology.", "default": 0, "minimum": 0 },
+    "allocation_percent": { "type": "number", "title": "Research Allocation", "description": "Percentage of the empire's available Research Point pool allocated to this technology. All active allocations combined may not exceed 100%.", "default": 0, "minimum": 0, "maximum": 100 }
   },
-  "required": [
-    "tech_id",
-    "status"
-  ],
+  "required": ["tech_id", "status"],
   "rls": {
-    "read": {
-      "created_by_id": "{{user.id}}"
-    },
-    "create": {
-      "created_by_id": "{{user.id}}"
-    },
-    "update": {
-      "created_by_id": "{{user.id}}"
-    },
-    "delete": {
-      "created_by_id": "{{user.id}}"
-    }
+    "read": { "created_by_id": "{{user.id}}" },
+    "create": { "created_by_id": "{{user.id}}" },
+    "update": { "created_by_id": "{{user.id}}" },
+    "delete": { "created_by_id": "{{user.id}}" }
   }
 }
