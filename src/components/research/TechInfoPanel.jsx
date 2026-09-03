@@ -54,14 +54,14 @@ export default function TechInfoPanel({ tech, statusMap, progress, researchPool 
   const stateBorder = state === 'researched' ? 'border-emerald-400/40' : state === 'available' ? 'border-amber-400/50' : state === 'researching' ? 'border-cyan-400/50' : 'border-slate-700/60';
   const required = Math.max(1, Number(rec?.research_points_required) || cost.research_points || 500);
   const invested = Math.min(required, Math.max(0, Number(rec?.research_points_invested) || 0));
+  const pct = required ? (invested / required) * 100 : 0;
+  const otherAllocation = Math.max(0, allocationUsed - (Number(rec?.allocation_percent) || 0));
+  const maxAllocation = Math.max(0, 100 - otherAllocation);
   const previewAllocation = Math.max(0, Math.min(maxAllocation, allocationInput));
   const previewRpPerHour = researchPoolMax * (previewAllocation / 100) * (1 + Math.max(0, speedBonus));
   const previewSurplus = Math.max(0, researchPool) * (previewAllocation / 100) * (1 + Math.max(0, speedBonus));
   const previewRemaining = Math.max(0, required - invested - previewSurplus);
   const previewEtaMs = previewAllocation > 0 && previewRpPerHour > 0 ? (previewRemaining / previewRpPerHour) * 3600000 : null;
-  const pct = required ? (invested / required) * 100 : 0;
-  const otherAllocation = Math.max(0, allocationUsed - (Number(rec?.allocation_percent) || 0));
-  const maxAllocation = Math.max(0, 100 - otherAllocation);
 
   const commitAllocation = async (value) => {
     const next = Math.max(0, Math.min(maxAllocation, Number(value) || 0));
