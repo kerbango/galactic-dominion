@@ -64,10 +64,10 @@ export default function Research() {
 
   const selected = selectedId ? visibleTechTree.find((t) => t.id === selectedId) : null;
 
-  const beginResearch = async (techId) => {
+  const beginResearch = async (techId, allocationPercent) => {
     setError(''); setSubmitting(true);
     try {
-      const res = await base44.functions.invoke('startResearch', { tech_id: techId });
+      const res = await base44.functions.invoke('startResearch', { tech_id: techId, allocation_percent: Math.max(0, Math.min(100, Number(allocationPercent) || 0)) });
       if (res?.data?.error) { setError(res.data.error); return; }
       const tech = TECH_TREE.find((t) => t.id === techId);
       toastSuccess('RESEARCH STARTED', `${tech?.name || techId} · ${Math.floor(res?.data?.research_points_required || 500).toLocaleString()} RP required`);

@@ -29,6 +29,7 @@ export default async function(req) {
     const body = await req.json().catch(() => ({}));
     const techId = body?.tech_id;
     if (!techId) return Response.json({ error: 'tech_id is required' }, { status: 400 });
+    const allocationPercent = body?.allocation_percent != null ? Math.max(0, Math.min(100, Math.floor(Number(body.allocation_percent)) || 0)) : 100;
 
     const tech = techById.get(techId);
     if (!tech) return Response.json({ error: 'Unknown technology.' }, { status: 400 });
@@ -71,7 +72,7 @@ export default async function(req) {
       start_date: new Date().toISOString(),
       research_points_required: cost.research_points,
       research_points_invested: 0,
-      allocation_percent: 100,
+      allocation_percent: allocationPercent,
     });
 
     const freshEmpire = await base44.entities.Empire.get(empire.id);
