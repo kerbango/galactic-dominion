@@ -2,29 +2,166 @@
   "name": "Empire",
   "type": "object",
   "properties": {
-    "empire_name": { "type": "string", "title": "Empire Name", "description": "The player-chosen name of their empire." },
-    "ruler_name": { "type": "string", "title": "Ruler Name", "description": "The player's in-game identity name (not their email)." },
-    "aetherium_crystal": { "type": "number", "title": "Aetherium Crystal", "description": "Rare crystal resource used for advanced construction and upgrades.", "default": 1000, "minimum": 0 },
-    "ferrite_titanium": { "type": "number", "title": "Ferrite-Titanium", "description": "Alloy used for building ships and structures.", "default": 1000, "minimum": 0 },
-    "energy": { "type": "number", "title": "Energy", "description": "Power used to run operations, fleets, and facilities.", "default": 500, "minimum": 0 },
-    "vrind": { "type": "number", "title": "VRIND", "description": "Galactic currency for trade, transactions, research, and unit construction.", "default": 500, "minimum": 0 },
-    "berentium": { "type": "number", "title": "Berentium", "description": "Rare mined ore used for advanced alloys and exotic construction.", "default": 500, "minimum": 0 },
-    "research_points": { "type": "number", "title": "Research Points", "description": "Renewable research pool. Population determines the maximum pool: 500 Research Points per million population. The pool replenishes toward that maximum every hour and is spent continuously according to research allocations.", "default": 500, "minimum": 0 },
-    "population": { "type": "number", "title": "Population", "description": "Total population of the empire. Population determines research capacity and grows via upgrades and research.", "default": 1000000, "minimum": 0 },
-    "map_x": { "type": "number", "title": "Map X", "description": "X coordinate of the empire on the galactic map.", "minimum": 0 },
-    "map_y": { "type": "number", "title": "Map Y", "description": "Y coordinate of the empire on the galactic map.", "minimum": 0 },
-    "last_tick_date": { "type": "string", "format": "date-time", "title": "Last Tick Date", "description": "ISO timestamp of the most recent resource tick applied to this empire." },
-    "martial_law_active_until": { "type": "string", "format": "date-time", "title": "Martial Law Active Until", "description": "ISO timestamp until which martial law's 5x production boost is active. Null when not active." },
-    "martial_law_cooldown_until": { "type": "string", "format": "date-time", "title": "Martial Law Cooldown Until", "description": "ISO timestamp until which martial law cannot be reactivated. Null when not active." },
-    "parallel_research_level": { "type": "number", "title": "Parallel Research Level", "description": "Legacy upgrade field retained for research-system compatibility. Research allocation itself is no longer limited to a fixed number of slots.", "default": 0, "minimum": 0 },
-    "research_speed_level": { "type": "number", "title": "Research Speed Level", "description": "Purchased research-efficiency level. Its bonus increases the effective Research Points invested from active allocations.", "default": 0, "minimum": 0 },
-    "research_points_production_level": { "type": "number", "title": "Research Points Production Level", "description": "Legacy upgrade field retained for compatibility. Research capacity is now determined by population.", "default": 0, "minimum": 0 },
-    "empire_upgrade_levels": { "type": "object", "title": "Empire Upgrade Levels", "description": "Map of tech-gated empire-wide upgrade id to purchased tier. Effects are combat-oriented and read by combat later.", "default": {} }
+    "empire_name": {
+      "type": "string",
+      "title": "Empire Name",
+      "description": "The player-chosen name of their empire."
+    },
+    "ruler_name": {
+      "type": "string",
+      "title": "Ruler Name",
+      "description": "The player's in-game identity name (not their email)."
+    },
+    "aetherium_crystal": {
+      "type": "number",
+      "title": "Aetherium Crystal",
+      "description": "Rare crystal resource used for advanced construction and upgrades.",
+      "default": 1000,
+      "minimum": 0
+    },
+    "ferrite_titanium": {
+      "type": "number",
+      "title": "Ferrite-Titanium",
+      "description": "Alloy used for building ships and structures.",
+      "default": 1000,
+      "minimum": 0
+    },
+    "energy": {
+      "type": "number",
+      "title": "Energy",
+      "description": "Power used to run operations, fleets, and facilities.",
+      "default": 500,
+      "minimum": 0
+    },
+    "vrind": {
+      "type": "number",
+      "title": "VRIND",
+      "description": "Galactic currency for trade, transactions, research, and unit construction.",
+      "default": 500,
+      "minimum": 0
+    },
+    "berentium": {
+      "type": "number",
+      "title": "Berentium",
+      "description": "Rare mined ore used for advanced alloys and exotic construction.",
+      "default": 500,
+      "minimum": 0
+    },
+    "research_points": {
+      "type": "number",
+      "title": "Research Points",
+      "description": "Renewable research pool. Population determines the maximum pool: 500 Research Points per million population. The pool replenishes toward that maximum every hour and is spent continuously according to research allocations.",
+      "default": 500,
+      "minimum": 0
+    },
+    "population": {
+      "type": "number",
+      "title": "Population",
+      "description": "Total population of the empire. Population determines research capacity and grows via upgrades and research.",
+      "default": 1000000,
+      "minimum": 0
+    },
+    "map_x": {
+      "type": "number",
+      "title": "Map X",
+      "description": "X coordinate of the empire on the galactic map.",
+      "minimum": 0
+    },
+    "map_y": {
+      "type": "number",
+      "title": "Map Y",
+      "description": "Y coordinate of the empire on the galactic map.",
+      "minimum": 0
+    },
+    "last_tick_date": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Last Tick Date",
+      "description": "ISO timestamp of the most recent resource tick applied to this empire."
+    },
+    "martial_law_active_until": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Martial Law Active Until",
+      "description": "ISO timestamp until which martial law's 5x production boost is active. Null when not active."
+    },
+    "martial_law_cooldown_until": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Martial Law Cooldown Until",
+      "description": "ISO timestamp until which martial law cannot be reactivated. Null when not active."
+    },
+    "parallel_research_level": {
+      "type": "number",
+      "title": "Parallel Research Level",
+      "description": "Legacy upgrade field retained for research-system compatibility. Research allocation itself is no longer limited to a fixed number of slots.",
+      "default": 0,
+      "minimum": 0
+    },
+    "research_speed_level": {
+      "type": "number",
+      "title": "Research Speed Level",
+      "description": "Purchased research-efficiency level. Its bonus increases the effective Research Points invested from active allocations.",
+      "default": 0,
+      "minimum": 0
+    },
+    "research_points_production_level": {
+      "type": "number",
+      "title": "Research Points Production Level",
+      "description": "Legacy upgrade field retained for compatibility. Research capacity is now determined by population.",
+      "default": 0,
+      "minimum": 0
+    },
+    "empire_upgrade_levels": {
+      "type": "object",
+      "title": "Empire Upgrade Levels",
+      "description": "Map of tech-gated empire-wide upgrade id to purchased tier. Effects are combat-oriented and read by combat later.",
+      "default": {}
+    }
   },
-  "required": ["empire_name", "ruler_name"],
+  "required": [
+    "empire_name",
+    "ruler_name"
+  ],
   "rls": {
-    "read": { "$or": [{ "created_by_id": "{{user.id}}" }, { "user_condition": { "role": "admin" } }] },
-    "update": { "$or": [{ "created_by_id": "{{user.id}}" }, { "user_condition": { "role": "admin" } }] },
-    "delete": { "$or": [{ "created_by_id": "{{user.id}}" }, { "user_condition": { "role": "admin" } }] }
+    "create": {
+      "created_by_id": "{{user.id}}"
+    },
+    "read": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
   }
 }
