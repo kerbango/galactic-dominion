@@ -50,7 +50,7 @@ export default function TechInfoPanel({ tech, statusMap, progress, researchPool 
   const commitAllocation = async (value) => {
     const next = Math.max(0, Math.min(maxAllocation, Number(value) || 0));
     setAllocationInput(next);
-    if (onSetAllocation) await onSetAllocation(tech.id, next);
+    if (state === 'researching' && onSetAllocation) await onSetAllocation(tech.id, next);
   };
 
   return (
