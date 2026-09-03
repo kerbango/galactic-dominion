@@ -1,40 +1,35 @@
 import { TECH_TREE } from '@/data/techTree';
+import { economyProductionRates } from '../../base44/shared/economyProduction';
 
-// Each completed tech in a category adds +1/hr to its mapped resource. This
-// ties the player's research progression directly to their economy.
-export const CATEGORY_TO_RESOURCE = {
-  Energy: 'energy',
-  Construction: 'ferrite_titanium',
-  Computing: 'aetherium_crystal',
-  Propulsion: 'energy',
-  Industry: 'ferrite_titanium',
-  Weapons: 'ferrite_titanium',
-  Biotechnology: 'aetherium_crystal',
-  Economics: 'vrind',
-  Military: 'vrind',
-  'Ship Technology': 'ferrite_titanium',
-  Terraforming: 'aetherium_crystal',
-  Automation: 'energy',
-};
-
-// Base production per hour from the production cycle (+1 of every resource
-// per cycle). Cycle is 1 minute during testing → 60/hr.
+// Production is driven by the same research/upgrade calculation used by the
+// server tick. The one-minute game heartbeat means a base 1/hour rate appears
+// as 60/hour on the command console during the current testing economy.
 export const BASE_PER_HOUR = 60;
-
 export const PRODUCTION_RESOURCES = ['aetherium_crystal', 'ferrite_titanium', 'energy', 'vrind', 'berentium'];
 
-const TECH_CATEGORY = new Map(TECH_TREE.map((t) => [t.id, t.category]));
+// Convert the canonical economy rates (base = 1/hour) into the command
+// console's current hourly display scale. Aetherium remains zero until its
+// T4 production technology is researched.
+export function productionPerHour(completedTechProgress, empire = {}) {
+  const doneIds = new Set(
+    (completedTechProgress || [])
+      .filter((tp) => tp?.status === 'completed')
+      .map((tp) => tp.tech_id)
+  );
+  const rates = economyProductionRates(doneIds, empire?.empire_upgrade_levels || {});
 
-// Given an array of completed TechProgress records, returns per-resource
-// production per hour: { aetherium_crystal, ferrite_titanium, energy, vrind }.
-export function productionPerHour(completedTechProgress) {
-  const bonus = { aetherium_crystal: 0, ferrite_titanium: 0, energy: 0, vrind: 0, berentium: 0 };
-  for (const tp of completedTechProgress || []) {
-    const cat = TECH_CATEGORY.get(tp.tech_id);
-    const res = cat ? CATEGORY_TO_RESOURCE[cat] : null;
-    if (res) bonus[res] += 1;
-  }
-  const rates = {};
-  for (const k of PRODUCTION_RESOURCES) rates[k] = BASE_PER_HOUR + (bonus[k] || 0);
-  return rates;
+  return {
+    aetherium_crystal: rates.aetherium * BASE_PER_HOUR,
+    ferrite_titanium: rates.ferrite * BASE_PER_HOUR,
+    energy: rates.energy * BASE_PER_HOUR,
+    // VRIND keeps its existing cycle-based economy and income-upgrade system.
+    vrind: BASE_PER_HOUR,
+    berentium: rates.berentium * BASE_PER_HOUR,
+  };
 }
+
+// Retained for consumers that use the old category mapping while migrating to
+// the canonical Economy & Resources tree.
+export const CATEGORY_TO_RESOURCE = Object.fromEntries(
+  TECH_TREE.map((tech) => [tech.category, null])
+);
