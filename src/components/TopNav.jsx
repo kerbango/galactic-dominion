@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink, Link, useLocation } from 'react-router-dom';
-import { LogOut } from 'lucide-react';
+import { LogOut, Shield } from 'lucide-react';
 import { Image } from '@/components/ui/image';
 import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
@@ -59,13 +59,14 @@ export default function TopNav() {
             <Link
               to="/admin"
               title="Admin panel"
-              className="ml-1 flex items-center justify-center w-7 h-7 rounded-full overflow-hidden border border-cyan-400/20 hover:border-cyan-300/70 transition-colors"
+              className="ml-1 relative flex items-center justify-center w-7 h-7 rounded-full overflow-hidden border border-cyan-400/50 hover:border-cyan-300 bg-cyan-400/10 transition-colors"
             >
+              <Shield className="absolute inset-0 m-auto w-4 h-4 text-cyan-300/80" />
               <Image
                 src={ADMIN_ICON_URL}
                 alt="Admin"
                 fittingType="fill"
-                className="w-full h-full"
+                className="relative w-full h-full"
               />
             </Link>
           )}
@@ -77,13 +78,14 @@ export default function TopNav() {
             <Link
               to="/admin"
               title="Admin panel"
-              className="flex items-center justify-center w-11 h-11 rounded-full overflow-hidden border border-cyan-400/20 hover:border-cyan-300/70 transition-colors"
+              className="relative flex items-center justify-center w-11 h-11 rounded-full overflow-hidden border border-cyan-400/50 hover:border-cyan-300 bg-cyan-400/10 transition-colors"
             >
+              <Shield className="absolute inset-0 m-auto w-5 h-5 text-cyan-300/80" />
               <Image
                 src={ADMIN_ICON_URL}
                 alt="Admin"
                 fittingType="fill"
-                className="w-full h-full"
+                className="relative w-full h-full"
               />
             </Link>
           )}
