@@ -62,7 +62,7 @@ export const CATEGORY_THEME = {
 };
 
 let _layout = null;
-const LAYOUT_VERSION = 3;
+const LAYOUT_VERSION = 4;
 
 export function computeLayout(includeHidden = false) {
   if (_layout && _layout.includeHidden === includeHidden && _layout.version === LAYOUT_VERSION) return _layout;
