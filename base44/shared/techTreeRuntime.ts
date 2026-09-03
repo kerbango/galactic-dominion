@@ -1,6 +1,7 @@
 // Runtime view of the canonical research tree. This keeps the authored tree intact
-// while applying the final research-to-upgrade and unit-gate corrections.
+// while applying research-to-upgrade, unit-gate, and economy-branch corrections.
 import { TECH_TREE as BASE_TECH_TREE, normalizePrereqs, defaultResearchCost, getResearchCost, isPrimaryTech, getUnlocks } from './techTree.ts';
+import { ECONOMY_TECH_TREE } from './economyTechTree.ts';
 
 const OVERRIDES = {
   planetary_growth_economics: { unlocks: undefined },
@@ -13,23 +14,16 @@ const OVERRIDES = {
   warp_lane_optimization: { unlocks: undefined },
   fold_navigation: { unlocks: { upgrades: ['Exploration Speed IV'] } },
 
-  // Governance upgrades are exposed on the research node that unlocks them.
   centralized_administration: { unlocks: { upgrades: ['Population Growth I', 'Income Upgrade I'] } },
   empire_data_encryption: { unlocks: { upgrades: ['Secured Fleet Network I', 'Secured Fleet Network II'] } },
   counter_espionage: { unlocks: { upgrades: ['Anti Spy Network', 'Critical Spy Observation', 'Capture and Interrogate'] } },
   war_council: { unlocks: { upgrades: ['Alliance Bonus I', 'Alliance Bonus II'] } },
   taxation_doctrine: { unlocks: { upgrades: ['Tax Office I', 'Tax Office II', 'Tax Office III'] } },
-
-  // ECM upgrades all become available from the completed Advanced Detection Grid.
   advanced_detection_grid: { unlocks: { upgrades: ['ECM Field Matrix I', 'ECM Field Matrix II', 'ECM Field Matrix III'] } },
-
-  // Defense structures are real buildable unit records in the current catalog.
   planetary_defense_architecture: { unlocks: { units: ['bunker', 'pdg'] } },
   heavy_battery_systems: { unlocks: { units: ['heavy_battery'] } },
   point_defense_grid: { unlocks: { units: ['pdg'] } },
   fortress_command: { unlocks: { units: ['orbit_defense_platform'] } },
-
-  // Conventional fleet catalog reconciliation.
   standard_hull_framing: { unlocks: { units: ['light_scout', 'light_frigate'] } },
   frigate_design: { unlocks: { units: ['medium_frigate', 'heavy_frigate'] } },
   destroyer_design: { unlocks: { units: ['light_destroyer', 'heavy_destroyer', 'phalanx_destroyer'] } },
@@ -37,14 +31,10 @@ const OVERRIDES = {
   carrier_architecture: { unlocks: { units: ['carrier', 'drone_carrier'] } },
   capital_hull_engineering: { unlocks: { units: ['battle_cruiser', 'Dreadnaught'] } },
   advanced_fleet_architecture: { unlocks: { units: ['quantum_jumpcarrier'] } },
-
-  // Exploration vessels use the existing explorer records under their approved names.
   long_range_sensors: { unlocks: { units: ['light_explorer'] } },
   aero_probe_launcher: { unlocks: { units: ['light_explorer'] } },
   sub_light_mapping: { unlocks: { units: ['light_explorer'] } },
   subspace_beacon_network: { unlocks: { units: ['heavy_explorer'] } },
-
-  // Hidden gate is automatic and cannot itself be researched.
   blacklisted_alien_technology: { tier: 7, isGate: true },
   vampiric_field_generator: { unlocks: { upgrades: ['Vampiric Field Generator Single Target', 'Vampiric Field Generator Area'], units: ['vampiric_shieldship'] } },
 };
@@ -60,14 +50,18 @@ const explorationUnlocks = {
   warp_lane_optimization: { upgrades: ['Exploration Speed III'] },
 };
 
-export const TECH_TREE = BASE_TECH_TREE.map((tech) => {
-  const patch = OVERRIDES[tech.id] || {};
-  const exploration = explorationUnlocks[tech.id];
-  const next = { ...tech, ...patch };
-  if (Object.prototype.hasOwnProperty.call(patch, 'unlocks') && patch.unlocks === undefined) delete next.unlocks;
-  if (exploration) next.unlocks = exploration;
-  return next;
-});
+const baseRuntimeTree = BASE_TECH_TREE
+  .filter((tech) => tech.category !== 'Economy and Resources')
+  .map((tech) => {
+    const patch = OVERRIDES[tech.id] || {};
+    const exploration = explorationUnlocks[tech.id];
+    const next = { ...tech, ...patch };
+    if (Object.prototype.hasOwnProperty.call(patch, 'unlocks') && patch.unlocks === undefined) delete next.unlocks;
+    if (exploration) next.unlocks = exploration;
+    return next;
+  });
+
+export const TECH_TREE = [...baseRuntimeTree, ...ECONOMY_TECH_TREE];
 
 export { normalizePrereqs, defaultResearchCost, getResearchCost, isPrimaryTech, getUnlocks };
 export const CATEGORY_ORDER = ['Defense', 'Economy and Resources', 'Fleet Research', 'Exploration', 'Empire Governance'];
