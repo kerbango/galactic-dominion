@@ -8,6 +8,7 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@
 import AdminBackground from "@/components/AdminBackground";
 import AdminTickets from "@/components/admin/AdminTickets";
 import GlobalResetPanel from "@/components/admin/GlobalResetPanel";
+import ResourceGrantPanel from "@/components/admin/ResourceGrantPanel";
 import SiteFooter from "@/components/SiteFooter";
 
 const RESOURCES = [
@@ -268,6 +269,11 @@ export default function Admin() {
         </div>
         {msg && <p className="mt-4 text-sm text-cyan-200/80">{msg}</p>}
       </div>
+
+      <ResourceGrantPanel
+        users={users}
+        onGranted={(updatedEmpire) => setEmpires((current) => current.map((empire) => empire.id === updatedEmpire.id ? updatedEmpire : empire))}
+      />
 
       <GlobalResetPanel />
 
