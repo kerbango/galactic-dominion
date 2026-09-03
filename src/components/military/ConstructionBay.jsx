@@ -16,14 +16,12 @@ export default function ConstructionBay({ unit, unitRecord, unlocked, deployedCo
   const [error, setError] = useState('');
   const [quantity, setQuantity] = useState(1);
 
-  if (!unit) return null;
-
   const owned = unitRecord?.owned_count || 0;
   const building = !!unitRecord?.construction_start_date;
   const queue = Math.max(0, Number(unitRecord?.construction_queue || 0));
   const activeAndQueued = building ? queue + 1 : 0;
-  const buildTimeSec = (unit.buildTurns || 1) * BASE_TURN_SECONDS;
-  const cost = unit.buildCost || {};
+  const buildTimeSec = (unit?.buildTurns || 1) * BASE_TURN_SECONDS;
+  const cost = unit?.buildCost || {};
 
   const maxAffordable = useMemo(() => {
     const positiveCosts = Object.entries(cost).filter(([, v]) => v > 0);
@@ -34,6 +32,8 @@ export default function ConstructionBay({ unit, unitRecord, unlocked, deployedCo
   const selectedCost = useMemo(() => Object.fromEntries(
     Object.entries(cost).map(([k, v]) => [k, v * quantity])
   ), [cost, quantity]);
+
+  if (!unit) return null;
 
   const affordable = unlocked && quantity >= 1 && quantity <= maxAffordable;
 

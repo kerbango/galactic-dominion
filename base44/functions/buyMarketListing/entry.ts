@@ -36,7 +36,7 @@ export default async function(req) {
 
     // Load both empires via service role.
     const sellerEmpires = await svc.entities.Empire.filter({ created_by_id: listing.created_by_id });
-    const buyerEmpires = await svc.entities.Empire.filter({ created_by_id: user.id });
+    const buyerEmpires = await base44.entities.Empire.filter({ created_by_id: user.id });
     const sellerEmpire = sellerEmpires[0];
     const buyerEmpire = buyerEmpires[0];
     if (!sellerEmpire || !buyerEmpire) {

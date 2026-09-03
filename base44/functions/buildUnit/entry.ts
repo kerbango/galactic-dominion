@@ -27,13 +27,13 @@ export default async function(req) {
     const empire = empires[0];
     if (!empire) return Response.json({ error: 'You must found an empire first.' }, { status: 400 });
 
-    const completed = await svc.entities.TechProgress.filter({ created_by_id: user.id, status: 'completed' });
+    const completed = await base44.entities.TechProgress.filter({ status: 'completed' });
     const doneIds = new Set(completed.map((r) => r.tech_id));
     if (!isUnitUnlocked(unit, doneIds)) {
       return Response.json({ error: 'Required research not completed.' }, { status: 400 });
     }
 
-    const existing = await svc.entities.Unit.filter({ created_by_id: user.id, unit_type: unitId });
+    const existing = await base44.entities.Unit.filter({ unit_type: unitId });
     const mine = existing.find((u) => u.unit_type === unitId);
     const alreadyBuilding = !!mine?.construction_start_date;
     const queued = Math.max(0, Number(mine?.construction_queue || 0));
@@ -57,18 +57,18 @@ export default async function(req) {
     const now = new Date().toISOString();
     if (mine) {
       if (alreadyBuilding) {
-        await svc.entities.Unit.update(mine.id, {
+        await base44.entities.Unit.update(mine.id, {
           construction_queue: queued + totalRequested,
         });
       } else {
-        await svc.entities.Unit.update(mine.id, {
+        await base44.entities.Unit.update(mine.id, {
           construction_start_date: now,
           construction_turns: unit.buildTurns,
           construction_queue: Math.max(0, totalRequested - 1),
         });
       }
     } else {
-      await svc.entities.Unit.create({
+      await base44.entities.Unit.create({
         unit_type: unitId,
         owned_count: 0,
         construction_start_date: now,
