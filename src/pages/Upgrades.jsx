@@ -8,8 +8,8 @@ import ResearchPointsProduction from '@/components/upgrades/ResearchPointsProduc
 import EmpireUpgradeCard from '@/components/upgrades/EmpireUpgradeCard';
 import BonusDashboard from '@/components/upgrades/BonusDashboard';
 import { EMPIRE_UPGRADES, isEmpireUpgradeAvailable } from '@/data/empireUpgrades';
-import { ECONOMY_TECH_IDS } from '@/data/techTree';
-import { Wrench, Loader2, FlaskConical, Crown, ChevronDown, Sparkles, Coins } from 'lucide-react';
+import { ECONOMY_TECH_IDS, DEFENSE_TECH_IDS } from '@/data/techTree';
+import { Wrench, Loader2, FlaskConical, Crown, ChevronDown, Sparkles, Coins, Shield } from 'lucide-react';
 
 const UPGRADES_BG = "https://media.base44.com/images/public/6a8dedaa90af486a558f758e/9e981c261_ChatGPTImageAug29202607_36_06AM.png";
 
@@ -92,8 +92,12 @@ export default function Upgrades() {
     () => EMPIRE_UPGRADES.filter((u) => ECONOMY_TECH_IDS.has(u.gatingTechId)),
     []
   );
+  const defenseUpgrades = useMemo(
+    () => EMPIRE_UPGRADES.filter((u) => DEFENSE_TECH_IDS.has(u.gatingTechId)),
+    []
+  );
   const empireUpgrades = useMemo(
-    () => EMPIRE_UPGRADES.filter((u) => !ECONOMY_TECH_IDS.has(u.gatingTechId)),
+    () => EMPIRE_UPGRADES.filter((u) => !ECONOMY_TECH_IDS.has(u.gatingTechId) && !DEFENSE_TECH_IDS.has(u.gatingTechId)),
     []
   );
 
@@ -157,6 +161,27 @@ export default function Upgrades() {
           >
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
               {economyUpgrades.map((upgrade) => (
+                <EmpireUpgradeCard
+                  key={upgrade.id}
+                  upgrade={upgrade}
+                  unlocked={isEmpireUpgradeAvailable(upgrade, completedIds)}
+                />
+              ))}
+            </div>
+          </CategorySection>
+
+          <CategorySection
+            id="defense"
+            title="Defense Systems"
+            subtitle="Planetary shields, detection grids, and fortress command upgrades."
+            icon={Shield}
+            accent="red"
+            count={defenseUpgrades.length}
+            open={openCategory === 'defense'}
+            onClick={() => toggleCategory('defense')}
+          >
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+              {defenseUpgrades.map((upgrade) => (
                 <EmpireUpgradeCard
                   key={upgrade.id}
                   upgrade={upgrade}

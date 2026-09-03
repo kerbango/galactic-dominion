@@ -63,6 +63,7 @@ const baseRuntimeTree = BASE_TECH_TREE
 
 export const TECH_TREE = [...baseRuntimeTree, ...ECONOMY_TECH_TREE];
 export { ECONOMY_TECH_IDS };
+export const DEFENSE_TECH_IDS = new Set(TECH_TREE.filter((t) => t.category === 'Defense').map((t) => t.id));
 
 export { normalizePrereqs, defaultResearchCost, getResearchCost, isPrimaryTech, getUnlocks };
 export const CATEGORY_ORDER = ['Defense', 'Economy and Resources', 'Fleet Research', 'Exploration', 'Empire Governance'];
