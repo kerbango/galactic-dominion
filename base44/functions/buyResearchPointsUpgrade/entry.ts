@@ -1,12 +1,10 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
 import { nextResearchPointsTier } from '../../shared/researchPoints.ts';
 
-// Purchases the next tier of the Research Points production upgrade for the
-// calling player's empire. Validates the empire exists, determines the next
-// tier from the stored research_points_production_level, validates +
-// atomically deducts the tier's resource cost (same immediate-deduct pattern
-// as buyResearchSpeedUpgrade — no escrow record), and increments the level.
-// The new per-cycle rate takes effect on the next production tick.
+// Purchases the next tier of the repurposed "Research Point Synthesis" upgrade.
+// Each tier now grants a flat population bonus (indirectly raising RP/hr) instead
+// of incrementing research_points_production_level. Same resource costs and
+// immediate-deduct pattern as before. Martial Law does not affect RP.
 const COST_RESOURCES = ['aetherium_crystal', 'ferrite_titanium', 'energy', 'vrind', 'berentium'];
 
 export default async function(req) {
@@ -36,10 +34,11 @@ export default async function(req) {
       }
     }
     updates.research_points_production_level = tier.level;
+    updates.population = (empire.population || 0) + tier.populationBonus;
     await base44.entities.Empire.update(empire.id, updates);
 
     const fresh = await base44.entities.Empire.get(empire.id);
-    return Response.json({ empire: fresh, level: tier.level, bonus: tier.bonus });
+    return Response.json({ empire: fresh, level: tier.level, populationBonus: tier.populationBonus });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
   }

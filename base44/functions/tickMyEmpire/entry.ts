@@ -1,6 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
 import { cyclesDue, martialLawMultiplier } from '../../shared/tickMath.ts';
-import { researchPointsPerCycle } from '../../shared/researchPoints.ts';
+import { researchPointsPerHour } from '../../shared/researchPoints.ts';
 import { processBuildCompletions } from '../../shared/buildCompletion.ts';
 
 // Owner-callable, idempotent production tick. Triggered by the client when
@@ -25,7 +25,8 @@ export default async function(req) {
     const due = cyclesDue(empire.last_tick_date, now);
     if (due > 0) {
       const grant = due * martialLawMultiplier(empire, now);
-      const rpGrant = grant * researchPointsPerCycle(empire.research_points_production_level || 0);
+      const hours = due / 60;
+      const rpGrant = hours * researchPointsPerHour(empire.population || 0);
       const tickedAt = new Date(now).toISOString();
       await base44.entities.Empire.update(empire.id, {
         aetherium_crystal: (empire.aetherium_crystal || 0) + grant,

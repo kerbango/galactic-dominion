@@ -2,7 +2,7 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
 import { authorizeTick } from '../../shared/authGuard.ts';
 import { cyclesDue, martialLawMultiplier } from '../../shared/tickMath.ts';
 import { totalResearchSpeedBonus, computeCompletionMs } from '../../shared/researchSpeed.ts';
-import { researchPointsPerCycle } from '../../shared/researchPoints.ts';
+import { researchPointsPerHour } from '../../shared/researchPoints.ts';
 import { processBuildCompletions } from '../../shared/buildCompletion.ts';
 import { economyProductionRates } from '../../shared/economyProduction.ts';
 
@@ -64,7 +64,7 @@ export default async function(req) {
       // part of the new mineral/energy hourly balance unless an income upgrade
       // changes it.
       const vrindGrant = due * martialMultiplier * recurringVrindMultiplier(empire);
-      const rpGrant = due * martialMultiplier * researchPointsPerCycle(empire.research_points_production_level || 0);
+      const rpGrant = hours * researchPointsPerHour(empire.population || 0);
 
       const inc = {
         ferrite_titanium: ferriteGrant,

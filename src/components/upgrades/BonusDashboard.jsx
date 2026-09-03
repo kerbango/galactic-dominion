@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import {
-  researchPointsPerCycle,
+  researchPointsPerHour,
   RESEARCH_SPEED_TECH_BONUS,
   upgradeBonusFromLevel,
 } from '@/data/techTree';
@@ -42,7 +42,7 @@ export default function BonusDashboard({ completedIds }) {
     const techSpeed = completed.has('quantum_computing') ? RESEARCH_SPEED_TECH_BONUS : 0;
     const upgradeSpeed = upgradeBonusFromLevel(empire?.research_speed_level || 0);
     const speedBonus = techSpeed + upgradeSpeed;
-    const rpCycle = researchPointsPerCycle(empire?.research_points_production_level || 0);
+    const rpCycle = researchPointsPerHour(empire?.population || 0);
     const levels = empire?.empire_upgrade_levels || {};
     const incomeIds = ['income_upgrade_i', 'income_upgrade_ii', 'income_upgrade_iii', 'tax_office_i', 'tax_office_ii', 'tax_office_iii'];
     const populationIds = ['population_growth_i', 'population_growth_ii', 'population_growth_iii'];
@@ -63,7 +63,7 @@ export default function BonusDashboard({ completedIds }) {
       <div className="flex items-center gap-2 mb-4"><div className="h-px flex-1 bg-gradient-to-r from-transparent via-cyan-400/30 to-transparent" /><p className="font-heading text-[10px] tracking-[0.2em] text-cyan-200/70 uppercase">Empire Bonus Summary</p><div className="h-px flex-1 bg-gradient-to-r from-transparent via-cyan-400/30 to-transparent" /></div>
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4 md:gap-2">
         <Gauge value={stats.speedBonus * 100} max={50} display={`+${Math.round(stats.speedBonus * 100)}%`} label="Research Speed" color="#22d3ee" icon={FlaskConical} techBadge={speedBadge} />
-        <Gauge value={stats.rpCycle} max={5} display={`${stats.rpCycle}/cyc`} label="Research Points" color="#e879f9" icon={Sparkles} techBadge="Base 1/cyc" />
+        <Gauge value={stats.rpCycle} max={50} display={`${stats.rpCycle}/hr`} label="Research Points" color="#e879f9" icon={Sparkles} techBadge="Pop-driven" />
         <Gauge value={stats.incomeBonus * 100} max={50} display={`+${Math.round(stats.incomeBonus * 100)}%`} label="VRIND Income" color="#fbbf24" icon={Coins} techBadge={incomeBadge} />
         <Gauge value={stats.populationBonus * 100} max={30} display={`+${Math.round(stats.populationBonus * 100)}%`} label="Population" color="#a78bfa" icon={Sparkles} techBadge={populationBadge} />
         <Gauge value={stats.defenseBonus * 100} max={30} display={`+${Math.round(stats.defenseBonus * 100)}%`} label="Empire Defense" color="#34d399" icon={Shield} techBadge={defenseBadge} />
