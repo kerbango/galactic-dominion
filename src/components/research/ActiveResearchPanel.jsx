@@ -47,9 +47,9 @@ export default function ActiveResearchPanel() {
   const speedBonus = totalResearchSpeedBonus(completed, empire?.research_speed_level || 0);
   const poolMax = researchPoolMaximum(empire?.population || 0);
 
-  if (!researching.length) return <div className="glass-panel rounded-xl p-4 text-center"><FlaskConical className="w-5 h-5 text-cyan-300/60 mx-auto mb-2" /><p className="font-heading text-sm tracking-wide text-cyan-200/80 uppercase">No Active Research</p><p className="text-xs text-muted-foreground mt-1">Visit the Research Nexus to begin a technology.</p></div>;
+  if (!researching.length) return <div className="glass-panel rounded-lg px-3 py-2 text-center"><FlaskConical className="w-4 h-4 text-cyan-300/60 inline mr-1.5" /><span className="font-heading text-xs tracking-wide text-cyan-200/80 uppercase">No Active Research</span></div>;
 
-  return <div className="space-y-3">{researching.map((rec) => {
+  return <div className="space-y-1.5">{researching.map((rec) => {
     const tech = techById[rec.tech_id];
     const cat = tech ? CATEGORIES[tech.category] : null;
     const required = Math.max(1, Number(rec.research_points_required) || 500);
@@ -57,16 +57,17 @@ export default function ActiveResearchPanel() {
     const frac = invested / required;
     const allocation = Math.max(0, Number(rec.allocation_percent) || 0);
     const remaining = Math.max(0, required - invested);
-    const refillPerHour = poolMax;
-    const rpPerHour = refillPerHour * (allocation / 100) * (1 + Math.max(0, speedBonus));
+    const rpPerHour = poolMax * (allocation / 100) * (1 + Math.max(0, speedBonus));
     const currentSurplus = Math.max(0, Number(empire?.research_points || 0)) * (allocation / 100) * (1 + Math.max(0, speedBonus));
     const effectiveRemaining = Math.max(0, remaining - currentSurplus);
     const etaMs = rpPerHour > 0 ? (effectiveRemaining / rpPerHour) * 3600000 : null;
-    return <div key={rec.id} className="glass-panel rounded-xl p-4">
-      <div className="flex items-center gap-3"><div className="shrink-0 inline-flex items-center justify-center w-9 h-9 rounded-lg border border-cyan-400/20 bg-cyan-400/10"><TechIcon name={(tech && (tech.icon || cat?.icon)) || 'Cpu'} className={`w-4 h-4 ${cat?.color || 'text-slate-300'}`} /></div><div className="flex-1 min-w-0"><p className="font-mono text-[10px] uppercase tracking-widest text-slate-400/80">T{tech?.tier} · {tech?.category}</p><h3 className="font-heading text-sm tracking-wide text-white uppercase leading-tight truncate">{tech ? tech.name : rec.tech_id.replace(/_/g, ' ')}</h3></div><span className="font-mono text-xs text-cyan-200 whitespace-nowrap">{allocation.toFixed(0)}% allocation</span></div>
-      <div className="mt-3"><div className="h-2.5 rounded-full bg-slate-800 overflow-hidden"><div className="h-full bg-cyan-400 transition-all" style={{ width: `${frac * 100}%` }} /></div><div className="flex items-center justify-between mt-1.5"><p className="text-[10px] font-mono text-muted-foreground">{Math.floor(invested).toLocaleString()} / {Math.floor(required).toLocaleString()} RP · {Math.floor(frac * 100)}%</p><p className="text-[10px] font-mono text-cyan-300">{Math.floor(remaining).toLocaleString()} RP remaining</p></div>
-      <div className="flex items-center justify-end mt-1"><p className="text-[10px] font-mono uppercase tracking-widest text-slate-500">ETA {etaMs === null ? '— paused' : formatDuration(etaMs)}</p></div></div>
-      <div className="flex justify-between mt-2 text-[9px] font-mono uppercase tracking-widest"><span className="text-slate-500">Pool {Math.floor(empire?.research_points || 0).toLocaleString()} / {poolMax.toLocaleString()}</span>{speedBonus > 0 && <span className="text-amber-300/80">⚡ {Math.round(speedBonus * 100)}% efficiency</span>}</div>
+    return <div key={rec.id} className="glass-panel rounded-lg px-3 py-2">
+      <div className="flex items-center gap-2.5">
+        <div className="shrink-0 inline-flex items-center justify-center w-7 h-7 rounded-md border border-cyan-400/20 bg-cyan-400/10"><TechIcon name={(tech && (tech.icon || cat?.icon)) || 'Cpu'} className={`w-3.5 h-3.5 ${cat?.color || 'text-slate-300'}`} /></div>
+        <div className="flex-1 min-w-0"><h3 className="font-heading text-xs tracking-wide text-white uppercase leading-tight truncate">{tech ? tech.name : rec.tech_id.replace(/_/g, ' ')}</h3><p className="font-mono text-[9px] uppercase tracking-widest text-slate-500">{Math.floor(invested).toLocaleString()}/{Math.floor(required).toLocaleString()} RP · {Math.floor(frac * 100)}% · {Math.floor(remaining).toLocaleString()} left · ETA {etaMs === null ? 'paused' : formatDuration(etaMs)}{speedBonus > 0 ? ` · ⚡${Math.round(speedBonus * 100)}%` : ''}</p></div>
+        <span className="font-mono text-[11px] text-cyan-200 whitespace-nowrap">{allocation.toFixed(0)}%</span>
+      </div>
+      <div className="mt-1.5 h-1.5 rounded-full bg-slate-800 overflow-hidden"><div className="h-full bg-cyan-400 transition-all" style={{ width: `${frac * 100}%` }} /></div>
     </div>;
   })}</div>;
 }
