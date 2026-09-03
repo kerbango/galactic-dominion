@@ -7,6 +7,18 @@ import { FlaskConical, Loader2, CheckCircle2 } from 'lucide-react';
 import { researchPoolMaximum } from '../../../base44/shared/researchAllocation';
 
 const techById = Object.fromEntries(TECH_TREE.map((t) => [t.id, t]));
+const CYCLES_PER_HOUR = 60;
+
+function formatDuration(ms) {
+  if (ms <= 0) return '0m';
+  const totalMin = Math.ceil(ms / 60000);
+  const d = Math.floor(totalMin / 1440);
+  const h = Math.floor((totalMin % 1440) / 60);
+  const m = totalMin % 60;
+  if (d > 0) return `${d}d ${h}h`;
+  if (h > 0) return `${h}h ${m}m`;
+  return `${m}m`;
+}
 
 export default function ActiveResearchPanel() {
   const { empire } = useEmpire();
@@ -45,9 +57,15 @@ export default function ActiveResearchPanel() {
     const frac = invested / required;
     const allocation = Math.max(0, Number(rec.allocation_percent) || 0);
     const remaining = Math.max(0, required - invested);
+    const refillPerHour = poolMax;
+    const rpPerHour = refillPerHour * (allocation / 100) * (1 + Math.max(0, speedBonus));
+    const currentSurplus = Math.max(0, Number(empire?.research_points || 0)) * (allocation / 100) * (1 + Math.max(0, speedBonus));
+    const effectiveRemaining = Math.max(0, remaining - currentSurplus);
+    const etaMs = rpPerHour > 0 ? (effectiveRemaining / rpPerHour) * 3600000 : null;
     return <div key={rec.id} className="glass-panel rounded-xl p-4">
       <div className="flex items-center gap-3"><div className="shrink-0 inline-flex items-center justify-center w-9 h-9 rounded-lg border border-cyan-400/20 bg-cyan-400/10"><TechIcon name={(tech && (tech.icon || cat?.icon)) || 'Cpu'} className={`w-4 h-4 ${cat?.color || 'text-slate-300'}`} /></div><div className="flex-1 min-w-0"><p className="font-mono text-[10px] uppercase tracking-widest text-slate-400/80">T{tech?.tier} · {tech?.category}</p><h3 className="font-heading text-sm tracking-wide text-white uppercase leading-tight truncate">{tech ? tech.name : rec.tech_id.replace(/_/g, ' ')}</h3></div><span className="font-mono text-xs text-cyan-200 whitespace-nowrap">{allocation.toFixed(0)}% allocation</span></div>
-      <div className="mt-3"><div className="h-2.5 rounded-full bg-slate-800 overflow-hidden"><div className="h-full bg-cyan-400 transition-all" style={{ width: `${frac * 100}%` }} /></div><div className="flex items-center justify-between mt-1.5"><p className="text-[10px] font-mono text-muted-foreground">{Math.floor(invested).toLocaleString()} / {Math.floor(required).toLocaleString()} RP · {Math.floor(frac * 100)}%</p><p className="text-[10px] font-mono text-cyan-300">{Math.floor(remaining).toLocaleString()} RP remaining</p></div></div>
+      <div className="mt-3"><div className="h-2.5 rounded-full bg-slate-800 overflow-hidden"><div className="h-full bg-cyan-400 transition-all" style={{ width: `${frac * 100}%` }} /></div><div className="flex items-center justify-between mt-1.5"><p className="text-[10px] font-mono text-muted-foreground">{Math.floor(invested).toLocaleString()} / {Math.floor(required).toLocaleString()} RP · {Math.floor(frac * 100)}%</p><p className="text-[10px] font-mono text-cyan-300">{Math.floor(remaining).toLocaleString()} RP remaining</p></div>
+      <div className="flex items-center justify-end mt-1"><p className="text-[10px] font-mono uppercase tracking-widest text-slate-500">ETA {etaMs === null ? '— paused' : formatDuration(etaMs)}</p></div></div>
       <div className="flex justify-between mt-2 text-[9px] font-mono uppercase tracking-widest"><span className="text-slate-500">Pool {Math.floor(empire?.research_points || 0).toLocaleString()} / {poolMax.toLocaleString()}</span>{speedBonus > 0 && <span className="text-amber-300/80">⚡ {Math.round(speedBonus * 100)}% efficiency</span>}</div>
     </div>;
   })}</div>;
