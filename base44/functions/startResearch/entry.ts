@@ -39,19 +39,18 @@ export default async function(req) {
     if (!tech) return Response.json({ error: 'Unknown technology.' }, { status: 400 });
     if (tech.isGate) return Response.json({ error: 'This technology is a gate and unlocks automatically when its prerequisites are completed.' }, { status: 400 });
 
-    const svc = base44.asServiceRole;
-    const empires = await svc.entities.Empire.filter({ created_by_id: user.id });
+    const empires = await base44.entities.Empire.filter({ created_by_id: user.id });
     const empire = empires[0];
     if (!empire) return Response.json({ error: 'You must found an empire before researching.' }, { status: 400 });
 
     // Scope every progress read to the calling player. Do not rely on RLS for
     // gameplay correctness: another player's research must never block yours.
-    const existing = await svc.entities.TechProgress.filter({ created_by_id: user.id, tech_id: techId });
+    const existing = await base44.entities.TechProgress.filter({ tech_id: techId });
     const mine = existing.find((r) => r.tech_id === techId);
     if (mine?.status === 'completed') return Response.json({ error: 'Technology already completed.' }, { status: 400 });
     if (mine?.status === 'researching') return Response.json({ error: 'Already researching this technology.' }, { status: 400 });
 
-    const inProgress = await svc.entities.TechProgress.filter({ created_by_id: user.id, status: 'researching' });
+    const inProgress = await base44.entities.TechProgress.filter({ status: 'researching' });
     const researchSlots = (empire.parallel_research_level || 0) >= 1 ? 2 : 1;
     if (inProgress.length >= researchSlots) {
       return Response.json({
@@ -63,7 +62,7 @@ export default async function(req) {
 
     const { all, any } = normalizePrereqs(tech);
     if (all.length || any.length) {
-      const completed = await svc.entities.TechProgress.filter({ created_by_id: user.id, status: 'completed' });
+      const completed = await base44.entities.TechProgress.filter({ status: 'completed' });
       const doneIds = new Set(completed.map((r) => r.tech_id));
       const missingAll = all.filter((p) => !isPrerequisiteSatisfied(p, doneIds));
       const anyMet = any.length === 0 || any.some((p) => isPrerequisiteSatisfied(p, doneIds));
@@ -79,7 +78,7 @@ export default async function(req) {
         updates[res] = (empire[res] || 0) - c;
       }
     }
-    if (Object.keys(updates).length) await svc.entities.Empire.update(empire.id, updates);
+    if (Object.keys(updates).length) await base44.entities.Empire.update(empire.id, updates);
 
     const record = await base44.entities.TechProgress.create({
       tech_id: techId,
@@ -89,7 +88,8 @@ export default async function(req) {
       start_date: new Date().toISOString(),
     });
 
-    return Response.json({ record, charged: updates });
+    const freshEmpire = await base44.entities.Empire.get(empire.id);
+    return Response.json({ record, empire: freshEmpire, charged: updates });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
   }

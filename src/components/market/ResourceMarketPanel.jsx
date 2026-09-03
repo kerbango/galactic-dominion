@@ -87,8 +87,10 @@ export default function ResourceMarketPanel() {
     setBusy(true); setMsg('');
     try {
       const res = await base44.functions.invoke('buyResourceMarket', { resource_key: key });
-      setMsg(`Bought ${fmt(res.bought)} for ${fmt(res.totalCost)} VRIND.`);
-      await refresh();
+      const result = res.data;
+      if (result?.error) throw new Error(result.error);
+      setMsg(`Bought ${fmt(result.bought)} for ${fmt(result.totalCost)} VRIND.`);
+      await refresh(result.empire);
     } catch (e) {
       setMsg(e.response?.data?.error || e.message || 'Purchase failed.');
     } finally { setBusy(false); }

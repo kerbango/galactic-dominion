@@ -16,8 +16,7 @@ export default async function(req) {
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const svc = base44.asServiceRole;
-    const empires = await svc.entities.Empire.filter({ created_by_id: user.id });
+    const empires = await base44.entities.Empire.filter({ created_by_id: user.id });
     const empire = empires[0];
     if (!empire) return Response.json({ error: 'You must found an empire first.' }, { status: 400 });
 
@@ -38,9 +37,9 @@ export default async function(req) {
       }
     }
     updates.research_speed_level = tier.level;
-    await svc.entities.Empire.update(empire.id, updates);
+    await base44.entities.Empire.update(empire.id, updates);
 
-    const fresh = await svc.entities.Empire.get(empire.id);
+    const fresh = await base44.entities.Empire.get(empire.id);
     return Response.json({ empire: fresh, level: tier.level, bonus: tier.bonus });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });

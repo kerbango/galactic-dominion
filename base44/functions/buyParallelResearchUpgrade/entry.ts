@@ -10,8 +10,7 @@ export default async function(req) {
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const svc = base44.asServiceRole;
-    const empires = await svc.entities.Empire.filter({ created_by_id: user.id });
+    const empires = await base44.entities.Empire.filter({ created_by_id: user.id });
     const empire = empires[0];
     if (!empire) return Response.json({ error: 'You must found an empire first.' }, { status: 400 });
 
@@ -23,12 +22,12 @@ export default async function(req) {
       return Response.json({ error: 'Not enough resources for this upgrade.' }, { status: 400 });
     }
 
-    await svc.entities.Empire.update(empire.id, {
+    await base44.entities.Empire.update(empire.id, {
       vrind: (empire.vrind || 0) - COST.vrind,
       parallel_research_level: 1,
     });
 
-    const fresh = await svc.entities.Empire.get(empire.id);
+    const fresh = await base44.entities.Empire.get(empire.id);
     return Response.json({ empire: fresh, level: 1, researchSlots: 2, cost: COST });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });

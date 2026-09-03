@@ -62,7 +62,7 @@ export default async function(req) {
       [listing.resource_key]: (sellerEmpire[listing.resource_key] || 0) - buyAmount,
       vrind: (sellerEmpire.vrind || 0) + sellerProceeds,
     });
-    await svc.entities.Empire.update(buyerEmpire.id, {
+    await base44.entities.Empire.update(buyerEmpire.id, {
       [listing.resource_key]: (buyerEmpire[listing.resource_key] || 0) + buyAmount,
       vrind: (buyerEmpire.vrind || 0) - totalCost,
     });
@@ -81,6 +81,7 @@ export default async function(req) {
       tax,
       sellerProceeds,
       remaining,
+      empire: await base44.entities.Empire.get(buyerEmpire.id),
     });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });

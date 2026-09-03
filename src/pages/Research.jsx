@@ -95,8 +95,11 @@ export default function Research() {
       const turns = res?.data?.record?.research_turns || tech?.researchTurns || 1;
       const completionSec = turns * BASE_TURN_SECONDS * (1 - speedBonus);
       toastSuccess('RESEARCH STARTED', `${tech?.name || techId} · completes in ${formatDuration(completionSec)}`);
+      if (res?.data?.record) {
+        setProgress((current) => ({ ...current, [res.data.record.tech_id]: res.data.record }));
+      }
+      await refreshEmpire(res?.data?.empire);
       await loadProgress();
-      await refreshEmpire();
     } catch (e) {
       setError(e?.response?.data?.error || e?.message || 'Failed to begin research.');
     } finally {

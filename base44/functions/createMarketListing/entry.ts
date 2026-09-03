@@ -27,8 +27,7 @@ export default async function(req) {
       return Response.json({ error: 'Enter a valid price per unit.' }, { status: 400 });
     }
 
-    const svc = base44.asServiceRole;
-    const empires = await svc.entities.Empire.filter({ created_by_id: user.id });
+    const empires = await base44.entities.Empire.filter({ created_by_id: user.id });
     const empire = empires[0];
     if (!empire) return Response.json({ error: 'Empire not found.' }, { status: 404 });
 
@@ -37,7 +36,7 @@ export default async function(req) {
     }
 
     // Escrow: deduct the listed amount from the seller's treasury.
-    await svc.entities.Empire.update(empire.id, {
+    await base44.entities.Empire.update(empire.id, {
       [resourceKey]: (empire[resourceKey] || 0) - amount,
     });
 
@@ -52,7 +51,8 @@ export default async function(req) {
       status: 'listed',
     });
 
-    return Response.json({ ok: true, listing });
+    const freshEmpire = await base44.entities.Empire.get(empire.id);
+    return Response.json({ ok: true, listing, empire: freshEmpire });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
   }

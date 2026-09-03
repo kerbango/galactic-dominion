@@ -59,14 +59,18 @@ export default function PlayerMarketPanel() {
     if (!empire) return setMsg('No empire found.');
     setBusy(true); setMsg('');
     try {
-      await base44.functions.invoke('createMarketListing', {
+      const res = await base44.functions.invoke('createMarketListing', {
         resource_key: resKey,
         amount: amt,
         price_per_unit: pr,
       });
+      const result = res.data;
+      if (result?.error) throw new Error(result.error);
+      setListings((current) => [result.listing, ...current]);
       setAmount(''); setPrice('');
       setMsg('Listing posted — resources escrowed.');
-      await Promise.all([loadListings(), refresh()]);
+      await refresh(result.empire);
+      await loadListings();
     } catch (e) {
       setMsg(e.response?.data?.error || e.message || 'Failed to post listing.');
     } finally { setBusy(false); }
@@ -75,9 +79,13 @@ export default function PlayerMarketPanel() {
   const handleCancel = async (id) => {
     setBusy(true); setMsg('');
     try {
-      await base44.functions.invoke('cancelMarketListing', { listingId: id });
+      const res = await base44.functions.invoke('cancelMarketListing', { listingId: id });
+      const result = res.data;
+      if (result?.error) throw new Error(result.error);
+      setListings((current) => current.filter((listing) => listing.id !== id));
       setMsg('Listing canceled — stock returned.');
-      await Promise.all([loadListings(), refresh()]);
+      await refresh(result.empire);
+      await loadListings();
     } catch (e) {
       setMsg(e.response?.data?.error || e.message || 'Failed to cancel listing.');
     } finally { setBusy(false); }
@@ -89,8 +97,12 @@ export default function PlayerMarketPanel() {
     setBusy(true); setMsg('');
     try {
       const res = await base44.functions.invoke('buyMarketListing', { listingId: listing.id, buyAmount: amt });
-      setMsg(`Bought ${fmt(res.bought)} for ${fmt(res.totalCost)} VRIND — 7% Council tax (${fmt(res.tax)} VRIND) deducted from seller.`);
-      await Promise.all([loadListings(), refresh()]);
+      const result = res.data;
+      if (result?.error) throw new Error(result.error);
+      setListings((current) => current.map((item) => item.id === listing.id ? { ...item, amount: result.remaining, status: result.remaining <= 0 ? 'sold' : 'listed' } : item).filter((item) => item.status === 'listed'));
+      setMsg(`Bought ${fmt(result.bought)} for ${fmt(result.totalCost)} VRIND — 7% Council tax (${fmt(result.tax)} VRIND) deducted from seller.`);
+      await refresh(result.empire);
+      await loadListings();
     } catch (e) {
       setMsg(e.response?.data?.error || e.message || 'Purchase failed.');
     } finally { setBusy(false); }

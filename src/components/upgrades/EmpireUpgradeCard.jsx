@@ -24,7 +24,7 @@ export default function EmpireUpgradeCard({ upgrade, unlocked, wide }) {
     try {
       const res = await base44.functions.invoke('buyEmpireUpgrade', { upgrade_id: upgrade.id });
       if (res?.data?.error) { setError(purchaseErrorMessage(res.data.error)); return; }
-      await refresh();
+      await refresh(res?.data?.empire);
     } catch (e) {
       setError(purchaseErrorMessage(e));
     } finally {

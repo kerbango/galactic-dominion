@@ -23,8 +23,7 @@ export default async function(req) {
     const unit = getUnit(unitId);
     if (!unit) return Response.json({ error: 'Unknown unit type.' }, { status: 400 });
 
-    const svc = base44.asServiceRole;
-    const empires = await svc.entities.Empire.filter({ created_by_id: user.id });
+    const empires = await base44.entities.Empire.filter({ created_by_id: user.id });
     const empire = empires[0];
     if (!empire) return Response.json({ error: 'You must found an empire first.' }, { status: 400 });
 
@@ -52,7 +51,7 @@ export default async function(req) {
     }
 
     if (Object.keys(updates).length) {
-      await svc.entities.Empire.update(empire.id, updates);
+      await base44.entities.Empire.update(empire.id, updates);
     }
 
     const now = new Date().toISOString();
@@ -79,11 +78,16 @@ export default async function(req) {
       });
     }
 
+    const current = await base44.entities.Unit.filter({ unit_type: unitId });
+    const freshUnit = current.find((u) => u.unit_type === unitId);
+    const freshEmpire = await base44.entities.Empire.get(empire.id);
     return Response.json({
       ok: true,
       unit_type: unitId,
       queued: totalRequested,
       construction_queue: (alreadyBuilding ? queued + totalRequested : Math.max(0, totalRequested - 1)),
+      unit: freshUnit,
+      empire: freshEmpire,
     });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });

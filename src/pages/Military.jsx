@@ -57,7 +57,10 @@ export default function Military() {
   }, [loadAll]);
   useCycleRefresh(empire?.last_tick_date, loadAll);
 
-  const finalizeBuilds = useCallback(async () => {
+  const finalizeBuilds = useCallback(async (updatedUnit) => {
+    if (updatedUnit) {
+      setUnits((current) => ({ ...current, [updatedUnit.unit_type]: updatedUnit }));
+    }
     try { await base44.functions.invoke('tickMyEmpire', {}); await refresh(); } catch { /* next cycle retries */ }
     await loadAll();
   }, [loadAll, refresh]);

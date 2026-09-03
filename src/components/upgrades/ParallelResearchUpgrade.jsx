@@ -20,7 +20,7 @@ export default function ParallelResearchUpgrade() {
     try {
       const res = await base44.functions.invoke('buyParallelResearchUpgrade', {});
       if (res?.data?.error) { setError(purchaseErrorMessage(res.data.error)); return; }
-      await refresh();
+      await refresh(res?.data?.empire);
     } catch (e) {
       setError(purchaseErrorMessage(e));
     } finally {

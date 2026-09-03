@@ -29,8 +29,7 @@ export default async function(req) {
       return Response.json({ error: 'Unknown upgrade for this unit type.' }, { status: 400 });
     }
 
-    const svc = base44.asServiceRole;
-    const empires = await svc.entities.Empire.filter({ created_by_id: user.id });
+    const empires = await base44.entities.Empire.filter({ created_by_id: user.id });
     const empire = empires[0];
     if (!empire) return Response.json({ error: 'You must found an empire first.' }, { status: 400 });
 
@@ -67,13 +66,15 @@ export default async function(req) {
       }
     }
     if (Object.keys(updates).length) {
-      await svc.entities.Empire.update(empire.id, updates);
+      await base44.entities.Empire.update(empire.id, updates);
     }
 
     const newLevels = { ...levels, [upgradeId]: nextLevel };
     await base44.entities.Unit.update(mine.id, { upgrade_levels: newLevels });
 
-    return Response.json({ ok: true, level: nextLevel });
+    const freshEmpire = await base44.entities.Empire.get(empire.id);
+    const freshUnit = await base44.entities.Unit.get(mine.id);
+    return Response.json({ ok: true, level: nextLevel, empire: freshEmpire, unit: freshUnit });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
   }

@@ -28,7 +28,7 @@ export default function ResearchSpeedUpgrade() {
     try {
       const res = await base44.functions.invoke('buyResearchSpeedUpgrade', {});
       if (res?.data?.error) { setError(purchaseErrorMessage(res.data.error)); return; }
-      await refresh();
+      await refresh(res?.data?.empire);
     } catch (e) {
       setError(purchaseErrorMessage(e));
     } finally {

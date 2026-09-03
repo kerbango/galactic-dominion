@@ -26,8 +26,8 @@ export default function UnitUpgradeList({ unit, unitRecord, unlocked, onDone }) 
     try {
       const res = await base44.functions.invoke('buyUnitUpgrade', { unit_type: unit.id, upgrade_id: up.id });
       if (res?.data?.error) { setError(res.data.error); return; }
-      await refresh();
-      onDone?.();
+      if (res?.data?.empire) await refresh(res.data.empire);
+      onDone?.(res?.data?.unit);
     } catch (e) {
       setError(e?.message || 'Purchase failed.');
     } finally {

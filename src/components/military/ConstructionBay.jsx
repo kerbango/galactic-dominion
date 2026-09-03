@@ -51,8 +51,8 @@ export default function ConstructionBay({ unit, unitRecord, unlocked, deployedCo
       const total = quantity;
       toastSuccess('CONSTRUCTION QUEUED', `${unit.name} ×${total} · first ship ready in ${formatDuration(buildTimeSec)}`);
       setQuantity(1);
-      await refresh();
-      onBuilt?.();
+      if (res?.data?.empire) await refresh(res.data.empire);
+      onBuilt?.(res?.data?.unit);
     } catch (e) {
       setError(e?.message || 'Build failed.');
     } finally {
