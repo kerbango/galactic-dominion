@@ -8,7 +8,8 @@ import ResearchPointsProduction from '@/components/upgrades/ResearchPointsProduc
 import EmpireUpgradeCard from '@/components/upgrades/EmpireUpgradeCard';
 import BonusDashboard from '@/components/upgrades/BonusDashboard';
 import { EMPIRE_UPGRADES, isEmpireUpgradeAvailable } from '@/data/empireUpgrades';
-import { Wrench, Loader2, FlaskConical, Crown, ChevronDown, Sparkles } from 'lucide-react';
+import { ECONOMY_TECH_IDS } from '@/data/techTree';
+import { Wrench, Loader2, FlaskConical, Crown, ChevronDown, Sparkles, Coins } from 'lucide-react';
 
 const UPGRADES_BG = "https://media.base44.com/images/public/6a8dedaa90af486a558f758e/9e981c261_ChatGPTImageAug29202607_36_06AM.png";
 
@@ -87,6 +88,15 @@ export default function Upgrades() {
     [completedIds]
   );
 
+  const economyUpgrades = useMemo(
+    () => EMPIRE_UPGRADES.filter((u) => ECONOMY_TECH_IDS.has(u.gatingTechId)),
+    []
+  );
+  const empireUpgrades = useMemo(
+    () => EMPIRE_UPGRADES.filter((u) => !ECONOMY_TECH_IDS.has(u.gatingTechId)),
+    []
+  );
+
   if (!progress) {
     return (
       <div className="flex items-center justify-center py-32">
@@ -136,17 +146,38 @@ export default function Upgrades() {
           </CategorySection>
 
           <CategorySection
+            id="economy"
+            title="Economy and Resources"
+            subtitle="Permanent boosts to mining, energy, and material production."
+            icon={Coins}
+            accent="amber"
+            count={economyUpgrades.length}
+            open={openCategory === 'economy'}
+            onClick={() => toggleCategory('economy')}
+          >
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+              {economyUpgrades.map((upgrade) => (
+                <EmpireUpgradeCard
+                  key={upgrade.id}
+                  upgrade={upgrade}
+                  unlocked={isEmpireUpgradeAvailable(upgrade, completedIds)}
+                />
+              ))}
+            </div>
+          </CategorySection>
+
+          <CategorySection
             id="empire"
             title="Empire Systems"
             subtitle="Permanent improvements to the command, economy, and capabilities of your empire."
             icon={Crown}
             accent="violet"
-            count={EMPIRE_UPGRADES.length}
+            count={empireUpgrades.length}
             open={openCategory === 'empire'}
             onClick={() => toggleCategory('empire')}
           >
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-              {EMPIRE_UPGRADES.map((upgrade) => (
+              {empireUpgrades.map((upgrade) => (
                 <EmpireUpgradeCard
                   key={upgrade.id}
                   upgrade={upgrade}

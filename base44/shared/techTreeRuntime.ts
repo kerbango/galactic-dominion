@@ -1,7 +1,7 @@
 // Runtime view of the canonical research tree. This keeps the authored tree intact
 // while applying research-to-upgrade, unit-gate, and economy-branch corrections.
 import { TECH_TREE as BASE_TECH_TREE, normalizePrereqs, defaultResearchCost, getResearchCost, isPrimaryTech, getUnlocks } from './techTree.ts';
-import { ECONOMY_TECH_TREE } from './economyTechTree.ts';
+import { ECONOMY_TECH_TREE, ECONOMY_TECH_IDS } from './economyTechTree.ts';
 
 const OVERRIDES = {
   planetary_growth_economics: { unlocks: undefined },
@@ -62,6 +62,7 @@ const baseRuntimeTree = BASE_TECH_TREE
   });
 
 export const TECH_TREE = [...baseRuntimeTree, ...ECONOMY_TECH_TREE];
+export { ECONOMY_TECH_IDS };
 
 export { normalizePrereqs, defaultResearchCost, getResearchCost, isPrimaryTech, getUnlocks };
 export const CATEGORY_ORDER = ['Defense', 'Economy and Resources', 'Fleet Research', 'Exploration', 'Empire Governance'];

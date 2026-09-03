@@ -36,3 +36,5 @@ export const ECONOMY_TECH_TREE = [
 
   { id: 'dyson_sphere', name: 'Dyson Sphere', description: 'The ultimate industrial megastructure: surrounds a star and multiplies imperial resource collection on a galactic scale.', category: 'Economy and Resources', tier: 8, researchTurns: 8, prerequisites: ['stellar_corona_skimming', 'zero_point_extraction'], isPrimary: true },
 ];
+
+export const ECONOMY_TECH_IDS = new Set(ECONOMY_TECH_TREE.map((t) => t.id));
