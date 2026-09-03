@@ -1,8 +1,9 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
 import { authorizeTick } from '../../shared/authGuard.ts';
 import { cyclesDue, martialLawMultiplier } from '../../shared/tickMath.ts';
-import { totalResearchSpeedBonus, computeCompletionMs } from '../../shared/researchSpeed.ts';
+import { totalResearchSpeedBonus } from '../../shared/researchSpeed.ts';
 import { researchPointsPerHour } from '../../shared/researchPoints.ts';
+import { researchPoolMaximum, clampResearchPool, allocationTotal } from '../../shared/researchAllocation.ts';
 import { processBuildCompletions } from '../../shared/buildCompletion.ts';
 import { economyProductionRates } from '../../shared/economyProduction.ts';
 
@@ -25,8 +26,6 @@ function recurringVrindMultiplier(empire) {
   return 1 + bonus;
 }
 
-// Resource production is defined as an hourly rate. The game heartbeat remains
-// one minute, so one hour of elapsed time equals 60 production cycles.
 const CYCLES_PER_HOUR = 60;
 
 export default async function(req) {
@@ -45,7 +44,10 @@ export default async function(req) {
     let ticked = 0;
     let granted = 0;
     let vrindGranted = 0;
+    let researchInvested = 0;
+    let researchCompleted = 0;
 
+    // Resource production and research-pool recharge.
     for (const empire of empires) {
       const due = cyclesDue(empire.last_tick_date, now);
       if (due <= 0) continue;
@@ -59,19 +61,21 @@ export default async function(req) {
       const energyGrant = hours * rates.energy * martialMultiplier;
       const berentiumGrant = hours * rates.berentium * martialMultiplier;
       const aetheriumGrant = hours * rates.aetherium * martialMultiplier;
-
-      // VRIND remains on its established production-cycle economy and is not
-      // part of the new mineral/energy hourly balance unless an income upgrade
-      // changes it.
       const vrindGrant = due * martialMultiplier * recurringVrindMultiplier(empire);
-      const rpGrant = hours * researchPointsPerHour(empire.population || 0);
+
+      // Research Points are a renewable pool. Population sets the maximum
+      // pool, and each elapsed hour replenishes up to one full pool.
+      const maxResearchPool = researchPoolMaximum(empire.population || 0);
+      const currentResearchPool = clampResearchPool(empire.research_points, empire.population || 0);
+      const researchRefill = hours * maxResearchPool;
+      const refilledResearchPool = Math.min(maxResearchPool, currentResearchPool + researchRefill);
 
       const inc = {
         ferrite_titanium: ferriteGrant,
         energy: energyGrant,
         vrind: vrindGrant,
         berentium: berentiumGrant,
-        research_points: rpGrant,
+        research_points: refilledResearchPool - (Number(empire.research_points) || 0),
       };
       if (aetheriumGrant > 0) inc.aetherium_crystal = aetheriumGrant;
 
@@ -84,41 +88,74 @@ export default async function(req) {
       vrindGranted += vrindGrant;
     }
 
-    // Time-based research completion. Completion timestamp is independent of
-    // tick cadence and uses the shared research-speed calculation.
+    // Research now advances by consuming the player's renewable research pool.
+    // Every active project receives its allocation percentage of the pool.
+    // Allocation totals may be below 100%, allowing the remainder to bank.
     const empireByOwner = {};
     for (const e of empires) empireByOwner[e.created_by_id] = e;
 
     const researching = await base44.asServiceRole.entities.TechProgress.filter(
       { status: 'researching' }, '-created_date', 5000
     );
-    let advanced = 0;
-    let completed = 0;
-    for (const tp of researching) {
-      const owner = tp.created_by_id;
-      const doneSet = completedByOwner[owner] || new Set();
+    const byOwner = {};
+    for (const tp of researching) (byOwner[tp.created_by_id] ||= []).push(tp);
+
+    for (const [owner, records] of Object.entries(byOwner)) {
       const empire = empireByOwner[owner];
-      const level = empire?.research_speed_level || 0;
-      const bonus = totalResearchSpeedBonus(doneSet, level);
-      const startMs = tp.start_date
-        ? new Date(tp.start_date).getTime()
-        : (tp.created_date ? new Date(tp.created_date).getTime() : now);
-      const completionMs = computeCompletionMs(startMs, tp.research_turns, bonus);
-      if (now >= completionMs) {
-        await base44.asServiceRole.entities.TechProgress.update(tp.id, {
-          status: 'completed', progress: tp.research_turns || 1,
+      if (!empire) continue;
+      const pool = Math.max(0, Number(empire.research_points) || 0);
+      if (pool <= 0) continue;
+
+      const totalAllocation = allocationTotal(records);
+      if (totalAllocation <= 0) continue;
+
+      const doneSet = completedByOwner[owner] || new Set();
+      const speedBonus = totalResearchSpeedBonus(doneSet, empire.research_speed_level || 0);
+      const availableForResearch = pool;
+      const projects = records.map((tp) => ({
+        tp,
+        allocation: Math.max(0, Math.min(100, Number(tp.allocation_percent) || 0)),
+        required: Math.max(1, Number(tp.research_points_required) || 500),
+        invested: Math.max(0, Number(tp.research_points_invested) || 0),
+      })).filter((p) => p.allocation > 0 && p.invested < p.required);
+
+      let totalRequested = projects.reduce((sum, p) => sum + availableForResearch * (p.allocation / 100), 0);
+      // Research speed bonuses increase effective RP throughput without ever
+      // allowing more RP to be removed from the pool than actually exists.
+      totalRequested *= (1 + Math.max(0, speedBonus));
+      const spendRatio = totalRequested > availableForResearch ? availableForResearch / totalRequested : 1;
+      let spent = 0;
+
+      for (const project of projects) {
+        const requested = availableForResearch * (project.allocation / 100) * (1 + Math.max(0, speedBonus));
+        const invest = Math.min(project.required - project.invested, requested * spendRatio);
+        if (invest <= 0) continue;
+        const nextInvested = project.invested + invest;
+        spent += invest;
+        researchInvested += invest;
+        const complete = nextInvested >= project.required - 0.000001;
+        await base44.asServiceRole.entities.TechProgress.update(project.tp.id, {
+          research_points_invested: complete ? project.required : nextInvested,
+          progress: complete ? project.required : nextInvested,
+          status: complete ? 'completed' : 'researching',
         });
-        (completedByOwner[owner] ||= new Set()).add(tp.tech_id);
-        completed += 1;
-      } else {
-        advanced += 1;
+        if (complete) {
+          (completedByOwner[owner] ||= new Set()).add(project.tp.tech_id);
+          researchCompleted += 1;
+        }
+      }
+
+      if (spent > 0) {
+        await base44.asServiceRole.entities.Empire.update(empire.id, {
+          research_points: Math.max(0, pool - spent),
+        });
       }
     }
 
     const allUnits = await base44.asServiceRole.entities.Unit.list('-created_date', 5000);
     const buildsCompleted = await processBuildCompletions(base44.asServiceRole, allUnits, now);
 
-    return Response.json({ ok: true, ticked, granted, vrindGranted, advanced, completed, buildsCompleted, at: new Date().toISOString() });
+    return Response.json({ ok: true, ticked, granted, vrindGranted, researchInvested, researchCompleted, buildsCompleted, at: new Date().toISOString() });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
   }
