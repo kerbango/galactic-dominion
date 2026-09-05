@@ -38,7 +38,7 @@ export default async function(req) {
       const ferriteGrant = hours * rates.ferrite * martialMultiplier;
       const energyGrant = hours * rates.energy * martialMultiplier;
       const berentiumGrant = hours * rates.berentium * martialMultiplier;
-      const aetheriumGrant = hours * rates.aetherium * martialMultiplier;
+      const aetheriumGrant = (doneIds.has('tectonic_shaft_mining') ? 1 : 0) * hours * rates.aetherium * martialMultiplier;
       const vrindGrant = due * martialMultiplier * recurringVrindMultiplier(empire);
       const inc = {
         ferrite_titanium: ferriteGrant,
