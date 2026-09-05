@@ -2,7 +2,7 @@ import React from 'react';
 import { X, FlaskConical, Lock, CheckCircle2, Loader2, Coins, Link2, ChevronRight, Gauge, Clock } from 'lucide-react';
 import TechIcon from './techIcons';
 import UnlockBadges from './UnlockBadges';
-import { TECH_TREE, CATEGORIES, getResearchCost, getUnlocks, isPrimaryTech, normalizePrereqs } from '@/data/techTree';
+import { TECH_TREE, CATEGORIES, getResearchCost, getUnlocks, isPrimaryTech, normalizePrereqs, effectiveRequiredFromBase } from '@/data/techTree';
 import { getTechnologyState } from '@/lib/techLayout';
 
 const STATE_LABEL = {
@@ -44,9 +44,11 @@ export default function TechInfoPanel({ tech, statusMap, progress, hourlyRate = 
   const { all, any } = normalizePrereqs(tech);
   const rec = progress?.[tech.id];
   const primary = isPrimaryTech(tech);
-  const costEntries = Object.entries(cost).filter(([, v]) => v > 0);
+  const baseRp = Math.max(1, Number(cost.research_points) || 500);
+  const effectiveRp = effectiveRequiredFromBase(baseRp, speedBonus);
+  const costEntries = Object.entries(cost).filter(([k, v]) => v > 0 && k !== 'research_points');
   const stateBorder = state === 'researched' ? 'border-emerald-400/40' : state === 'available' ? 'border-amber-400/50' : state === 'researching' ? 'border-cyan-400/50' : 'border-slate-700/60';
-  const required = Math.max(1, Number(rec?.research_points_required) || cost.research_points || 500);
+  const required = Math.max(1, Number(rec?.research_points_required) || effectiveRp);
   const invested = Math.min(required, Math.max(0, Number(rec?.research_points_invested) || 0));
   const pct = required ? (invested / required) * 100 : 0;
   const remaining = Math.max(0, required - invested);
@@ -67,6 +69,7 @@ export default function TechInfoPanel({ tech, statusMap, progress, hourlyRate = 
       <div className="grid grid-cols-2 gap-1.5 mt-2">
         {costEntries.map(([k, v]) => <div key={k} className="flex items-center justify-between rounded-md bg-[#02070d]/80 border border-slate-800/80 px-2.5 py-1.5"><span className="text-[10px] font-mono text-slate-500 uppercase">{RES_LABELS[k] || k}</span><span className="text-[11px] font-mono text-cyan-200">{Math.floor(v).toLocaleString()}</span></div>)}
       </div>
+      <div className="flex items-center justify-between mt-1.5 rounded-md bg-[#02070d]/80 border border-cyan-400/20 px-2.5 py-1.5"><span className="text-[10px] font-mono text-fuchsia-300/80 uppercase">RP to Complete{speedBonus > 0 ? ` (−${Math.round(speedBonus * 100)}%)` : ''}</span><span className="text-[11px] font-mono text-cyan-200">{Math.floor(required).toLocaleString()}</span></div>
       <div className="flex items-center justify-between mt-1.5 rounded-md bg-[#02070d]/80 border border-slate-800/80 px-2.5 py-1.5"><span className="text-[10px] font-mono text-slate-500 uppercase">RP Progress</span><span className="text-[11px] font-mono text-cyan-200">{Math.floor(invested).toLocaleString()} / {Math.floor(required).toLocaleString()}</span></div>
       <div className="mt-2 h-2 rounded-full bg-slate-900 border border-cyan-400/10 overflow-hidden"><div className="h-full bg-cyan-400 transition-all" style={{ width: `${pct}%` }} /></div>
 
@@ -86,7 +89,7 @@ export default function TechInfoPanel({ tech, statusMap, progress, hourlyRate = 
 
       {Object.keys(unlocks).length > 0 && <><SectionTitle>Unlocks</SectionTitle><div className="space-y-2 mt-2">{Object.entries(unlocks).filter(([, arr]) => arr && arr.length).map(([group, items]) => <div key={group}><p className="text-[9px] uppercase tracking-widest text-slate-600">{UNLOCK_LABELS[group] || group}</p><div className="space-y-1 mt-1">{items.map((it) => <div key={it} className="flex items-center gap-1.5 text-[11px] font-mono text-emerald-200"><ChevronRight className="w-3 h-3 text-amber-300" />{it.replace(/_/g, ' ')}</div>)}</div></div>)}</div></>}
 
-      <div className="mt-5">{state === 'available' && <button onClick={() => onBeginResearch(tech.id)} disabled={submitting} className="w-full rounded-lg border border-amber-300/70 bg-amber-400/90 hover:bg-amber-300 text-slate-950 font-heading text-xs tracking-[0.16em] uppercase py-3 disabled:opacity-60 transition-all shadow-[0_0_20px_rgba(245,158,11,0.22)]">{submitting ? 'Starting…' : `Begin Research · ${Math.floor(cost.research_points || 500).toLocaleString()} RP to complete`}</button>}{state === 'researched' && <div className="w-full rounded-lg border border-emerald-400/30 bg-emerald-400/10 text-emerald-200 font-heading text-xs tracking-[0.16em] uppercase py-3 text-center">✓ Research Complete</div>}{state === 'locked' && <div className="w-full rounded-lg border border-slate-700/50 bg-slate-900/70 text-slate-600 font-heading text-xs tracking-[0.16em] uppercase py-3 text-center">Prerequisites Unmet</div>}{error && <p className="text-xs text-rose-300 mt-2">{error}</p>}</div>
+      <div className="mt-5">{state === 'available' && <button onClick={() => onBeginResearch(tech.id)} disabled={submitting} className="w-full rounded-lg border border-amber-300/70 bg-amber-400/90 hover:bg-amber-300 text-slate-950 font-heading text-xs tracking-[0.16em] uppercase py-3 disabled:opacity-60 transition-all shadow-[0_0_20px_rgba(245,158,11,0.22)]">{submitting ? 'Starting…' : `Begin Research · ${Math.floor(effectiveRp).toLocaleString()} RP to complete`}</button>}{state === 'researched' && <div className="w-full rounded-lg border border-emerald-400/30 bg-emerald-400/10 text-emerald-200 font-heading text-xs tracking-[0.16em] uppercase py-3 text-center">✓ Research Complete</div>}{state === 'locked' && <div className="w-full rounded-lg border border-slate-700/50 bg-slate-900/70 text-slate-600 font-heading text-xs tracking-[0.16em] uppercase py-3 text-center">Prerequisites Unmet</div>}{error && <p className="text-xs text-rose-300 mt-2">{error}</p>}</div>
     </div>
   );
 }

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useEmpire } from '@/lib/EmpireContext';
-import { TECH_TREE, totalResearchSpeedBonus, researchHourlyRate } from '@/data/techTree';
+import { TECH_TREE, totalResearchSpeedBonus, researchHourlyRate, researchPoolMaximum } from '@/data/techTree';
 import { useCycleRefresh } from '@/hooks/useCycleRefresh';
 import { computeLayout, deriveStatuses, getEdges, getTechnologyState } from '@/lib/techLayout';
 import TechCanvas from '@/components/research/TechCanvas';
@@ -86,14 +86,15 @@ export default function Research() {
           <div className="relative flex items-center justify-between px-4 md:px-6 py-3">
             <div className="flex items-center gap-3"><div className="w-10 h-10 rounded-lg border border-cyan-400/40 bg-cyan-400/10 flex items-center justify-center shadow-[0_0_18px_rgba(34,211,238,0.18)]"><Microscope className="w-5 h-5 text-cyan-300" /></div><div><h1 className="font-heading text-xl md:text-2xl tracking-[0.12em] text-white uppercase">Research Nexus</h1><p className="text-[9px] md:text-[10px] font-mono tracking-[0.2em] uppercase text-cyan-300/60">Advance your empire · secure your dominion</p></div></div>
             <div className="hidden md:flex items-center gap-5 text-right">
+              <div><p className="text-[9px] font-mono uppercase tracking-widest text-slate-500">RP Pool</p><p className="font-mono text-sm text-fuchsia-300">{Math.floor(empire?.research_points || 0).toLocaleString()} / {Math.floor(researchPoolMaximum(empire?.population || 0, empire?.research_points_production_level || 0)).toLocaleString()}</p></div>
               <div><p className="text-[9px] font-mono uppercase tracking-widest text-slate-500">Research Output</p><p className="font-mono text-sm text-cyan-200">{Math.floor(hourlyRate).toLocaleString()} RP/hr</p></div>
               <div><p className="text-[9px] font-mono uppercase tracking-widest text-slate-500">Population</p><p className="font-mono text-sm text-emerald-300">{Math.floor(empire?.population || 0).toLocaleString()}</p></div>
-              {speedBonus > 0 && <div><p className="text-[9px] font-mono uppercase tracking-widest text-slate-500">Speed Bonus</p><p className="font-mono text-sm text-amber-300">+{Math.round(speedBonus * 100)}%</p></div>}
+              {speedBonus > 0 && <div><p className="text-[9px] font-mono uppercase tracking-widest text-slate-500">Efficiency</p><p className="font-mono text-sm text-amber-300">−{Math.round(speedBonus * 100)}% RP cost</p></div>}
             </div>
           </div>
         </header>
 
-        <div className="mt-2"><ActiveResearchPanel hourlyRate={hourlyRate} /></div>
+        <div className="mt-2"><ActiveResearchPanel empire={empire} /></div>
         <div className="mt-2"><TechControls search={search} setSearch={setSearch} categoryFilter={categoryFilter} setCategoryFilter={setCategoryFilter} showOnly={showOnly} setShowOnly={setShowOnly} includeHiddenCategory={blacklistedUnlocked} /></div>
         <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_310px] gap-2 mt-2">
           <div className="relative overflow-hidden rounded-xl border border-cyan-400/20 bg-[#030b13] shadow-[inset_0_0_50px_rgba(8,47,73,0.25)]"><TechCanvas statusMap={statusMap} edges={edges} layout={layout} selectedId={selectedId} onSelect={setSelectedId} visibleIds={filteredIds} progress={progress} /></div>

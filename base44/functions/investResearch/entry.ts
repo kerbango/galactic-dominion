@@ -1,6 +1,4 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
-import { totalResearchSpeedBonus } from '../../shared/researchSpeed.ts';
-import { effectiveRequiredFromBase } from '../../shared/researchPoints.ts';
 
 // Manual "Invest Now" — spends the empire's currently available stored RP
 // into the single active TechProgress record, up to its remaining effective
@@ -28,12 +26,7 @@ export default async function(req) {
       .sort((a, b) => new Date(a.start_date || 0).getTime() - new Date(b.start_date || 0).getTime());
     const project = sorted[0];
 
-    const completed = await base44.entities.TechProgress.filter({ created_by_id: user.id, status: 'completed' });
-    const doneIds = new Set(completed.map((r) => r.tech_id));
-    const speedBonus = totalResearchSpeedBonus(doneIds, empire.research_speed_level || 0);
-
-    const baseRequired = Math.max(1, Number(project.research_points_required) || 500);
-    const required = effectiveRequiredFromBase(baseRequired, speedBonus);
+    const required = Math.max(1, Number(project.research_points_required) || 500);
     const invested = Math.max(0, Number(project.research_points_invested) || 0);
     const remaining = Math.max(0, required - invested);
     if (remaining <= 0) return Response.json({ error: 'Research already complete.' }, { status: 400 });

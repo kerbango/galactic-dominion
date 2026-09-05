@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useEmpire } from '@/lib/EmpireContext';
-import { TECH_TREE, CATEGORIES } from '@/data/techTree';
+import { TECH_TREE, CATEGORIES, researchHourlyRate, researchPoolMaximum } from '@/data/techTree';
 import TechIcon from './techIcons';
-import { FlaskConical, Loader2, CheckCircle2 } from 'lucide-react';
+import { FlaskConical, Loader2, CheckCircle2, Zap } from 'lucide-react';
 
 const techById = Object.fromEntries(TECH_TREE.map((t) => [t.id, t]));
 
@@ -18,9 +18,12 @@ function formatDuration(ms) {
   return `${m}m`;
 }
 
-export default function ActiveResearchPanel({ hourlyRate = 0 }) {
-  const { empire } = useEmpire();
+export default function ActiveResearchPanel({ empire: empireProp }) {
+  const { empire: empireCtx } = useEmpire();
+  const empire = empireProp || empireCtx;
   const [data, setData] = useState(null);
+  const [investing, setInvesting] = useState(false);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     let active = true;
@@ -37,10 +40,27 @@ export default function ActiveResearchPanel({ hourlyRate = 0 }) {
     return () => { active = false; unsub?.(); clearInterval(poll); };
   }, []);
 
+  const handleInvest = async () => {
+    setError('');
+    setInvesting(true);
+    try {
+      await base44.functions.invoke('investResearch', {});
+      // Empire state will refresh via the context/subscription.
+    } catch (e) {
+      setError(e?.message || 'Investment failed.');
+    } finally {
+      setInvesting(false);
+    }
+  };
+
   if (data === null) return <div className="flex items-center justify-center py-3"><Loader2 className="w-4 h-4 text-cyan-300 animate-spin" /></div>;
   const { researching } = data;
 
   if (!researching.length) return <div className="glass-panel rounded-lg px-3 py-2 text-center"><FlaskConical className="w-4 h-4 text-cyan-300/60 inline mr-1.5" /><span className="font-heading text-xs tracking-wide text-cyan-200/80 uppercase">No Active Research</span></div>;
+
+  const hourlyRate = empire ? researchHourlyRate(empire, new Set(data.completed)) : 0;
+  const rpMax = empire ? researchPoolMaximum(empire.population || 0, empire.research_points_production_level || 0) : 0;
+  const rpAvailable = empire ? Math.max(0, Number(empire.research_points) || 0) : 0;
 
   return <div className="space-y-1.5">{researching.map((rec) => {
     const tech = techById[rec.tech_id];
@@ -50,6 +70,7 @@ export default function ActiveResearchPanel({ hourlyRate = 0 }) {
     const frac = invested / required;
     const remaining = Math.max(0, required - invested);
     const etaMs = hourlyRate > 0 ? (remaining / hourlyRate) * 3600000 : null;
+    const canInvest = rpAvailable > 0 && remaining > 0 && !investing;
     return <div key={rec.id} className="glass-panel rounded-lg px-3 py-2">
       <div className="flex items-center gap-2.5">
         <div className="shrink-0 inline-flex items-center justify-center w-7 h-7 rounded-md border border-cyan-400/20 bg-cyan-400/10"><TechIcon name={(tech && (tech.icon || cat?.icon)) || 'Cpu'} className={`w-3.5 h-3.5 ${cat?.color || 'text-slate-300'}`} /></div>
@@ -57,6 +78,13 @@ export default function ActiveResearchPanel({ hourlyRate = 0 }) {
         <CheckCircle2 className="w-3.5 h-3.5 text-cyan-300/40 shrink-0" />
       </div>
       <div className="mt-1.5 h-1.5 rounded-full bg-slate-800 overflow-hidden"><div className="h-full bg-cyan-400 transition-all" style={{ width: `${frac * 100}%` }} /></div>
+      <div className="mt-2 flex items-center justify-between gap-2">
+        <p className="font-mono text-[9px] uppercase tracking-widest text-fuchsia-300/70">RP Pool: {Math.floor(rpAvailable).toLocaleString()} / {Math.floor(rpMax).toLocaleString()}</p>
+        <button onClick={handleInvest} disabled={!canInvest} className="command-btn rounded-md px-2.5 py-1 text-[9px] font-heading uppercase tracking-widest inline-flex items-center gap-1 disabled:opacity-40">
+          {investing ? <Loader2 className="w-3 h-3 animate-spin" /> : <Zap className="w-3 h-3" />} Invest Now
+        </button>
+      </div>
+      {error && <p className="text-[9px] text-rose-300 mt-1">{error}</p>}
     </div>;
   })}</div>;
 }

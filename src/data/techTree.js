@@ -17,6 +17,7 @@ export {
   researchPointsCostForTech,
   effectiveResearchPointsRequired,
   effectiveResearchPointsRequiredForEmpire,
+  effectiveRequiredFromBase,
   clampResearchPool,
   RESEARCH_POINTS_TIERS,
   nextResearchPointsTier,

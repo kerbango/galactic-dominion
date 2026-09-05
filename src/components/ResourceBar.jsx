@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Gem, Layers, Zap, Coins, Pickaxe, Users, Loader2, FlaskConical } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useCycleRefresh } from '@/hooks/useCycleRefresh';
-import { researchHourlyRate, researchPoolMaximum } from '@/data/techTree';
+import { researchPoolMaximum } from '@/data/techTree';
 
 const RESOURCES = [
   { key: 'berentium', label: 'Berentium', icon: Pickaxe, color: 'text-emerald-300', glow: 'rgba(110,231,183,0.5)' },
@@ -75,7 +75,7 @@ export default function ResourceBar() {
     );
   }
 
-  const hourlyRate = researchHourlyRate(empire, new Set());
+  const rpMax = researchPoolMaximum(empire.population || 0, empire.research_points_production_level || 0);
 
   return (
     <div className="glass-panel rounded-lg px-2 sm:px-3 py-1.5 sm:py-2 flex flex-wrap items-center justify-center gap-x-3 sm:gap-x-5 gap-y-1 max-w-full">
@@ -86,10 +86,10 @@ export default function ResourceBar() {
           <div key={r.key} className="flex items-center gap-1.5 sm:gap-2">
             <Icon className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${r.color}`} style={{ filter: `drop-shadow(0 0 4px ${r.glow})` }} />
             <span className="font-mono text-xs sm:text-sm font-semibold text-foreground tabular-nums">
-              {isResearch ? `${formatAmount(hourlyRate)}/hr` : formatAmount(empire[r.key])}
+              {isResearch ? `${formatAmount(empire[r.key])}/${formatAmount(rpMax)}` : formatAmount(empire[r.key])}
             </span>
             <span className="hidden lg:inline text-[10px] uppercase tracking-widest text-muted-foreground">
-              {isResearch ? 'RP / hr' : r.label}
+              {isResearch ? 'RP' : r.label}
             </span>
           </div>
         );

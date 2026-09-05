@@ -1,5 +1,7 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
 import { TECH_TREE, normalizePrereqs, getResearchCost } from '../../shared/techTreeRuntime.ts';
+import { totalResearchSpeedBonus } from '../../shared/researchSpeed.ts';
+import { effectiveRequiredFromBase } from '../../shared/researchPoints.ts';
 
 // Starts a research project. Each technology has a fixed Research Point cost
 // (stored as research_points_required). The empire generates RP per hour from
@@ -72,19 +74,24 @@ export default async function(req) {
     }
     if (Object.keys(updates).length) await base44.entities.Empire.update(empire.id, updates);
 
+    const doneIds = new Set(mine.filter((r) => r.status === 'completed').map((r) => r.tech_id));
+    const speedBonus = totalResearchSpeedBonus(doneIds, empire.research_speed_level || 0);
+    const baseRp = Math.max(1, Number(cost.research_points) || 500);
+    const effectiveRp = effectiveRequiredFromBase(baseRp, speedBonus);
+
     const record = await base44.entities.TechProgress.create({
       tech_id: techId,
       status: 'researching',
       progress: 0,
       research_turns: tech.researchTurns,
       start_date: new Date().toISOString(),
-      research_points_required: cost.research_points,
+      research_points_required: effectiveRp,
       research_points_invested: 0,
       allocation_percent: 0,
     });
 
     const freshEmpire = await base44.entities.Empire.get(empire.id);
-    return Response.json({ record, empire: freshEmpire, charged: updates, research_points_required: cost.research_points });
+    return Response.json({ record, empire: freshEmpire, charged: updates, research_points_required: effectiveRp });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
   }

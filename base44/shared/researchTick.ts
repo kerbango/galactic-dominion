@@ -10,8 +10,7 @@
 //      *effective* required RP (after efficiency reductions). When invested
 //      >= effective required, the record completes and unspent RP stays in
 //      the pool. RP is never created from nothing and never over-invested.
-import { researchHourlyGeneration, researchPoolMaximum, effectiveRequiredFromBase } from './researchPoints.ts';
-import { totalResearchSpeedBonus } from './researchSpeed.ts';
+import { researchHourlyGeneration, researchPoolMaximum } from './researchPoints.ts';
 
 // Advances the empire's research for `due` production cycles (minutes).
 // `researchingRecords` is the list of the empire's TechProgress records with
@@ -47,13 +46,11 @@ export async function advanceResearch(svc, empire, due, completedSet, researchin
     .sort((a, b) => new Date(a.start_date || 0).getTime() - new Date(b.start_date || 0).getTime());
   const project = sorted[0];
 
-  const speedBonus = totalResearchSpeedBonus(completedSet, empire?.research_speed_level || 0);
-  // The stored research_points_required is the base fixed-tier cost (written at
-  // start time). The live efficiency bonus reduces the effective requirement.
-  const baseRequired = Math.max(1, Number(project.research_points_required) || 500);
-  const effectiveRequired = effectiveRequiredFromBase(baseRequired, speedBonus);
+  // The stored research_points_required was written at start time as the
+  // effective cost (base tier cost × efficiency multiplier). Use it directly.
+  const required = Math.max(1, Number(project.research_points_required) || 500);
   const invested = Math.max(0, Number(project.research_points_invested) || 0);
-  const remaining = Math.max(0, effectiveRequired - invested);
+  const remaining = Math.max(0, required - invested);
   if (remaining <= 0) return result;
 
   const available = Math.max(0, Number(empire.research_points) || 0);
@@ -61,11 +58,11 @@ export async function advanceResearch(svc, empire, due, completedSet, researchin
 
   const invest = Math.min(remaining, available);
   const nextInvested = invested + invest;
-  const complete = nextInvested >= effectiveRequired - 0.000001;
+  const complete = nextInvested >= required - 0.000001;
 
   await svc.entities.TechProgress.update(project.id, {
-    research_points_invested: complete ? effectiveRequired : nextInvested,
-    progress: complete ? effectiveRequired : nextInvested,
+    research_points_invested: complete ? required : nextInvested,
+    progress: complete ? required : nextInvested,
     status: complete ? 'completed' : 'researching',
   });
   await svc.entities.Empire.updateMany({ id: empire.id }, { $inc: { research_points: -invest } });
