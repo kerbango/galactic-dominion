@@ -1,9 +1,13 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
 import { TECH_TREE, normalizePrereqs, getResearchCost } from '../../shared/techTreeRuntime.ts';
 
-// Starts a research project. Research Points are NOT spent up front anymore:
-// they are invested continuously from the empire's renewable research pool
-// according to the player's allocation percentage.
+// Starts a research project. Each technology has a fixed Research Point cost
+// (stored as research_points_required). The empire generates RP per hour from
+// population and research-speed bonuses; that output is applied to the single
+// active research project by the production tick. Only ONE technology may be
+// researched at a time. A VRIND commit cost is charged up front; prerequisites
+// must be met. Research Points are not spent up front — they accumulate as
+// invested progress via the tick.
 const techById = new Map(TECH_TREE.map((t) => [t.id, t]));
 const START_COST_RESOURCES = ['vrind'];
 
@@ -29,7 +33,6 @@ export default async function(req) {
     const body = await req.json().catch(() => ({}));
     const techId = body?.tech_id;
     if (!techId) return Response.json({ error: 'tech_id is required' }, { status: 400 });
-    const allocationPercent = body?.allocation_percent != null ? Math.max(0, Math.min(100, Math.floor(Number(body.allocation_percent)) || 0)) : 100;
 
     const tech = techById.get(techId);
     if (!tech) return Response.json({ error: 'Unknown technology.' }, { status: 400 });
@@ -39,15 +42,20 @@ export default async function(req) {
     const empire = empires[0];
     if (!empire) return Response.json({ error: 'You must found an empire before researching.' }, { status: 400 });
 
-    const existing = await base44.entities.TechProgress.filter({ tech_id: techId });
-    const mine = existing.find((r) => r.tech_id === techId && r.created_by_id === user.id);
-    if (mine?.status === 'completed') return Response.json({ error: 'Technology already completed.' }, { status: 400 });
-    if (mine?.status === 'researching') return Response.json({ error: 'Already researching this technology.' }, { status: 400 });
+    const mine = await base44.entities.TechProgress.filter({ created_by_id: user.id });
+    if (mine.some((r) => r.tech_id === techId && r.status === 'completed')) {
+      return Response.json({ error: 'Technology already completed.' }, { status: 400 });
+    }
+    if (mine.some((r) => r.tech_id === techId && r.status === 'researching')) {
+      return Response.json({ error: 'Already researching this technology.' }, { status: 400 });
+    }
+    if (mine.some((r) => r.status === 'researching')) {
+      return Response.json({ error: 'You already have an active research project. Complete it before starting another.' }, { status: 400 });
+    }
 
     const { all, any } = normalizePrereqs(tech);
     if (all.length || any.length) {
-      const completed = await base44.entities.TechProgress.filter({ status: 'completed' });
-      const doneIds = new Set(completed.filter((r) => r.created_by_id === user.id).map((r) => r.tech_id));
+      const doneIds = new Set(mine.filter((r) => r.status === 'completed').map((r) => r.tech_id));
       const missingAll = all.filter((p) => !isPrerequisiteSatisfied(p, doneIds));
       const anyMet = any.length === 0 || any.some((p) => isPrerequisiteSatisfied(p, doneIds));
       if (missingAll.length || !anyMet) return Response.json({ error: 'Prerequisites not met.' }, { status: 400 });
@@ -72,7 +80,7 @@ export default async function(req) {
       start_date: new Date().toISOString(),
       research_points_required: cost.research_points,
       research_points_invested: 0,
-      allocation_percent: allocationPercent,
+      allocation_percent: 0,
     });
 
     const freshEmpire = await base44.entities.Empire.get(empire.id);

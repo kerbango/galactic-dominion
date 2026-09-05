@@ -8,6 +8,7 @@ import LowResourceWarning from '@/components/console/LowResourceWarning';
 import PlanetDefenseRating from '@/components/console/PlanetDefenseRating';
 import RecentEngagement from '@/components/console/RecentEngagement';
 import ActiveResearchPanel from '@/components/research/ActiveResearchPanel';
+import { researchHourlyRate } from '@/data/techTree';
 
 const RESOURCES = [
   { key: 'berentium', label: 'Berentium', icon: Pickaxe, color: 'text-emerald-300' },
@@ -42,6 +43,7 @@ export default function Console() {
   }
 
   const primaryResources = RESOURCES.slice(0, 5);
+  const hourlyRate = researchHourlyRate(empire, new Set());
 
   return (
     <div className="max-w-6xl mx-auto px-4 md:px-8 py-6 md:py-8">
@@ -100,8 +102,8 @@ export default function Console() {
             <div key={r.key} className="glass-panel rounded-lg px-3 py-2 flex items-center gap-3">
               <Icon className={`w-4 h-4 ${r.color}`} />
               <div className="min-w-0">
-                <p className="text-[9px] uppercase tracking-widest text-muted-foreground truncate">{r.label}</p>
-                <p className="font-mono text-sm font-bold tabular-nums">{formatAmount(empire[r.key])}</p>
+                <p className="text-[9px] uppercase tracking-widest text-muted-foreground truncate">{r.key === 'research_points' ? 'RP / hr' : r.label}</p>
+                <p className="font-mono text-sm font-bold tabular-nums">{r.key === 'research_points' ? `${formatAmount(hourlyRate)}/hr` : formatAmount(empire[r.key])}</p>
               </div>
             </div>
           );

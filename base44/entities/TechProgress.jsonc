@@ -2,20 +2,78 @@
   "name": "TechProgress",
   "type": "object",
   "properties": {
-    "tech_id": { "type": "string", "title": "Tech ID", "description": "The technology being researched (matches an id in the tech tree dataset)." },
-    "status": { "type": "string", "title": "Status", "description": "researching = in progress, completed = finished.", "enum": ["researching", "completed"], "default": "researching" },
-    "progress": { "type": "number", "title": "Progress", "description": "Legacy/display progress field retained for compatibility. RP progress is tracked by research_points_invested.", "default": 0, "minimum": 0 },
-    "research_turns": { "type": "number", "title": "Research Turns", "description": "Legacy research-time snapshot retained for compatibility with existing records and UI.", "default": 1, "minimum": 1 },
-    "start_date": { "type": "string", "format": "date-time", "title": "Start Date", "description": "ISO timestamp when research began." },
-    "research_points_required": { "type": "number", "title": "Research Points Required", "description": "Total Research Points required to complete this technology." },
-    "research_points_invested": { "type": "number", "title": "Research Points Invested", "description": "Research Points already invested into this technology.", "default": 0, "minimum": 0 },
-    "allocation_percent": { "type": "number", "title": "Research Allocation", "description": "Percentage of the empire's available Research Point pool allocated to this technology. All active allocations combined may not exceed 100%.", "default": 0, "minimum": 0, "maximum": 100 }
+    "tech_id": {
+      "type": "string",
+      "title": "Tech ID",
+      "description": "The technology being researched (matches an id in the tech tree dataset)."
+    },
+    "status": {
+      "type": "string",
+      "title": "Status",
+      "description": "researching = in progress, completed = finished.",
+      "enum": [
+        "researching",
+        "completed"
+      ],
+      "default": "researching"
+    },
+    "progress": {
+      "type": "number",
+      "title": "Progress",
+      "description": "Legacy/display progress field retained for compatibility. RP progress is tracked by research_points_invested.",
+      "default": 0,
+      "minimum": 0
+    },
+    "research_turns": {
+      "type": "number",
+      "title": "Research Turns",
+      "description": "Legacy research-time snapshot retained for compatibility with existing records and UI.",
+      "default": 1,
+      "minimum": 1
+    },
+    "start_date": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Start Date",
+      "description": "ISO timestamp when research began."
+    },
+    "research_points_required": {
+      "type": "number",
+      "title": "Research Points Required",
+      "description": "Fixed Research Points required to complete this technology."
+    },
+    "research_points_invested": {
+      "type": "number",
+      "title": "Research Points Invested",
+      "description": "Research Points already invested into this technology by the production tick.",
+      "default": 0,
+      "minimum": 0
+    },
+    "allocation_percent": {
+      "type": "number",
+      "title": "Research Allocation",
+      "description": "Legacy field retained for backward compatibility. The allocation system is no longer used \u2014 only one technology may be researched at a time and receives the empire's full hourly RP output. This value is not used by the current research calculation.",
+      "default": 0,
+      "minimum": 0,
+      "maximum": 100
+    }
   },
-  "required": ["tech_id", "status"],
+  "required": [
+    "tech_id",
+    "status"
+  ],
   "rls": {
-    "read": { "created_by_id": "{{user.id}}" },
-    "create": { "created_by_id": "{{user.id}}" },
-    "update": { "created_by_id": "{{user.id}}" },
-    "delete": { "created_by_id": "{{user.id}}" }
+    "read": {
+      "created_by_id": "{{user.id}}"
+    },
+    "create": {
+      "created_by_id": "{{user.id}}"
+    },
+    "update": {
+      "created_by_id": "{{user.id}}"
+    },
+    "delete": {
+      "created_by_id": "{{user.id}}"
+    }
   }
 }

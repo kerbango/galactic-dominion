@@ -1,13 +1,14 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
 import { cyclesDue, martialLawMultiplier } from '../../shared/tickMath.ts';
-import { researchPointsPerHour } from '../../shared/researchPoints.ts';
+import { advanceResearch } from '../../shared/researchTick.ts';
 import { processBuildCompletions } from '../../shared/buildCompletion.ts';
 
 // Owner-callable, idempotent production tick. Triggered by the client when
 // the production-cycle countdown rolls over. Grants any owed cycles
 // (floor((now − last_tick_date) / cycle)) to the caller's empire, recenters
-// last_tick_date, and returns the updated empire. No-op when no cycle is due,
-// so it cannot double-count with the scheduled tickResources.
+// last_tick_date, and advances the empire's active research by the same
+// elapsed cycles. No-op when no cycle is due, so it cannot double-count with
+// the scheduled tickResources.
 export default async function(req) {
   try {
     const base44 = createClientFromRequest(req);
@@ -25,8 +26,6 @@ export default async function(req) {
     const due = cyclesDue(empire.last_tick_date, now);
     if (due > 0) {
       const grant = due * martialLawMultiplier(empire, now);
-      const hours = due / 60;
-      const rpGrant = hours * researchPointsPerHour(empire.population || 0);
       const tickedAt = new Date(now).toISOString();
       await base44.entities.Empire.update(empire.id, {
         aetherium_crystal: (empire.aetherium_crystal || 0) + grant,
@@ -34,10 +33,19 @@ export default async function(req) {
         energy: (empire.energy || 0) + grant,
         vrind: (empire.vrind || 0) + grant,
         berentium: (empire.berentium || 0) + grant,
-        research_points: (empire.research_points || 0) + rpGrant,
         last_tick_date: tickedAt,
       });
       granted = grant;
+
+      // Advance the empire's active research by the elapsed cycles. Research
+      // output is generated per hour from population + speed bonuses and
+      // applied directly to the oldest in-progress technology.
+      const [myCompleted, myResearching] = await Promise.all([
+        svc.entities.TechProgress.filter({ created_by_id: user.id, status: 'completed' }),
+        svc.entities.TechProgress.filter({ created_by_id: user.id, status: 'researching' }),
+      ]);
+      const completedSet = new Set(myCompleted.map((r) => r.tech_id));
+      await advanceResearch(svc, empire, due, completedSet, myResearching);
     }
 
     // Finalize any due ship constructions for this player (time-based,

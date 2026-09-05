@@ -1,8 +1,7 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
 import { authorizeTick } from '../../shared/authGuard.ts';
 import { cyclesDue, martialLawMultiplier } from '../../shared/tickMath.ts';
-import { totalResearchSpeedBonus } from '../../shared/researchSpeed.ts';
-import { researchPoolMaximum, clampResearchPool, allocationTotal } from '../../shared/researchAllocation.ts';
+import { advanceResearch } from '../../shared/researchTick.ts';
 import { processBuildCompletions } from '../../shared/buildCompletion.ts';
 import { economyProductionRates } from '../../shared/economyProduction.ts';
 
@@ -41,17 +40,11 @@ export default async function(req) {
       const berentiumGrant = hours * rates.berentium * martialMultiplier;
       const aetheriumGrant = hours * rates.aetherium * martialMultiplier;
       const vrindGrant = due * martialMultiplier * recurringVrindMultiplier(empire);
-
-      const maxResearchPool = researchPoolMaximum(empire.population || 0);
-      const currentResearchPool = clampResearchPool(empire.research_points, empire.population || 0);
-      const researchRefill = hours * maxResearchPool;
-      const refilledResearchPool = Math.min(maxResearchPool, currentResearchPool + researchRefill);
       const inc = {
         ferrite_titanium: ferriteGrant,
         energy: energyGrant,
         vrind: vrindGrant,
         berentium: berentiumGrant,
-        research_points: refilledResearchPool - (Number(empire.research_points) || 0),
       };
       if (aetheriumGrant > 0) inc.aetherium_crystal = aetheriumGrant;
       await base44.asServiceRole.entities.Empire.updateMany({ id: empire.id }, { $inc: inc, $set: { last_tick_date: tickedAt } });
@@ -70,48 +63,14 @@ export default async function(req) {
       const empire = empireByOwner[owner];
       if (!empire) continue;
       const due = cyclesDue(empire.last_tick_date, now);
-      // The resource loop above updated the pool; reconstruct the just-refilled
-      // balance locally because the Empire object returned by list is stale.
-      const maxResearchPool = researchPoolMaximum(empire.population || 0);
-      const currentPool = clampResearchPool(empire.research_points, empire.population || 0);
-      const refill = due > 0 ? (due / CYCLES_PER_HOUR) * maxResearchPool : 0;
-      const pool = Math.min(maxResearchPool, currentPool + refill);
-      if (pool <= 0) continue;
-
-      const totalAllocation = allocationTotal(records);
-      if (totalAllocation <= 0) continue;
+      if (due <= 0) continue;
       const doneSet = completedByOwner[owner] || new Set();
-      const speedBonus = totalResearchSpeedBonus(doneSet, empire.research_speed_level || 0);
-      const projects = records.map((tp) => ({
-        tp,
-        allocation: Math.max(0, Math.min(100, Number(tp.allocation_percent) || 0)),
-        required: Math.max(1, Number(tp.research_points_required) || 500),
-        invested: Math.max(0, Number(tp.research_points_invested) || 0),
-      })).filter((p) => p.allocation > 0 && p.invested < p.required);
-      let totalRequested = projects.reduce((sum, p) => sum + pool * (p.allocation / 100), 0);
-      totalRequested *= 1 + Math.max(0, speedBonus);
-      const spendRatio = totalRequested > pool ? pool / totalRequested : 1;
-      let spent = 0;
-
-      for (const project of projects) {
-        const requested = pool * (project.allocation / 100) * (1 + Math.max(0, speedBonus));
-        const invest = Math.min(project.required - project.invested, requested * spendRatio);
-        if (invest <= 0) continue;
-        const nextInvested = project.invested + invest;
-        spent += invest;
-        researchInvested += invest;
-        const complete = nextInvested >= project.required - 0.000001;
-        await base44.asServiceRole.entities.TechProgress.update(project.tp.id, {
-          research_points_invested: complete ? project.required : nextInvested,
-          progress: complete ? project.required : nextInvested,
-          status: complete ? 'completed' : 'researching',
-        });
-        if (complete) {
-          (completedByOwner[owner] ||= new Set()).add(project.tp.tech_id);
-          researchCompleted += 1;
-        }
+      const result = await advanceResearch(base44.asServiceRole, empire, due, doneSet, records);
+      researchInvested += result.invested;
+      if (result.completed) {
+        (completedByOwner[owner] ||= new Set()).add(result.techId);
+        researchCompleted += result.completed;
       }
-      if (spent > 0) await base44.asServiceRole.entities.Empire.update(empire.id, { research_points: Math.max(0, pool - spent) });
     }
 
     const allUnits = await base44.asServiceRole.entities.Unit.list('-created_date', 5000);

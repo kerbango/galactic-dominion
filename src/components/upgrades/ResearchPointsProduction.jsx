@@ -7,9 +7,9 @@ import TierPadRow from './TierPadRow';
 import CostChip from './CostChip';
 import { purchaseErrorMessage } from '@/lib/upgradeError';
 
-// Research Point Synthesis — now a population-boost upgrade. Each tier adds a
-// flat population bonus, which raises the empire's RP/hr rate (1 RP per hour
-// per 100K population). Martial Law does not affect Research Points.
+// Research Point Synthesis — a population-boost upgrade. Each tier adds a
+// flat population bonus, which raises the empire's base RP/hr rate (500 RP/hr
+// per million population). Martial Law does not affect Research Points.
 export default function ResearchPointsProduction() {
   const { empire, refresh } = useEmpire();
   const [busy, setBusy] = useState(false);

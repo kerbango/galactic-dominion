@@ -50,7 +50,7 @@
     "research_points": {
       "type": "number",
       "title": "Research Points",
-      "description": "Renewable research pool. Population determines the maximum pool: 500 Research Points per million population. The pool replenishes toward that maximum every hour and is spent continuously according to research allocations.",
+      "description": "Legacy field retained for backward compatibility. Research Points are no longer stored as a pool \u2014 the empire generates RP per hour from population and research-speed bonuses, applied directly to the active research project by the production tick. This value is not used by the current research calculation.",
       "default": 500,
       "minimum": 0
     },
@@ -94,21 +94,21 @@
     "parallel_research_level": {
       "type": "number",
       "title": "Parallel Research Level",
-      "description": "Legacy upgrade field retained for research-system compatibility. Research allocation itself is no longer limited to a fixed number of slots.",
+      "description": "Legacy upgrade field retained for research-system compatibility. Only one technology may be researched at a time; this field is no longer used by the research calculation.",
       "default": 0,
       "minimum": 0
     },
     "research_speed_level": {
       "type": "number",
       "title": "Research Speed Level",
-      "description": "Purchased research-efficiency level. Its bonus increases the effective Research Points invested from active allocations.",
+      "description": "Purchased research-efficiency level. Its bonus multiplies the empire's hourly Research Point output, stacking with the quantum_computing tech bonus.",
       "default": 0,
       "minimum": 0
     },
     "research_points_production_level": {
       "type": "number",
       "title": "Research Points Production Level",
-      "description": "Legacy upgrade field retained for compatibility. Research capacity is now determined by population.",
+      "description": "Legacy upgrade field retained for compatibility. Each tier grants a flat population bonus, which raises the base hourly RP rate. This level itself is not read by the research calculation.",
       "default": 0,
       "minimum": 0
     },
