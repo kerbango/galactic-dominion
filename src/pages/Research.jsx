@@ -95,7 +95,7 @@ export default function Research() {
         </header>
 
         <div className="mt-2"><ActiveResearchPanel empire={empire} /></div>
-        <div className="mt-2"><TechControls search={search} setSearch={setSearch} categoryFilter={categoryFilter} setCategoryFilter={setCategoryFilter} showOnly={showOnly} setShowOnly={setShowOnly} includeHiddenCategory={blacklistedUnlocked} /></div>
+        <div className="mt-2"><TechControls search={search} setSearch={setSearch} categoryFilter={categoryFilter} setCategoryFilter={setCategoryFilter} showOnly={showOnly} setShowOnly={setShowOnly} includeHiddenCategory={true} /></div>
         <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_310px] gap-2 mt-2">
           <div className="relative overflow-hidden rounded-xl border border-cyan-400/20 bg-[#030b13] shadow-[inset_0_0_50px_rgba(8,47,73,0.25)]"><TechCanvas statusMap={statusMap} edges={edges} layout={layout} selectedId={selectedId} onSelect={setSelectedId} visibleIds={filteredIds} progress={progress} /></div>
           <div className="hidden lg:block min-h-[620px]"><TechInfoPanel tech={selected} statusMap={statusMap} progress={progress} hourlyRate={hourlyRate} speedBonus={speedBonus} submitting={submitting} error={error} onBeginResearch={beginResearch} onClose={() => setSelectedId(null)} /></div>

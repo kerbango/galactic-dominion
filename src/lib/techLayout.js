@@ -62,16 +62,14 @@ export const CATEGORY_THEME = {
 };
 
 let _layout = null;
-const LAYOUT_VERSION = 5;
+const LAYOUT_VERSION = 6;
 
 export function computeLayout(includeHidden = false) {
   if (_layout && _layout.includeHidden === includeHidden && _layout.version === LAYOUT_VERSION) return _layout;
 
   const visibleTechs = TECH_TREE.filter((t) => includeHidden || !t.hidden);
   const byTier = {};
-  const categories = includeHidden
-    ? [...CATEGORY_ORDER, ...Object.keys(Object.fromEntries(visibleTechs.map((t) => [t.category, true]))).filter((c) => !CATEGORY_ORDER.includes(c))]
-    : CATEGORY_ORDER;
+  const categories = [...CATEGORY_ORDER, ...Object.keys(Object.fromEntries(visibleTechs.map((t) => [t.category, true]))).filter((c) => !CATEGORY_ORDER.includes(c))];
 
   for (const t of visibleTechs) (byTier[t.tier] ||= []).push(t);
 
