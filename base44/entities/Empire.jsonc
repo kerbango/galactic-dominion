@@ -16,42 +16,42 @@
       "type": "number",
       "title": "Aetherium Crystal",
       "description": "Rare crystal resource used for advanced construction and upgrades.",
-      "default": 1000,
+      "default": 0,
       "minimum": 0
     },
     "ferrite_titanium": {
       "type": "number",
       "title": "Ferrite-Titanium",
       "description": "Alloy used for building ships and structures.",
-      "default": 1000,
+      "default": 500,
       "minimum": 0
     },
     "energy": {
       "type": "number",
       "title": "Energy",
       "description": "Power used to run operations, fleets, and facilities.",
-      "default": 500,
+      "default": 100,
       "minimum": 0
     },
     "vrind": {
       "type": "number",
       "title": "VRIND",
       "description": "Galactic currency for trade, transactions, research, and unit construction.",
-      "default": 500,
+      "default": 1000,
       "minimum": 0
     },
     "berentium": {
       "type": "number",
       "title": "Berentium",
       "description": "Rare mined ore used for advanced alloys and exotic construction.",
-      "default": 500,
+      "default": 100,
       "minimum": 0
     },
     "research_points": {
       "type": "number",
       "title": "Research Points",
       "description": "Legacy field retained for backward compatibility. Research Points are no longer stored as a pool \u2014 the empire generates RP per hour from population and research-speed bonuses, applied directly to the active research project by the production tick. This value is not used by the current research calculation.",
-      "default": 500,
+      "default": 50,
       "minimum": 0
     },
     "population": {
