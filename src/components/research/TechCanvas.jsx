@@ -140,6 +140,7 @@ export default function TechCanvas({ statusMap, edges, layout, selectedId, onSel
           {/* Colored discipline lanes */}
           {laneData.map(({ category, top, height, theme }) => {
             const cat = CATEGORIES[category];
+            const isForbidden = category === 'Blacklisted Alien Technology';
             return (
               <div key={category} className="absolute left-2 right-2 rounded-2xl border pointer-events-none overflow-hidden" style={{ top, height, borderColor: `${theme.accent}2d`, background: `linear-gradient(90deg, ${theme.soft}, rgba(2,7,13,0.12) 35%, rgba(2,7,13,0.02))`, boxShadow: `inset 0 0 60px ${theme.accent}0b` }}>
                 <div className="absolute left-3 top-3 flex items-center gap-2">
@@ -147,6 +148,16 @@ export default function TechCanvas({ statusMap, edges, layout, selectedId, onSel
                   <div><div className="font-heading text-[10px] uppercase tracking-[0.16em]" style={{ color: theme.bright }}>{category}</div><div className="font-mono text-[7px] uppercase tracking-widest text-slate-600">DISCIPLINE</div></div>
                 </div>
                 <div className="absolute left-[272px] top-0 bottom-0 w-px" style={{ background: `linear-gradient(transparent, ${theme.accent}18, transparent)` }} />
+                {isForbidden && (
+                  <div className="absolute inset-0" style={{ backgroundImage: 'repeating-linear-gradient(135deg, rgba(236,72,153,0.055) 0px, rgba(236,72,153,0.055) 14px, transparent 14px, transparent 28px)' }} />
+                )}
+                {isForbidden && (
+                  <div className="absolute left-[300px] top-1/2 -translate-y-1/2 flex flex-col items-center gap-2 opacity-70 pointer-events-none">
+                    <svg className="w-12 h-12" style={{ color: theme.bright, filter: 'drop-shadow(0 0 12px rgba(236,72,153,0.5))' }} fill="none" stroke="currentColor" strokeWidth="1.4" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M6.5 10V7.5a5.5 5.5 0 0111 0V10M5 10h14v9a1 1 0 01-1 1H6a1 1 0 01-1-1v-9z" /></svg>
+                    <span className="font-heading text-[11px] uppercase tracking-[0.22em] whitespace-nowrap" style={{ color: theme.bright, textShadow: '0 0 10px rgba(236,72,153,0.4)' }}>Access Restricted</span>
+                    <span className="font-mono text-[8px] uppercase tracking-[0.2em] text-pink-400/50">Classified · Tier 8+ Required</span>
+                  </div>
+                )}
               </div>
             );
           })}
