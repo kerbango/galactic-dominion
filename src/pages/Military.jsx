@@ -11,7 +11,8 @@ import ShipVisualization from '@/components/military/ShipVisualization';
 import ShipSpecs from '@/components/military/ShipSpecs';
 import ConstructionBay from '@/components/military/ConstructionBay';
 import MobileShipSelector from '@/components/military/MobileShipSelector';
-import { Loader2, Sword, Shield, Factory, Crosshair, Activity } from 'lucide-react';
+import ShipRegistry from '@/components/military/ShipRegistry';
+import { Loader2, Sword, Shield, Factory, Crosshair, Activity, BookOpen } from 'lucide-react';
 
 const MILITARY_BG = "https://media.base44.com/images/public/6a8dedaa90af486a558f758e/d4a4244f4_ChatGPTImageAug28202609_39_29PM.png";
 const DEPLOYED_STATUSES = new Set(['in_transit', 'in_battle', 'awaiting_recon', 'scouting']);
@@ -28,6 +29,7 @@ export default function Military() {
   const [units, setUnits] = useState(null);
   const [fleets, setFleets] = useState([]);
   const [selectedId, setSelectedId] = useState(null);
+  const [activeTab, setActiveTab] = useState('shipyard');
 
   const loadAll = useCallback(async () => {
     try {
@@ -129,7 +131,26 @@ export default function Military() {
           </div>
         </div>
 
-        {/* Sticky command bar */}
+        {/* Tab switcher */}
+        <div className="glass-panel rounded-xl p-1 mb-4 flex gap-1">
+          <button
+            onClick={() => setActiveTab('shipyard')}
+            className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-xs font-heading uppercase tracking-widest transition-all ${activeTab === 'shipyard' ? 'bg-cyan-400/15 text-cyan-200 border border-cyan-400/40' : 'text-slate-400 hover:text-slate-200 border border-transparent'}`}
+          >
+            <Factory className="w-3.5 h-3.5" /> Shipyard
+          </button>
+          <button
+            onClick={() => setActiveTab('registry')}
+            className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-xs font-heading uppercase tracking-widest transition-all ${activeTab === 'registry' ? 'bg-cyan-400/15 text-cyan-200 border border-cyan-400/40' : 'text-slate-400 hover:text-slate-200 border border-transparent'}`}
+          >
+            <BookOpen className="w-3.5 h-3.5" /> Ship Registry
+          </button>
+        </div>
+
+        {activeTab === 'registry' ? (
+          <ShipRegistry completedIds={completedIds} />
+        ) : (
+        <>
         <div className="sticky top-2 z-10 glass-panel-strong rounded-xl px-4 py-2.5 mb-4 flex items-center gap-4">
           <div className="flex items-center gap-4 text-[11px] font-mono uppercase tracking-widest">
             <span className="flex items-center gap-1.5 text-slate-400"><Crosshair className="w-3 h-3 text-cyan-300" /> Fleet <span className="text-cyan-200">{totalOwned}</span></span>
@@ -181,6 +202,8 @@ export default function Military() {
             deployedCount={deployedMap[selectedUnit.id] || 0}
             onBuilt={finalizeBuilds}
           />
+        )}
+        </>
         )}
       </div>
     </>
