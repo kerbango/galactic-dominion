@@ -34,11 +34,10 @@ export default async function(req) {
       }
     }
     updates.research_points_production_level = tier.level;
-    updates.population = (empire.population || 0) + tier.populationBonus;
     await base44.entities.Empire.update(empire.id, updates);
 
     const fresh = await base44.entities.Empire.get(empire.id);
-    return Response.json({ empire: fresh, level: tier.level, populationBonus: tier.populationBonus });
+    return Response.json({ empire: fresh, level: tier.level, rpHourlyBonus: tier.rpHourlyBonus });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
   }

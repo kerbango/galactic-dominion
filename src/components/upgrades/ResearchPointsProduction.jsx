@@ -1,25 +1,25 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useEmpire } from '@/lib/EmpireContext';
-import { RESEARCH_POINTS_TIERS, nextResearchPointsTier, researchPointsPerHour } from '@/data/techTree';
-import { FlaskConical, Loader2, Users } from 'lucide-react';
+import { RESEARCH_POINTS_TIERS, nextResearchPointsTier, researchHourlyRate } from '@/data/techTree';
+import { FlaskConical, Loader2 } from 'lucide-react';
 import TierPadRow from './TierPadRow';
 import CostChip from './CostChip';
 import { purchaseErrorMessage } from '@/lib/upgradeError';
 
-// Research Point Synthesis — a population-boost upgrade. Each tier adds a
-// flat population bonus, which raises the empire's base RP/hr rate (500 RP/hr
-// per million population). Martial Law does not affect Research Points.
+// Research Point Synthesis — a flat RP/hr boost upgrade. Each tier adds a
+// fixed Research Points per hour bonus to the empire's base rate. The base
+// rate is fixed and only grows through this upgrade, the quantum_computing
+// tech, and the Research Accelerator upgrade. Martial Law does not affect RP.
 export default function ResearchPointsProduction() {
   const { empire, refresh } = useEmpire();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
 
   const level = empire?.research_points_production_level || 0;
-  const population = empire?.population || 0;
   const next = nextResearchPointsTier(level);
   const maxed = !next;
-  const rpPerHour = researchPointsPerHour(population);
+  const rpPerHour = researchHourlyRate(empire, new Set());
 
   const buy = async () => {
     setError('');
@@ -44,7 +44,7 @@ export default function ResearchPointsProduction() {
         <div className="min-w-0">
           <h2 className="font-heading text-base text-white tracking-wide uppercase">Research Point Synthesis</h2>
           <p className="text-[11px] text-slate-400 font-body leading-snug">
-            Boost population to raise Research Point output. Current: <span className="text-fuchsia-300 font-semibold">{population.toLocaleString()}</span> pop · <span className="text-fuchsia-300 font-semibold">{rpPerHour}/hr</span>
+            Flat RP/hr boost to your base research output. Current: <span className="text-fuchsia-300 font-semibold">{rpPerHour} RP/hr</span>
           </p>
         </div>
       </div>
@@ -57,7 +57,7 @@ export default function ResearchPointsProduction() {
           return (
             <TierPadRow
               key={tier.level}
-              label={`Level ${tier.level} · +${tier.populationBonus.toLocaleString()} population`}
+              label={`Level ${tier.level} · +${tier.rpHourlyBonus} RP/hr`}
               status={status}
             />
           );
@@ -80,7 +80,7 @@ export default function ResearchPointsProduction() {
               className="pcb-btn w-full rounded-lg py-2.5 font-heading text-xs uppercase tracking-wide disabled:opacity-60 inline-flex items-center justify-center gap-2"
             >
               {busy && <Loader2 className="w-4 h-4 animate-spin" />}
-              {busy ? 'Purchasing…' : `Purchase Level ${next.level} · +${next.populationBonus.toLocaleString()} pop`}
+              {busy ? 'Purchasing…' : `Purchase Level ${next.level} · +${next.rpHourlyBonus} RP/hr`}
             </button>
           </>
         )}
