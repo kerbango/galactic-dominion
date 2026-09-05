@@ -1,40 +1,41 @@
 // Research allocation model.
-// Research Points are a renewable pool capped by population. Players may split
-// the available pool across any number of active technologies, provided the
-// total allocation never exceeds 100%.
+// Research Points are a renewable stored pool on the Empire, capped by
+// population. Players may split the available pool across any number of active
+// technologies, provided the total allocation never exceeds 100%.
+//
+// Cost functions are delegated to researchPoints.ts (single source of truth)
+// so the fixed tier table and blacklisted surcharge are never duplicated.
 
-export const RESEARCH_POOL_PER_MILLION_POP = 500;
-export const STARTING_POPULATION = 1_000_000;
-export const STARTING_RESEARCH_POINTS = 500;
+import {
+  RESEARCH_POOL_PER_MILLION_POP as _RP_PER_MILLION,
+  STARTING_RESEARCH_POINTS as _STARTING_RP,
+  researchPoolMaximum as _poolMax,
+  researchPointsCostForTier as _costForTier,
+  researchPointsCostForTech as _costForTech,
+  BLACKLISTED_RP_SURCHARGE as _BL_SURCHARGE,
+} from './researchPoints.ts';
 
-export function researchPoolMaximum(population) {
-  const pop = Math.max(0, Number(population) || 0);
-  return Math.max(1, Math.floor((pop / 1_000_000) * RESEARCH_POOL_PER_MILLION_POP));
+export const RESEARCH_POOL_PER_MILLION_POP = _RP_PER_MILLION;
+export const STARTING_RESEARCH_POINTS = _STARTING_RP;
+export const BLACKLISTED_RP_SURCHARGE = _BL_SURCHARGE;
+
+// Maximum RP an empire can hold, derived from population (+ synthesis level).
+export function researchPoolMaximum(population, synthesisLevel = 0) {
+  return _poolMax(population, synthesisLevel);
 }
 
-export function clampResearchPool(current, population) {
-  const max = researchPoolMaximum(population);
+export function clampResearchPool(current, population, synthesisLevel = 0) {
+  const max = researchPoolMaximum(population, synthesisLevel);
   return Math.min(max, Math.max(0, Number(current) || 0));
 }
 
-// Research cost is a steep exponential: Tier I = 500 RP, doubling every tier.
-// Tier IV = 4,000, Tier VI = 16,000, Tier VIII = 64,000 before any surcharge.
-// Blacklisted / forbidden techs cost substantially more than same-tier
-// conventional techs.
-export const BLACKLISTED_RP_SURCHARGE = 3;
-
+// Fixed tier RP cost table (single source of truth in researchPoints.ts).
 export function researchPointsCostForTier(tier) {
-  const t = Math.max(1, Math.floor(Number(tier) || 1));
-  return 500 * Math.pow(2, t - 1);
+  return _costForTier(tier);
 }
 
 export function researchPointsCostForTech(tech) {
-  const base = researchPointsCostForTier(tech?.tier || 1);
-  const tags = tech?.unlockTags;
-  if (Array.isArray(tags) && tags.includes('blacklisted')) {
-    return Math.round(base * BLACKLISTED_RP_SURCHARGE);
-  }
-  return base;
+  return _costForTech(tech);
 }
 
 export function allocationTotal(records, excludeId = null) {

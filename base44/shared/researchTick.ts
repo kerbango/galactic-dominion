@@ -1,43 +1,77 @@
 // Shared research-advancement logic used by both the scheduled tickResources
-// and the client-triggered tickMyEmpire. Research output is generated per hour
-// from the empire's population and research-speed bonuses, then pro-rated
-// across the elapsed production cycles (minutes). It is NOT stored as a pool —
-// each cycle's output is applied directly to the empire's single oldest active
-// TechProgress record, and any excess (when the tech completes mid-cycle) is
-// discarded. When the oldest record completes, the next oldest receives output
-// on the following tick.
-import { researchPointsPerHour } from './researchPoints.ts';
+// and the client-triggered tickMyEmpire.
+//
+// Two-phase model:
+//   1. REFILL — discrete hourly: floor(elapsed_cycles / 60) full hourly
+//      generations are added to empire.research_points, clamped to the
+//      current RP maximum. Unused RP is retained; a full pool gains nothing.
+//   2. INVEST — the empire's currently available stored RP is auto-invested
+//      into the single active TechProgress record, up to its remaining
+//      *effective* required RP (after efficiency reductions). When invested
+//      >= effective required, the record completes and unspent RP stays in
+//      the pool. RP is never created from nothing and never over-invested.
+import { researchHourlyGeneration, researchPoolMaximum, effectiveRequiredFromBase } from './researchPoints.ts';
 import { totalResearchSpeedBonus } from './researchSpeed.ts';
 
-// Advances the empire's oldest active research record by the pro-rated output
-// for `due` production cycles (minutes). `researchingRecords` is the list of
-// the empire's TechProgress records with status 'researching'. Returns the
-// amount invested and whether a technology completed.
+// Advances the empire's research for `due` production cycles (minutes).
+// `researchingRecords` is the list of the empire's TechProgress records with
+// status 'researching'. Returns how much RP was refilled and invested, and
+// whether a technology completed. The empire's research_points pool is
+// updated in place on the service role.
 export async function advanceResearch(svc, empire, due, completedSet, researchingRecords) {
-  if (due <= 0 || !researchingRecords || researchingRecords.length === 0) {
-    return { invested: 0, completed: 0, techId: null };
+  const result = { refilled: 0, invested: 0, completed: 0, techId: null };
+  if (due <= 0) return result;
+
+  // --- Phase 1: discrete hourly RP refill ---
+  const hoursDue = Math.floor(due / 60);
+  const synthesisLevel = empire?.research_points_production_level || 0;
+  const generation = researchHourlyGeneration(empire?.population || 0, synthesisLevel);
+  const max = researchPoolMaximum(empire?.population || 0, synthesisLevel);
+  if (hoursDue > 0 && generation > 0) {
+    const current = Math.max(0, Number(empire.research_points) || 0);
+    if (current < max) {
+      const add = Math.min(max - current, hoursDue * generation);
+      if (add > 0) {
+        await svc.entities.Empire.updateMany({ id: empire.id }, { $inc: { research_points: add } });
+        empire.research_points = current + add;
+        result.refilled = add;
+      }
+    }
   }
-  const speedBonus = totalResearchSpeedBonus(completedSet, empire?.research_speed_level || 0);
-  const hourlyRate = researchPointsPerHour(empire?.population || 0) * (1 + Math.max(0, speedBonus));
-  const rpThisTick = hourlyRate * (due / 60);
-  if (rpThisTick <= 0) return { invested: 0, completed: 0, techId: null };
+
+  // --- Phase 2: auto-invest stored RP into the active project ---
+  if (!researchingRecords || researchingRecords.length === 0) return result;
 
   const sorted = researchingRecords
     .slice()
     .sort((a, b) => new Date(a.start_date || 0).getTime() - new Date(b.start_date || 0).getTime());
   const project = sorted[0];
-  const required = Math.max(1, Number(project.research_points_required) || 500);
-  const invested = Math.max(0, Number(project.research_points_invested) || 0);
-  const remaining = Math.max(0, required - invested);
-  if (remaining <= 0) return { invested: 0, completed: 0, techId: null };
 
-  const invest = Math.min(remaining, rpThisTick);
+  const speedBonus = totalResearchSpeedBonus(completedSet, empire?.research_speed_level || 0);
+  // The stored research_points_required is the base fixed-tier cost (written at
+  // start time). The live efficiency bonus reduces the effective requirement.
+  const baseRequired = Math.max(1, Number(project.research_points_required) || 500);
+  const effectiveRequired = effectiveRequiredFromBase(baseRequired, speedBonus);
+  const invested = Math.max(0, Number(project.research_points_invested) || 0);
+  const remaining = Math.max(0, effectiveRequired - invested);
+  if (remaining <= 0) return result;
+
+  const available = Math.max(0, Number(empire.research_points) || 0);
+  if (available <= 0) return result;
+
+  const invest = Math.min(remaining, available);
   const nextInvested = invested + invest;
-  const complete = nextInvested >= required - 0.000001;
+  const complete = nextInvested >= effectiveRequired - 0.000001;
+
   await svc.entities.TechProgress.update(project.id, {
-    research_points_invested: complete ? required : nextInvested,
-    progress: complete ? required : nextInvested,
+    research_points_invested: complete ? effectiveRequired : nextInvested,
+    progress: complete ? effectiveRequired : nextInvested,
     status: complete ? 'completed' : 'researching',
   });
-  return { invested: invest, completed: complete ? 1 : 0, techId: project.tech_id };
+  await svc.entities.Empire.updateMany({ id: empire.id }, { $inc: { research_points: -invest } });
+  empire.research_points = available - invest;
+
+  result.invested = invest;
+  if (complete) { result.completed = 1; result.techId = project.tech_id; }
+  return result;
 }

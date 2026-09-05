@@ -1,0 +1,15 @@
+{
+  "name": "investResearch",
+  "title": "Invest Research Points",
+  "description": "Manually invests the empire's currently available stored Research Points into the single active research project, up to its remaining effective required RP. Does not generate RP — only spends from the pool. Used by the Research page 'Invest Now' button.",
+  "type": "object",
+  "properties": {
+    "amount": {
+      "type": "number",
+      "title": "Amount",
+      "description": "Maximum RP to invest. If omitted or 0, invests the full available pool up to the remaining required.",
+      "minimum": 0
+    }
+  },
+  "required": []
+}

@@ -26,7 +26,7 @@ export default async function(req) {
 
     const now = Date.now();
     const tickedAt = new Date().toISOString();
-    let ticked = 0, granted = 0, vrindGranted = 0, researchInvested = 0, researchCompleted = 0;
+    let ticked = 0, granted = 0, vrindGranted = 0, researchInvested = 0, researchCompleted = 0, researchRefilled = 0;
 
     for (const empire of empires) {
       const due = cyclesDue(empire.last_tick_date, now);
@@ -67,6 +67,7 @@ export default async function(req) {
       const doneSet = completedByOwner[owner] || new Set();
       const result = await advanceResearch(base44.asServiceRole, empire, due, doneSet, records);
       researchInvested += result.invested;
+      researchRefilled += result.refilled;
       if (result.completed) {
         (completedByOwner[owner] ||= new Set()).add(result.techId);
         researchCompleted += result.completed;
@@ -75,7 +76,7 @@ export default async function(req) {
 
     const allUnits = await base44.asServiceRole.entities.Unit.list('-created_date', 5000);
     const buildsCompleted = await processBuildCompletions(base44.asServiceRole, allUnits, now);
-    return Response.json({ ok: true, ticked, granted, vrindGranted, researchInvested, researchCompleted, buildsCompleted, at: new Date().toISOString() });
+    return Response.json({ ok: true, ticked, granted, vrindGranted, researchInvested, researchRefilled, researchCompleted, buildsCompleted, at: new Date().toISOString() });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
   }

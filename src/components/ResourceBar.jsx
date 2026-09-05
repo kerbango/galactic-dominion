@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Gem, Layers, Zap, Coins, Pickaxe, Users, Loader2, FlaskConical } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useCycleRefresh } from '@/hooks/useCycleRefresh';
-import { researchHourlyRate } from '@/data/techTree';
+import { researchHourlyRate, researchPoolMaximum } from '@/data/techTree';
 
 const RESOURCES = [
   { key: 'berentium', label: 'Berentium', icon: Pickaxe, color: 'text-emerald-300', glow: 'rgba(110,231,183,0.5)' },
