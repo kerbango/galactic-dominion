@@ -164,7 +164,7 @@ export default function Comms() {
   const fee = hasQuantumTech ? 0 : (hasTachyonTech ? TACHYON_MESSAGE_FEE : MESSAGE_FEE);
 
   return (
-    <div className="max-w-3xl mx-auto px-4 md:px-8 py-8 flex flex-col h-[calc(100vh-160px)]">
+    <div className="max-w-3xl mx-auto px-4 md:px-8 py-8 flex flex-col h-[calc(100dvh-160px)]">
       <div className="flex flex-col items-center text-center gap-1 mb-4">
         <Radio className="w-7 h-7 text-cyan-300" />
         <h1 className="font-heading text-2xl md:text-3xl tracking-wide text-white neon-text uppercase">Comms</h1>

@@ -109,7 +109,7 @@ export default function TechCanvas({ statusMap, edges, layout, selectedId, onSel
   const tiers = Array.from({ length: maxTier - minTier + 1 }, (_, i) => minTier + i);
 
   return (
-    <div className="relative w-full" style={{ height: 'min(84vh, 980px)' }}>
+    <div className="relative w-full" style={{ height: 'min(84dvh, 980px)' }}>
       <style>{`@keyframes nexusFlow { to { stroke-dashoffset: -28; } } @keyframes nexusPulse { 0%,100% { opacity:.6; } 50% { opacity:1; } } @keyframes nexusScan { from { transform:translateX(-100%); } to { transform:translateX(100%); } } .nexus-edge { transition: opacity 600ms ease-in-out, stroke-width 600ms ease-in-out; }`}</style>
       <div ref={containerRef} className="relative w-full h-full overflow-hidden touch-none select-none cursor-grab active:cursor-grabbing" onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={endDrag} onPointerCancel={endDrag}>
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_45%_40%,rgba(15,23,42,0.45),transparent_58%)]" />
