@@ -24,6 +24,8 @@ export default function TechNode({ tech, state, position, selected, onClick, pro
   const iconName = tech.icon || cat?.icon || 'Cpu';
   const locked = state === 'locked';
   const active = state === 'available' || state === 'researching';
+  const isForbiddenGate = tech.isGate && tech.category === 'Blacklisted Alien Technology';
+  const forbiddenLocked = isForbiddenGate && locked;
 
   return (
     <button
@@ -38,7 +40,7 @@ export default function TechNode({ tech, state, position, selected, onClick, pro
         '--bright': theme.bright,
         '--soft': theme.soft,
       }}
-      className={`absolute text-left group rounded-xl border backdrop-blur-xl overflow-hidden transition-all duration-200 ${locked ? 'opacity-55 grayscale-[0.35]' : ''} ${active ? 'hover:scale-[1.035] hover:brightness-125' : 'hover:scale-[1.02]'} ${selected ? 'z-30 ring-2 ring-white/80' : 'z-10'}`}
+      className={`absolute text-left group rounded-xl border backdrop-blur-xl overflow-hidden transition-all duration-200 ${forbiddenLocked ? 'opacity-30 grayscale-[0.7]' : locked ? 'opacity-55 grayscale-[0.35]' : ''} ${active ? 'hover:scale-[1.035] hover:brightness-125' : 'hover:scale-[1.02]'} ${selected ? 'z-30 ring-2 ring-white/80' : 'z-10'}`}
     >
       <div className="absolute inset-0" style={{ background: `linear-gradient(135deg, ${theme.soft}, rgba(2,7,13,0.94) 70%)` }} />
       <div className="absolute inset-x-0 top-0 h-[2px]" style={{ background: `linear-gradient(90deg, transparent, ${theme.bright}, transparent)` }} />

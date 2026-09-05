@@ -17,7 +17,7 @@ export default function TechCanvas({ statusMap, edges, layout, selectedId, onSel
   const pinch = useRef(null);
   const zoomRef = useRef(zoom); zoomRef.current = zoom;
   const panRef = useRef(pan); panRef.current = pan;
-  const { pos, worldW, worldH, categories = CATEGORY_ORDER, laneBase = {}, laneHeight = {}, minTier = 1, maxTier = 6 } = layout;
+  const { pos, worldW, worldH, categories = CATEGORY_ORDER, laneBase = {}, laneHeight = {}, minTier = 1, maxTier = 6, forbiddenDividerY = null } = layout;
 
   useEffect(() => {
     const el = containerRef.current;
@@ -127,6 +127,15 @@ export default function TechCanvas({ statusMap, edges, layout, selectedId, onSel
               <div className="mt-2 mx-3 h-px" style={{ background: `linear-gradient(90deg, ${CATEGORY_THEME['Fleet Research'].accent}55, transparent)` }} />
             </div>
           ))}
+
+          {/* Forbidden Technology divider */}
+          {forbiddenDividerY !== null && (
+            <div className="absolute left-0 right-0 flex items-center gap-3 pointer-events-none" style={{ top: forbiddenDividerY }}>
+              <div className="flex-1 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(236,72,153,0.45), rgba(236,72,153,0.6))' }} />
+              <span className="font-heading text-[9px] uppercase tracking-[0.22em] text-pink-400/70 whitespace-nowrap">⚠ Forbidden Technology</span>
+              <div className="flex-1 h-px" style={{ background: 'linear-gradient(90deg, rgba(236,72,153,0.6), rgba(236,72,153,0.45), transparent)' }} />
+            </div>
+          )}
 
           {/* Colored discipline lanes */}
           {laneData.map(({ category, top, height, theme }) => {

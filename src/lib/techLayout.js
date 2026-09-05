@@ -62,7 +62,7 @@ export const CATEGORY_THEME = {
 };
 
 let _layout = null;
-const LAYOUT_VERSION = 4;
+const LAYOUT_VERSION = 5;
 
 export function computeLayout(includeHidden = false) {
   if (_layout && _layout.includeHidden === includeHidden && _layout.version === LAYOUT_VERSION) return _layout;
@@ -80,33 +80,55 @@ export function computeLayout(includeHidden = false) {
 
   // Stable vertical lanes keep the tree readable while allowing each tier to
   // contain several branches. Category order establishes the visual hierarchy.
+  const BLACKLISTED = 'Blacklisted Alien Technology';
+  const conventionalCategories = categories.filter((c) => c !== BLACKLISTED);
+  const blacklistedTechs = visibleTechs.filter((t) => t.category === BLACKLISTED);
+  const conventionalTechs = visibleTechs.filter((t) => t.category !== BLACKLISTED);
+
   const laneBase = {};
   const laneHeight = {};
   let yCursor = PAD_TOP;
-  for (const category of categories) {
+  for (const category of conventionalCategories) {
     const tierCounts = [];
     for (let tier = minTier; tier <= maxTier; tier++) {
-      tierCounts.push(visibleTechs.filter((t) => t.category === category && t.tier === tier).length);
+      tierCounts.push(conventionalTechs.filter((t) => t.category === category && t.tier === tier).length);
     }
     const busiestTier = Math.max(1, ...tierCounts);
     // Every discipline gets a hard vertical boundary and a real gutter.
-    // This prevents a newly revealed Blacklisted lane from ever rendering
-    // underneath the preceding Empire Governance lane.
     const height = Math.max(142, Math.min(980, busiestTier * (NODE_H + NODE_GAP_Y) + 92));
     laneBase[category] = yCursor;
     laneHeight[category] = height;
     yCursor += height + 28;
   }
 
+  // Forbidden Technology — placed at the absolute bottom, below all
+  // conventional tiers, separated by a horizontal divider. The gate node
+  // sits at the far right (aligned with the maxTier column); children
+  // branch downward by tier, right-aligned to the gate. Prerequisite
+  // logic is unchanged — only visual position moves.
+  let forbiddenDividerY = null;
+  if (blacklistedTechs.length) {
+    const dividerGap = 64;
+    forbiddenDividerY = yCursor;
+    const forbiddenTop = yCursor + dividerGap;
+    const children = blacklistedTechs.filter((t) => !t.isGate);
+    const childTiers = [...new Set(children.map((t) => t.tier))].sort((a, b) => a - b);
+    const rows = Math.max(1, childTiers.length);
+    const forbiddenHeight = Math.max(180, (rows + 1) * (NODE_H + NODE_GAP_Y + 16) + 40);
+    laneBase[BLACKLISTED] = forbiddenTop;
+    laneHeight[BLACKLISTED] = forbiddenHeight;
+    yCursor = forbiddenTop + forbiddenHeight + 28;
+  }
+
   const pos = {};
   const tierGroups = {};
-  for (const t of visibleTechs) {
+  for (const t of conventionalTechs) {
     const tier = Math.max(minTier, t.tier);
     const key = `${t.category}|${tier}`;
     (tierGroups[key] ||= []).push(t);
   }
 
-  for (const t of visibleTechs) {
+  for (const t of conventionalTechs) {
     const tier = Math.max(minTier, t.tier);
     const group = tierGroups[`${t.category}|${tier}`] || [t];
     const index = group.findIndex((x) => x.id === t.id);
@@ -120,9 +142,34 @@ export function computeLayout(includeHidden = false) {
     pos[t.id] = { x, y, w, h: NODE_H };
   }
 
+  // Position the Forbidden Technology branch at the absolute bottom.
+  if (blacklistedTechs.length) {
+    const forbiddenTop = laneBase[BLACKLISTED];
+    const gate = blacklistedTechs.find((t) => t.isGate);
+    const children = blacklistedTechs.filter((t) => !t.isGate);
+    const childTiers = [...new Set(children.map((t) => t.tier))].sort((a, b) => a - b);
+    const gateX = PAD_LEFT + maxTier * TIER_W;
+    const gateY = forbiddenTop + 20;
+    if (gate) pos[gate.id] = { x: gateX, y: gateY, w: PRIMARY_W, h: NODE_H };
+    const byTier = {};
+    for (const t of children) (byTier[t.tier] ||= []).push(t);
+    let childY = gateY + NODE_H + 24;
+    for (const tier of childTiers) {
+      const group = byTier[tier];
+      const rowW = group.length * NODE_W + Math.max(0, group.length - 1) * NODE_GAP_Y;
+      const startX = gateX + PRIMARY_W - rowW;
+      group.forEach((t, i) => {
+        const primary = isPrimaryTech(t);
+        const w = primary ? PRIMARY_W : NODE_W;
+        pos[t.id] = { x: startX + i * (NODE_W + NODE_GAP_Y), y: childY, w, h: NODE_H };
+      });
+      childY += NODE_H + NODE_GAP_Y + 16;
+    }
+  }
+
   const worldW = PAD_LEFT + (maxTier + 1) * TIER_W + PAD_RIGHT;
   const worldH = yCursor + PAD_BOTTOM;
-  _layout = { pos, worldW, worldH, categories, includeHidden, laneBase, laneHeight, maxTier, minTier, version: LAYOUT_VERSION };
+  _layout = { pos, worldW, worldH, categories, includeHidden, laneBase, laneHeight, maxTier, minTier, forbiddenDividerY, version: LAYOUT_VERSION };
   return _layout;
 }
 
