@@ -2,13 +2,24 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
 import { cyclesDue, martialLawMultiplier } from '../../shared/tickMath.ts';
 import { advanceResearch } from '../../shared/researchTick.ts';
 import { processBuildCompletions } from '../../shared/buildCompletion.ts';
+import { economyProductionRates } from '../../shared/economyProduction.ts';
+
+const VRIND_INCOME_UPGRADE_IDS = ['income_upgrade_i', 'income_upgrade_ii', 'income_upgrade_iii', 'tax_office_i', 'tax_office_ii', 'tax_office_iii'];
+function recurringVrindMultiplier(empire) {
+  const levels = empire?.empire_upgrade_levels || {};
+  const bonuses = { income_upgrade_i: 0.05, income_upgrade_ii: 0.05, income_upgrade_iii: 0.05, tax_office_i: 0.05, tax_office_ii: 0.10, tax_office_iii: 0.15 };
+  return 1 + VRIND_INCOME_UPGRADE_IDS.reduce((sum, id) => sum + (levels[id] > 0 ? bonuses[id] : 0), 0);
+}
+const CYCLES_PER_HOUR = 60;
 
 // Owner-callable, idempotent production tick. Triggered by the client when
 // the production-cycle countdown rolls over. Grants any owed cycles
-// (floor((now − last_tick_date) / cycle)) to the caller's empire, recenters
-// last_tick_date, and advances the empire's active research by the same
-// elapsed cycles. No-op when no cycle is due, so it cannot double-count with
-// the scheduled tickResources.
+// (floor((now − last_tick_date) / cycle)) to the caller's empire using the
+// same tech-gated production rates as the scheduled tickResources — so
+// Aetherium Crystal is only produced once tectonic_shaft_mining is researched.
+// Recenters last_tick_date and advances active research by the same elapsed
+// cycles. No-op when no cycle is due, so it cannot double-count with the
+// scheduled tickResources.
 export default async function(req) {
   try {
     const base44 = createClientFromRequest(req);
@@ -25,26 +36,35 @@ export default async function(req) {
 
     const due = cyclesDue(empire.last_tick_date, now);
     if (due > 0) {
-      const grant = due * martialLawMultiplier(empire, now);
-      const tickedAt = new Date(now).toISOString();
-      await base44.entities.Empire.update(empire.id, {
-        aetherium_crystal: (empire.aetherium_crystal || 0) + grant,
-        ferrite_titanium: (empire.ferrite_titanium || 0) + grant,
-        energy: (empire.energy || 0) + grant,
-        vrind: (empire.vrind || 0) + grant,
-        berentium: (empire.berentium || 0) + grant,
-        last_tick_date: tickedAt,
-      });
-      granted = grant;
-
-      // Advance the empire's active research by the elapsed cycles. Research
-      // output is generated per hour from population + speed bonuses and
-      // applied directly to the oldest in-progress technology.
       const [myCompleted, myResearching] = await Promise.all([
         svc.entities.TechProgress.filter({ created_by_id: user.id, status: 'completed' }),
         svc.entities.TechProgress.filter({ created_by_id: user.id, status: 'researching' }),
       ]);
       const completedSet = new Set(myCompleted.map((r) => r.tech_id));
+
+      const martialMultiplier = martialLawMultiplier(empire, now);
+      const hours = due / CYCLES_PER_HOUR;
+      const rates = economyProductionRates(completedSet, empire.empire_upgrade_levels || {});
+      const ferriteGrant = hours * rates.ferrite * martialMultiplier;
+      const energyGrant = hours * rates.energy * martialMultiplier;
+      const berentiumGrant = hours * rates.berentium * martialMultiplier;
+      const aetheriumGrant = hours * rates.aetherium * martialMultiplier;
+      const vrindGrant = due * martialMultiplier * recurringVrindMultiplier(empire);
+      const tickedAt = new Date(now).toISOString();
+
+      const inc = {
+        ferrite_titanium: ferriteGrant,
+        energy: energyGrant,
+        vrind: vrindGrant,
+        berentium: berentiumGrant,
+      };
+      if (aetheriumGrant > 0) inc.aetherium_crystal = aetheriumGrant;
+      await base44.entities.Empire.update(empire.id, {
+        ...Object.fromEntries(Object.entries(inc).map(([k, v]) => [k, (empire[k] || 0) + v])),
+        last_tick_date: tickedAt,
+      });
+      granted = ferriteGrant + energyGrant + berentiumGrant + aetheriumGrant;
+
       await advanceResearch(svc, empire, due, completedSet, myResearching);
     }
 
