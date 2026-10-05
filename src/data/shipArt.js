@@ -65,7 +65,7 @@ const SHIP_ART = {
   core_fabricator_bay: { thumbnail: 'https://media.base44.com/images/public/6a8dedaa90af486a558f758e/ea1b7941e_generated_image.png', art: 'https://media.base44.com/images/public/6a8dedaa90af486a558f758e/ea1b7941e_generated_image.png', schematic: 'https://media.base44.com/images/public/6a8dedaa90af486a558f758e/ea1b7941e_generated_image.png' },
   core_swarm_fabricator: { thumbnail: 'https://media.base44.com/images/public/6a8dedaa90af486a558f758e/3618dce8f_generated_image.png', art: 'https://media.base44.com/images/public/6a8dedaa90af486a558f758e/3618dce8f_generated_image.png', schematic: 'https://media.base44.com/images/public/6a8dedaa90af486a558f758e/3618dce8f_generated_image.png' },
   // ─────────────── BIO-MECHANICAL ALIEN RACE UNITS ───────────────
-  spawn_drone: { thumbnail: 'https://media.base44.com/images/public/6a8dedaa90af486a558f758e/194f61e9b_generated_image.png', art: 'https://media.base44.com/images/public/6a8dedaa90af486a558f758e/194f61e9b_generated_image.png', schematic: 'https://media.base44.com/images/public/6a8dedaa90af486a558f758e/194f61e9b_generated_image.png' },
+  spawn_drone: { thumbnail: 'https://media.base44.com/images/public/6a8dedaa90af486a558f758e/6759b99b8_generated_e8d855ff.png', art: 'https://media.base44.com/images/public/6a8dedaa90af486a558f758e/6759b99b8_generated_e8d855ff.png', schematic: 'https://media.base44.com/images/public/6a8dedaa90af486a558f758e/6759b99b8_generated_e8d855ff.png' },
 };
 
 export function getShipArt(unitType) {
