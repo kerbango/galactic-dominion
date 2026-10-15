@@ -60,6 +60,13 @@ const WANDERER_ART = {
       'A long narrow needle-like warship built for piercing strikes, with a single enormous forward lance cannon running its length.',
     art: 'https://media.base44.com/images/public/6a8dedaa90af486a558f758e/6ec5e0d11_generated_image.png',
   },
+  relic_hunter: {
+    name: 'Relic Hunter',
+    class: 'Explorer',
+    description:
+      'A sleek fast exploration vessel built to seek out ancient artifacts, with a glowing sensor array and relic-recovery crane on its bow.',
+    art: 'https://media.base44.com/images/public/6a8dedaa90af486a558f758e/87e1dc896_generated_image.png',
+  },
 };
 
 export function getWandererArt(shipId) {
