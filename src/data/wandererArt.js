@@ -46,6 +46,13 @@ const WANDERER_ART = {
       'A vast slow ship that is a floating library, rings of glowing data-crystals rotating around its hull, defended by heavy guns.',
     art: 'https://media.base44.com/images/public/6a8dedaa90af486a558f758e/842f8ff77_generated_image.png',
   },
+  bulwark: {
+    name: 'Bulwark',
+    class: 'Heavy Defender',
+    description:
+      'A massive slow guardian ship built to hold the line, layered obsidian shield-plates and heavy defensive guns, etched with ancient glyphs.',
+    art: 'https://media.base44.com/images/public/6a8dedaa90af486a558f758e/a940cc958_generated_image.png',
+  },
 };
 
 export function getWandererArt(shipId) {
