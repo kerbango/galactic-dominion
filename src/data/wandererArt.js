@@ -39,6 +39,13 @@ const WANDERER_ART = {
       'A scarred frigate with half its hull fused and melted from an ancient battle, still fighting, with gold-lit repair seams across the damage.',
     art: 'https://media.base44.com/images/public/6a8dedaa90af486a558f758e/ac70d2ade_generated_image.png',
   },
+  the_last_archive: {
+    name: 'The Last Archive',
+    class: 'Support Ship',
+    description:
+      'A vast slow ship that is a floating library, rings of glowing data-crystals rotating around its hull, defended by heavy guns.',
+    art: 'https://media.base44.com/images/public/6a8dedaa90af486a558f758e/842f8ff77_generated_image.png',
+  },
 };
 
 export function getWandererArt(shipId) {
