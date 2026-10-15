@@ -1,0 +1,27 @@
+// Concept-art registry for the Wanderer faction — the last Ancients, a
+// vanished elder civilization who refused to ascend and stayed behind as
+// guardians. Their ships are thousands of years old, heirlooms of a war no
+// living species remembers.
+//
+// Each entry maps a ship id to its cinematic concept-art URL. Add entries
+// here as art is generated — no UI changes required. The Military /
+// inspection UIs can consult getWandererArt(shipId); when no entry exists
+// they fall back to the standard ship silhouette.
+
+const WANDERER_ART = {
+  // The colossal dreadnought — a sleeping guardian, armor layered like
+  // folded robes, eyes of blue light along its bow.
+  the_unascended: {
+    name: 'The Unascended',
+    class: 'Dreadnought',
+    description:
+      'A colossal dreadnought shaped like a sleeping guardian, its armor layered like folded robes, eyes of blue light along its bow.',
+    art: 'https://media.base44.com/images/public/6a8dedaa90af486a558f758e/e6a0579de_generated_image.png',
+  },
+};
+
+export function getWandererArt(shipId) {
+  return WANDERER_ART[shipId] || null;
+}
+
+export const WANDERER_SHIPS = Object.values(WANDERER_ART);
