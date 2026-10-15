@@ -18,6 +18,13 @@ const WANDERER_ART = {
       'A colossal dreadnought shaped like a sleeping guardian, its armor layered like folded robes, eyes of blue light along its bow.',
     art: 'https://media.base44.com/images/public/6a8dedaa90af486a558f758e/e6a0579de_generated_image.png',
   },
+  thal_verins_oath: {
+    name: "Thal-Verin's Oath",
+    class: 'Carrier',
+    description:
+      'A crescent-shaped carrier with docking bays like open ribs, small blade-shaped fighters launching from it.',
+    art: 'https://media.base44.com/images/public/6a8dedaa90af486a558f758e/5ae6a59dc_generated_image.png',
+  },
 };
 
 export function getWandererArt(shipId) {
