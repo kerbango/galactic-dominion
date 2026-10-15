@@ -53,6 +53,13 @@ const WANDERER_ART = {
       'A massive slow guardian ship built to hold the line, layered obsidian shield-plates and heavy defensive guns, etched with ancient glyphs.',
     art: 'https://media.base44.com/images/public/6a8dedaa90af486a558f758e/a940cc958_generated_image.png',
   },
+  lance: {
+    name: 'Lance',
+    class: 'Strike Cruiser',
+    description:
+      'A long narrow needle-like warship built for piercing strikes, with a single enormous forward lance cannon running its length.',
+    art: 'https://media.base44.com/images/public/6a8dedaa90af486a558f758e/6ec5e0d11_generated_image.png',
+  },
 };
 
 export function getWandererArt(shipId) {
