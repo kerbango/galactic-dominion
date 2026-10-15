@@ -74,6 +74,13 @@ const WANDERER_ART = {
       'A swift elegant transport built to carry messages and relics between the last Ancients, with a glowing cargo vault and message-relay spire.',
     art: 'https://media.base44.com/images/public/6a8dedaa90af486a558f758e/507078060_generated_image.png',
   },
+  wrens_needle: {
+    name: "Wren's Needle",
+    class: 'Interceptor',
+    description:
+      'A tiny ultra-agile needle fighter built for darting strikes, with a sharp nose lance and twin pale-blue engine nacelles.',
+    art: 'https://media.base44.com/images/public/6a8dedaa90af486a558f758e/a677ca4be_generated_image.png',
+  },
 };
 
 export function getWandererArt(shipId) {
