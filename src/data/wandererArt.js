@@ -67,6 +67,13 @@ const WANDERER_ART = {
       'A sleek fast exploration vessel built to seek out ancient artifacts, with a glowing sensor array and relic-recovery crane on its bow.',
     art: 'https://media.base44.com/images/public/6a8dedaa90af486a558f758e/87e1dc896_generated_image.png',
   },
+  wanderers_courier: {
+    name: "Wanderer's Courier",
+    class: 'Courier',
+    description:
+      'A swift elegant transport built to carry messages and relics between the last Ancients, with a glowing cargo vault and message-relay spire.',
+    art: 'https://media.base44.com/images/public/6a8dedaa90af486a558f758e/507078060_generated_image.png',
+  },
 };
 
 export function getWandererArt(shipId) {
