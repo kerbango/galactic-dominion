@@ -25,6 +25,13 @@ const WANDERER_ART = {
       'A crescent-shaped carrier with docking bays like open ribs, small blade-shaped fighters launching from it.',
     art: 'https://media.base44.com/images/public/6a8dedaa90af486a558f758e/5ae6a59dc_generated_image.png',
   },
+  the_silent_witness: {
+    name: 'The Silent Witness',
+    class: 'Scout',
+    description:
+      'A tiny scout ship shaped like a closed eye or seed pod, its hull covered in sensor glyphs, surrounded by a ring of floating crystal shards.',
+    art: 'https://media.base44.com/images/public/6a8dedaa90af486a558f758e/d40f12b9c_generated_image.png',
+  },
 };
 
 export function getWandererArt(shipId) {
